@@ -1,6 +1,7 @@
 mod combat;
 mod data;
 mod galaxy;
+mod industry;
 mod planet;
 mod ship_blueprints;
 mod ship_design;
@@ -11,8 +12,11 @@ use bevy::{
     text::{TextColor, TextFont},
 };
 
-use data::{GameData, Language, LocalizedEntity, NO_TECH_REQUIREMENT, load_game_data};
+use data::{
+    GameData, GameRegistry, Language, LocalizedEntity, NO_TECH_REQUIREMENT, load_game_data,
+};
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
+use industry::{BuildKind, PlanetIndustry, industry_cost};
 use planet::{
     GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview, format_planet,
     generate_planet,
@@ -58,6 +62,7 @@ impl Plugin for GameDataPlugin {
                     OrbitalConstruction::with_planet(generated_planet.clone());
                 refresh_surface_preview(&mut surface_construction, &game_data, &tech_state);
                 refresh_orbital_preview(&mut orbital_construction, &game_data, &tech_state);
+                let industry_preview = build_industry_preview(&game_data, &registry);
 
                 app.insert_resource(registry);
                 app.insert_resource(computed);
@@ -68,6 +73,7 @@ impl Plugin for GameDataPlugin {
                 app.insert_resource(GalaxyPreview {
                     galaxy: generated_galaxy,
                 });
+                app.insert_resource(industry_preview);
                 app.insert_resource(surface_construction);
                 app.insert_resource(orbital_construction);
                 app.insert_resource(tech_state);
@@ -119,6 +125,27 @@ impl Default for GalaxyPreview {
             },
         }
     }
+}
+
+/// Placeholder industry/build queue preview.
+#[derive(Resource, Default)]
+struct IndustryPreview {
+    industry: PlanetIndustry,
+}
+
+fn build_industry_preview(data: &GameData, registry: &GameRegistry) -> IndustryPreview {
+    let mut industry = PlanetIndustry::new(5);
+    if let Some(item) = data.surface_items().first() {
+        if let Some(cost) = industry_cost(data, registry, &BuildKind::Surface, item.id.as_str()) {
+            industry.enqueue(BuildKind::Surface, item.id.clone(), cost);
+        }
+    }
+    if let Some(item) = data.orbital_items().first() {
+        if let Some(cost) = industry_cost(data, registry, &BuildKind::Orbital, item.id.as_str()) {
+            industry.enqueue(BuildKind::Orbital, item.id.clone(), cost);
+        }
+    }
+    IndustryPreview { industry }
 }
 
 /// Tracks unlocked technologies by index for filtering build options.
@@ -238,6 +265,7 @@ fn localized_preview(
     tech_state: &TechState,
     surface_construction: &SurfaceConstruction,
     orbital_construction: &OrbitalConstruction,
+    industry: &IndustryPreview,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -266,6 +294,22 @@ fn localized_preview(
         lines.push(String::new());
         lines.push("Debug planet preview:".to_string());
         lines.push(format_planet(planet));
+    }
+
+    lines.push(String::new());
+    lines.push("Build queue:".to_string());
+    if industry.industry.queue.is_empty() {
+        lines.push("  (empty)".to_string());
+    } else {
+        for (idx, order) in industry.industry.queue.iter().enumerate() {
+            lines.push(format!(
+                "  {}. {:?} {} — remaining {}",
+                idx + 1,
+                order.kind,
+                order.id,
+                order.remaining_cost
+            ));
+        }
     }
 
     lines.push(String::new());
@@ -376,6 +420,7 @@ fn rebuild_preview_text(
     tech_state: &TechState,
     surface_construction: &SurfaceConstruction,
     orbital_construction: &OrbitalConstruction,
+    industry: &IndustryPreview,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let preview = localized_preview(
@@ -387,6 +432,7 @@ fn rebuild_preview_text(
         tech_state,
         surface_construction,
         orbital_construction,
+        industry,
     );
 
     for mut text in &mut text_query {
@@ -404,6 +450,7 @@ fn setup_ui(
     tech_state: Res<TechState>,
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
+    industry: Res<IndustryPreview>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -414,6 +461,7 @@ fn setup_ui(
         &tech_state,
         &surface_construction,
         &orbital_construction,
+        &industry,
     );
     commands.spawn((
         Text::new(preview),
@@ -436,6 +484,7 @@ fn toggle_language(
     tech_state: Res<TechState>,
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
+    industry: Res<IndustryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -452,6 +501,7 @@ fn toggle_language(
         &tech_state,
         &surface_construction,
         &orbital_construction,
+        &industry,
         text_query,
     );
 }
@@ -466,6 +516,7 @@ fn hull_selection_input(
     tech_state: Res<TechState>,
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
+    industry: Res<IndustryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let mut changed = false;
@@ -487,6 +538,7 @@ fn hull_selection_input(
             &tech_state,
             &surface_construction,
             &orbital_construction,
+            &industry,
             text_query,
         );
     }
@@ -502,6 +554,7 @@ fn surface_building_input(
     tech_state: Res<TechState>,
     localization: Res<LocalizationSettings>,
     orbital_construction: Res<OrbitalConstruction>,
+    industry: Res<IndustryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -549,6 +602,7 @@ fn surface_building_input(
             &tech_state,
             &surface_construction,
             &orbital_construction,
+            &industry,
             text_query,
         );
     }
@@ -564,6 +618,7 @@ fn orbital_building_input(
     tech_state: Res<TechState>,
     localization: Res<LocalizationSettings>,
     surface_construction: Res<SurfaceConstruction>,
+    industry: Res<IndustryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -611,6 +666,7 @@ fn orbital_building_input(
             &tech_state,
             &surface_construction,
             &orbital_construction,
+            &industry,
             text_query,
         );
     }
