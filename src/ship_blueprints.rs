@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::ship_design::{InstalledModule, ModuleCategory, ShipDesign};
+use crate::ship_design::{ModuleCategory, ShipDesign};
 
 /// Serializable blueprint representation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -54,12 +54,11 @@ pub fn load_blueprints(dir: impl AsRef<Path>) -> Result<Vec<ShipBlueprint>, Blue
             source,
             path: file_path.display().to_string(),
         })?;
-        let blueprint: ShipBlueprint = toml::from_str(&content).map_err(|source| {
-            BlueprintError::Parse {
+        let blueprint: ShipBlueprint =
+            toml::from_str(&content).map_err(|source| BlueprintError::Parse {
                 source,
                 path: file_path.display().to_string(),
-            }
-        })?;
+            })?;
         blueprints.push(blueprint);
     }
 
@@ -67,7 +66,10 @@ pub fn load_blueprints(dir: impl AsRef<Path>) -> Result<Vec<ShipBlueprint>, Blue
 }
 
 /// Save a blueprint to the directory, creating the folder if needed.
-pub fn save_blueprint(dir: impl AsRef<Path>, blueprint: &ShipBlueprint) -> Result<PathBuf, BlueprintError> {
+pub fn save_blueprint(
+    dir: impl AsRef<Path>,
+    blueprint: &ShipBlueprint,
+) -> Result<PathBuf, BlueprintError> {
     let dir_path = dir.as_ref();
     fs::create_dir_all(dir_path).map_err(|source| BlueprintError::Io {
         source,
@@ -87,7 +89,7 @@ pub fn save_blueprint(dir: impl AsRef<Path>, blueprint: &ShipBlueprint) -> Resul
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ship_design::{ShipStats, ShipDesign};
+    use crate::ship_design::ShipDesign;
     use std::fs;
     use std::path::PathBuf;
 

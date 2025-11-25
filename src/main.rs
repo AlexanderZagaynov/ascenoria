@@ -1,6 +1,7 @@
 mod data;
 mod galaxy;
 mod planet;
+mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
 
@@ -12,6 +13,7 @@ use bevy::{
 use data::{GameData, Language, LocalizedEntity, load_game_data};
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
 use planet::{GeneratedPlanet, format_planet, generate_planet};
+use ship_design::{ModuleCategory, ShipDesign};
 use ship_ui::HullSelection;
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
@@ -120,6 +122,14 @@ fn localized_preview(
 
     lines.push(String::new());
     lines.push(hull_selection.render(language));
+
+    if let Some(selected_hull) = hull_selection.selected_id() {
+        let mut design = ShipDesign::new(selected_hull.to_string());
+        design.add_module(ModuleCategory::Engine, "tonklin_motor");
+        lines.push(String::new());
+        lines.push("Hull slots:".to_string());
+        lines.push(hull_selection.render_slots(&design));
+    }
 
     if let Some(engine) = game_data.engines().first() {
         lines.push(engine.name(language).to_string());

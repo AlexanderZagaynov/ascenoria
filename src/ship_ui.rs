@@ -1,6 +1,7 @@
 use bevy::prelude::Resource;
 
 use crate::data::{GameData, HullClass, Language, LocalizedEntity};
+use crate::ship_design::{ModuleCategory, ShipDesign};
 
 /// Tracks available hulls and the current selection by identifier.
 #[derive(Debug, Clone, Resource)]
@@ -62,6 +63,50 @@ impl HullSelection {
 
         if self.hulls.is_empty() {
             lines.push("No hulls available".to_string());
+        }
+
+        lines.join("\n")
+    }
+
+    /// Render a simple slot grid for the provided design.
+    pub fn render_slots(&self, design: &ShipDesign) -> String {
+        let capacity = self
+            .hulls
+            .iter()
+            .find(|h| h.id == design.hull_id)
+            .map(|h| h.max_items)
+            .unwrap_or(0);
+
+        let mut lines = Vec::new();
+        lines.push(format!(
+            "Hull: {} (used {}/{} slots)",
+            design.hull_id,
+            design.modules.len(),
+            capacity
+        ));
+
+        let mut slots = Vec::new();
+        for (idx, module) in design.modules.iter().enumerate() {
+            let symbol = match module.category {
+                ModuleCategory::Engine => "E",
+                ModuleCategory::Weapon => "W",
+                ModuleCategory::Shield => "S",
+                ModuleCategory::Scanner => "R",
+                ModuleCategory::Special => "X",
+            };
+            slots.push(format!("{}:{}", symbol, module.id));
+            if (idx + 1) % 4 == 0 {
+                lines.push(slots.join(" | "));
+                slots.clear();
+            }
+        }
+
+        if !slots.is_empty() {
+            lines.push(slots.join(" | "));
+        }
+
+        if design.modules.is_empty() {
+            lines.push("<no modules installed>".to_string());
         }
 
         lines.join("\n")

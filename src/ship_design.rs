@@ -1,8 +1,9 @@
 use crate::data::{GameData, GameRegistry};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 /// Supported module categories for ship designs.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ModuleCategory {
     Engine,
     Weapon,
@@ -12,14 +13,14 @@ pub enum ModuleCategory {
 }
 
 /// Installed module entry with category and identifier.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct InstalledModule {
     pub category: ModuleCategory,
     pub id: String,
 }
 
 /// Ship design layout containing hull and installed modules.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ShipDesign {
     pub hull_id: String,
     pub modules: Vec<InstalledModule>,
