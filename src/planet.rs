@@ -35,6 +35,8 @@ pub struct GeneratedPlanet {
     pub surface_slots: u32,
     /// Total orbital slots.
     pub orbital_slots: u32,
+    /// Placed orbital items keyed by slot index.
+    pub orbital_items: Vec<Option<String>>,
     /// Selected surface type identifier.
     pub surface_type_id: String,
     /// Tile colors laid out in a simple grid (row-major).
@@ -62,6 +64,7 @@ pub fn generate_planet(seed: u64, data: &GameData) -> Option<GeneratedPlanet> {
         size_id: size.id.clone(),
         surface_slots,
         orbital_slots,
+        orbital_items: vec![None; orbital_slots as usize],
         surface_type_id: surface_type.id.clone(),
         tiles,
         row_width,
@@ -106,6 +109,34 @@ fn build_tiles(surface_slots: u32, distribution: &TileDistribution) -> Vec<TileC
     tiles
 }
 
+/// Error returned when placing orbital items.
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+pub enum OrbitalPlacementError {
+    /// All orbital slots are already filled.
+    #[error("no free orbital slots available")]
+    NoFreeSlots,
+}
+
+impl GeneratedPlanet {
+    /// Place an orbital item into the first free slot.
+    pub fn place_orbital(
+        &mut self,
+        item_id: impl Into<String>,
+    ) -> Result<usize, OrbitalPlacementError> {
+        if let Some((idx, slot)) = self
+            .orbital_items
+            .iter_mut()
+            .enumerate()
+            .find(|(_, slot)| slot.is_none())
+        {
+            *slot = Some(item_id.into());
+            Ok(idx)
+        } else {
+            Err(OrbitalPlacementError::NoFreeSlots)
+        }
+    }
+}
+
 /// Render a generated planet as a debug string grid.
 pub fn format_planet(planet: &GeneratedPlanet) -> String {
     let mut lines = Vec::new();
@@ -114,6 +145,14 @@ pub fn format_planet(planet: &GeneratedPlanet) -> String {
         planet.size_id, planet.surface_slots, planet.orbital_slots
     ));
     lines.push(format!("Surface type: {}", planet.surface_type_id));
+    if planet.orbital_slots > 0 {
+        for (idx, slot) in planet.orbital_items.iter().enumerate() {
+            let value = slot.as_ref().map(|id| id.as_str()).unwrap_or("<empty>");
+            lines.push(format!("Orbital slot {idx}: {value}"));
+        }
+    } else {
+        lines.push("Orbital slots: none".to_string());
+    }
 
     let mut grid = String::new();
     for (i, tile) in planet.tiles.iter().enumerate() {
@@ -161,5 +200,26 @@ mod tests {
         assert!(!planet.surface_type_id.is_empty());
         assert!(!planet.size_id.is_empty());
         assert!(planet.row_width > 0);
+        assert_eq!(planet.orbital_items.len(), planet.orbital_slots as usize);
+    }
+
+    #[test]
+    fn enforces_orbital_capacity() {
+        let mut planet = GeneratedPlanet {
+            size_id: "s".into(),
+            surface_slots: 4,
+            orbital_slots: 2,
+            orbital_items: vec![None, None],
+            surface_type_id: "t".into(),
+            tiles: vec![TileColor::Black; 4],
+            row_width: 2,
+        };
+
+        assert_eq!(planet.place_orbital("alpha"), Ok(0));
+        assert_eq!(planet.place_orbital("beta"), Ok(1));
+        assert_eq!(
+            planet.place_orbital("gamma"),
+            Err(OrbitalPlacementError::NoFreeSlots)
+        );
     }
 }
