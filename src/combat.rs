@@ -11,6 +11,7 @@ pub struct Combatant {
     pub initiative: i32,
     pub range: i32,
     pub scanner_range: i32,
+    pub specials: Vec<SpecialModule>,
 }
 
 impl Combatant {
@@ -25,6 +26,13 @@ pub enum CombatOutcome {
     AttackerVictory,
     DefenderVictory,
     Draw,
+}
+
+/// Placeholder special module effects.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SpecialModule {
+    RepairSmall,
+    ShieldBoost,
 }
 
 /// Single turn log entry.
@@ -157,6 +165,14 @@ fn take_round(
             {
                 log.record(&actor, target, actor.attack, shield_damage, note);
             }
+            if let Some(actor) = defenders.get_mut(idx) {
+                apply_specials(actor);
+            }
+        }
+        if is_attacker {
+            if let Some(actor) = attackers.get_mut(idx) {
+                apply_specials(actor);
+            }
         }
     }
 }
@@ -195,6 +211,19 @@ fn take_action<'a>(
         Some((actor, target, shield_damage, note))
     } else {
         None
+    }
+}
+
+fn apply_specials(actor: &mut Combatant) {
+    for effect in actor.specials.clone() {
+        match effect {
+            SpecialModule::RepairSmall => {
+                actor.hp += 2;
+            }
+            SpecialModule::ShieldBoost => {
+                actor.shield += 2;
+            }
+        }
     }
 }
 
@@ -265,6 +294,7 @@ mod tests {
             initiative,
             range,
             scanner_range,
+            specials: Vec::new(),
         }
     }
 
