@@ -79,43 +79,7 @@ name = { en = "Helix Nimbuloids", ru = "Nimbuloids (раса)" }
 description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
 
 [[species]]
-id = "hanshaks"
-name = { en = "Nova Hanshaks", ru = "Hanshaks (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "orfa"
-name = { en = "Obsidian Orfa", ru = "Orfa (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "fludentri"
-name = { en = "Prismatic Fludentri", ru = "Fludentri (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
 id = "swaparamans"
 name = { en = "Ion Swaparamans", ru = "Swaparamans (раса)" }
 description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "frutmaka"
-name = { en = "Quantum Frutmaka", ru = "Frutmaka (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "govorom"
-name = { en = "Stellar Govorom", ru = "Govorom (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "ungooma"
-name = { en = "Verdant Ungooma", ru = "Ungooma (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
-[[species]]
-id = "capelons"
-name = { en = "Crimson Capelons", ru = "Capelons (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
 

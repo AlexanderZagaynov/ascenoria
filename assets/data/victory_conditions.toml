@@ -1,24 +1,15 @@
 [[victory_condition]]
 id = "domination"
 name = { en = "Galactic Domination", ru = "Галактическое господство" }
-description = {
-  en = "Win the game by controlling the majority of star systems in the sector.",
-  ru = "Победа достигается контролем большинства звёздных систем в секторе."
-}
+description = { en = "Win the game by controlling the majority of star systems in the sector.", ru = "Победа достигается контролем большинства звёздных систем в секторе." }
 
 [[victory_condition]]
 id = "supremacy"
 name = { en = "Technological Supremacy", ru = "Технологическое превосходство" }
-description = {
-  en = "Win the game by completing the final tier of the research tree.",
-  ru = "Победа достигается завершением последнего уровня древа исследований."
-}
+description = { en = "Win the game by completing the final tier of the research tree.", ru = "Победа достигается завершением последнего уровня древа исследований." }
 
 [[victory_condition]]
 id = "ascension"
 name = { en = "Ascension Project", ru = "Проект Вознесения" }
-description = {
-  en = "Win the game by constructing a unique endgame megastructure.",
-  ru = "Победа достигается постройкой уникальной финальной мегаструктуры."
-}
+description = { en = "Win the game by constructing a unique endgame megastructure.", ru = "Победа достигается постройкой уникальной финальной мегаструктуры." }
 

@@ -311,12 +311,6 @@ description = { en = "Technology node in Ascenoria's research tree. Original nam
 research_cost = 20
 
 [[tech]]
-id = "orbital_structures"
-name = { en = "Azure Breakthrough", ru = "Технологический прорыв 53" }
-description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
-research_cost = 20
-
-[[tech]]
 id = "advanced_power_distribution"
 name = { en = "Silent Breakthrough", ru = "Технологический прорыв 54" }
 description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
@@ -513,5 +507,4 @@ id = "textitem_0_star_density"
 name = { en = "Helix Breakthrough", ru = "Технологический прорыв 86" }
 description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
 research_cost = 0
-
 
