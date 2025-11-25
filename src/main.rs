@@ -1,6 +1,9 @@
 mod data;
 
-use bevy::{prelude::*, text::{TextColor, TextFont}};
+use bevy::{
+    prelude::*,
+    text::{TextColor, TextFont},
+};
 
 use data::{load_game_data, GameData, Language, LocalizedEntity};
 
@@ -21,8 +24,11 @@ impl Default for GameDataPlugin {
 impl Plugin for GameDataPlugin {
     fn build(&self, app: &mut App) {
         match load_game_data(&self.data_path) {
-            Ok(game_data) => {
+            Ok((game_data, registry)) => {
                 info!("Loaded game data from {}", self.data_path);
+                let computed = game_data.compute();
+                app.insert_resource(registry);
+                app.insert_resource(computed);
                 app.insert_resource(game_data);
             }
             Err(err) => {
@@ -53,17 +59,17 @@ struct LocalizedPreviewText;
 fn localized_preview(game_data: &GameData, language: Language) -> String {
     let mut lines = Vec::new();
 
-    if let Some(species) = game_data.species.first() {
+    if let Some(species) = game_data.species().first() {
         lines.push(species.name(language).to_string());
         lines.push(species.description(language).to_string());
     }
 
-    if let Some(hull) = game_data.hull_classes.first() {
+    if let Some(hull) = game_data.hull_classes().first() {
         lines.push(hull.name(language).to_string());
         lines.push(hull.description(language).to_string());
     }
 
-    if let Some(engine) = game_data.engines.first() {
+    if let Some(engine) = game_data.engines().first() {
         lines.push(engine.name(language).to_string());
         lines.push(engine.description(language).to_string());
     }
@@ -71,7 +77,11 @@ fn localized_preview(game_data: &GameData, language: Language) -> String {
     lines.join("\n")
 }
 
-fn setup_ui(mut commands: Commands, game_data: Res<GameData>, localization: Res<LocalizationSettings>) {
+fn setup_ui(
+    mut commands: Commands,
+    game_data: Res<GameData>,
+    localization: Res<LocalizationSettings>,
+) {
     let preview = localized_preview(&game_data, localization.language);
     commands.spawn((
         Text::new(preview),
