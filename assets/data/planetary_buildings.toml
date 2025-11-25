@@ -52,7 +52,7 @@ industry_bonus = 0
 research_bonus = 0
 prosperity_bonus = 0
 max_population_bonus = 3
-slot_size = 0
+slot_size = 1
 industry_cost = 160
 tech_index = 26
 [surface_item.name]
@@ -324,7 +324,7 @@ industry_bonus = 0
 research_bonus = 0
 prosperity_bonus = 1
 max_population_bonus = 1
-slot_size = 0
+slot_size = 1
 industry_cost = 120
 tech_index = 255
 [surface_item.name]
@@ -340,7 +340,7 @@ industry_bonus = 0
 research_bonus = 0
 prosperity_bonus = 0
 max_population_bonus = 0
-slot_size = 0
+slot_size = 1
 industry_cost = 10
 tech_index = 255
 [surface_item.name]

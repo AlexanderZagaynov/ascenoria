@@ -55,11 +55,11 @@ ru = "Генератор защитного поля с эффективной �
 
 [[shield]]
 id = "shield_blaster"
-strength = 0.0
+strength = 4.0
 industry_cost = 30
 [shield.name]
 en = "Ion Screen"
 ru = "Щитовой модуль 6"
 [shield.description]
-en = "Defensive field generator with effective strength 0.0."
-ru = "Генератор защитного поля с эффективной прочностью 0.0."
+en = "Defensive field generator with effective strength 4.0."
+ru = "Генератор защитного поля с эффективной прочностью 4.0."
