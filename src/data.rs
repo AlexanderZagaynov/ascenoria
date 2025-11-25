@@ -795,49 +795,49 @@ impl GameRegistry {
         index: &HashMap<I, usize>,
         id: impl Into<I>,
     ) -> Option<&'a T> {
-        index
-            .get(&id.into())
-            .and_then(|idx| items.get(*idx))
+        index.get(&id.into()).and_then(|idx| items.get(*idx))
     }
 
     /// Build lookup tables from loaded game data.
     pub fn from_game_data(data: &GameData) -> Result<Self, DataLoadError> {
         Ok(Self {
-            species_by_id: build_typed_index("species", &data.species, |s| SpeciesId::from(s.id.clone()))?,
-            planet_size_by_id: build_typed_index(
-                "planet_size",
-                &data.planet_sizes,
-                |p| PlanetSizeId::from(p.id.clone()),
-            )?,
+            species_by_id: build_typed_index("species", &data.species, |s| {
+                SpeciesId::from(s.id.clone())
+            })?,
+            planet_size_by_id: build_typed_index("planet_size", &data.planet_sizes, |p| {
+                PlanetSizeId::from(p.id.clone())
+            })?,
             planet_surface_type_by_id: build_typed_index(
                 "planet_surface_type",
                 &data.planet_surface_types,
                 |p| PlanetSurfaceTypeId::from(p.id.clone()),
             )?,
-            surface_item_by_id: build_typed_index(
-                "surface_item",
-                &data.surface_items,
-                |i| PlanetaryItemId::from(i.id.clone()),
-            )?,
-            orbital_item_by_id: build_typed_index(
-                "orbital_item",
-                &data.orbital_items,
-                |i| PlanetaryItemId::from(i.id.clone()),
-            )?,
+            surface_item_by_id: build_typed_index("surface_item", &data.surface_items, |i| {
+                PlanetaryItemId::from(i.id.clone())
+            })?,
+            orbital_item_by_id: build_typed_index("orbital_item", &data.orbital_items, |i| {
+                PlanetaryItemId::from(i.id.clone())
+            })?,
             planetary_project_by_id: build_typed_index(
                 "planetary_project",
                 &data.planetary_projects,
                 |p| PlanetaryProjectId::from(p.id.clone()),
             )?,
-            hull_class_by_id: build_typed_index(
-                "hull_class",
-                &data.hull_classes,
-                |h| HullClassId::from(h.id.clone()),
-            )?,
-            engine_by_id: build_typed_index("engine", &data.engines, |e| EngineId::from(e.id.clone()))?,
-            weapon_by_id: build_typed_index("weapon", &data.weapons, |w| WeaponId::from(w.id.clone()))?,
-            shield_by_id: build_typed_index("shield", &data.shields, |s| ShieldId::from(s.id.clone()))?,
-            scanner_by_id: build_typed_index("scanner", &data.scanners, |s| ScannerId::from(s.id.clone()))?,
+            hull_class_by_id: build_typed_index("hull_class", &data.hull_classes, |h| {
+                HullClassId::from(h.id.clone())
+            })?,
+            engine_by_id: build_typed_index("engine", &data.engines, |e| {
+                EngineId::from(e.id.clone())
+            })?,
+            weapon_by_id: build_typed_index("weapon", &data.weapons, |w| {
+                WeaponId::from(w.id.clone())
+            })?,
+            shield_by_id: build_typed_index("shield", &data.shields, |s| {
+                ShieldId::from(s.id.clone())
+            })?,
+            scanner_by_id: build_typed_index("scanner", &data.scanners, |s| {
+                ScannerId::from(s.id.clone())
+            })?,
             special_module_by_id: build_typed_index(
                 "special_module",
                 &data.special_modules,
@@ -872,7 +872,11 @@ impl GameRegistry {
         data: &'a GameData,
         id: impl Into<PlanetSurfaceTypeId>,
     ) -> Option<&'a PlanetSurfaceType> {
-        Self::resolve(&data.planet_surface_types, &self.planet_surface_type_by_id, id)
+        Self::resolve(
+            &data.planet_surface_types,
+            &self.planet_surface_type_by_id,
+            id,
+        )
     }
 
     /// Resolve a surface building by identifier.
@@ -912,38 +916,22 @@ impl GameRegistry {
     }
 
     /// Resolve an engine by identifier.
-    pub fn engine<'a>(
-        &self,
-        data: &'a GameData,
-        id: impl Into<EngineId>,
-    ) -> Option<&'a Engine> {
+    pub fn engine<'a>(&self, data: &'a GameData, id: impl Into<EngineId>) -> Option<&'a Engine> {
         Self::resolve(&data.engines, &self.engine_by_id, id)
     }
 
     /// Resolve a weapon by identifier.
-    pub fn weapon<'a>(
-        &self,
-        data: &'a GameData,
-        id: impl Into<WeaponId>,
-    ) -> Option<&'a Weapon> {
+    pub fn weapon<'a>(&self, data: &'a GameData, id: impl Into<WeaponId>) -> Option<&'a Weapon> {
         Self::resolve(&data.weapons, &self.weapon_by_id, id)
     }
 
     /// Resolve a shield by identifier.
-    pub fn shield<'a>(
-        &self,
-        data: &'a GameData,
-        id: impl Into<ShieldId>,
-    ) -> Option<&'a Shield> {
+    pub fn shield<'a>(&self, data: &'a GameData, id: impl Into<ShieldId>) -> Option<&'a Shield> {
         Self::resolve(&data.shields, &self.shield_by_id, id)
     }
 
     /// Resolve a scanner by identifier.
-    pub fn scanner<'a>(
-        &self,
-        data: &'a GameData,
-        id: impl Into<ScannerId>,
-    ) -> Option<&'a Scanner> {
+    pub fn scanner<'a>(&self, data: &'a GameData, id: impl Into<ScannerId>) -> Option<&'a Scanner> {
         Self::resolve(&data.scanners, &self.scanner_by_id, id)
     }
 
@@ -957,11 +945,7 @@ impl GameRegistry {
     }
 
     /// Resolve a technology by identifier.
-    pub fn tech<'a>(
-        &self,
-        data: &'a GameData,
-        id: impl Into<TechId>,
-    ) -> Option<&'a Tech> {
+    pub fn tech<'a>(&self, data: &'a GameData, id: impl Into<TechId>) -> Option<&'a Tech> {
         Self::resolve(&data.techs, &self.tech_by_id, id)
     }
 
@@ -1027,7 +1011,10 @@ where
     for (i, item) in items.iter().enumerate() {
         let id = id_fn(item);
         if index.insert(id.clone(), i).is_some() {
-            return Err(DataLoadError::DuplicateId { kind, id: id.into() });
+            return Err(DataLoadError::DuplicateId {
+                kind,
+                id: id.into(),
+            });
         }
     }
     Ok(index)
@@ -1137,7 +1124,9 @@ where
 }
 
 /// Load the full set of game data from the provided directory.
-pub fn load_game_data<P: AsRef<Path>>(data_dir: P) -> Result<(GameData, GameRegistry), DataLoadError> {
+pub fn load_game_data<P: AsRef<Path>>(
+    data_dir: P,
+) -> Result<(GameData, GameRegistry), DataLoadError> {
     let base = data_dir.as_ref();
 
     let species_path = base.join("species.toml");
@@ -1227,7 +1216,10 @@ mod tests {
         let (data, registry) = load_game_data(PathBuf::from("assets/data"))
             .expect("Game data should load from assets/data");
 
-        assert!(!data.species().is_empty(), "Species list should not be empty");
+        assert!(
+            !data.species().is_empty(),
+            "Species list should not be empty"
+        );
         assert!(
             registry.species(&data, "orfa").is_some(),
             "Species lookup should work"
@@ -1262,8 +1254,8 @@ mod tests {
             },
         ];
 
-        let error = GameRegistry::from_game_data(&data)
-            .expect_err("Duplicate ids should be reported");
+        let error =
+            GameRegistry::from_game_data(&data).expect_err("Duplicate ids should be reported");
 
         match error {
             DataLoadError::DuplicateId { kind, id } => {
@@ -1329,6 +1321,42 @@ mod tests {
                 assert_eq!(kind, "weapon");
                 assert_eq!(id, "laser");
                 assert!(message.contains("tech_index 5 is out of range"));
+            }
+            other => panic!("Unexpected error: {other:?}"),
+        }
+    }
+
+    #[test]
+    fn rejects_negative_weapon_strength() {
+        let mut data = base_game_data();
+        data.techs.push(Tech {
+            id: "starter".to_string(),
+            name: localized("Starter"),
+            description: localized("Starter tech"),
+            research_cost: 1,
+        });
+
+        data.weapons.push(Weapon {
+            id: "laser".to_string(),
+            name: localized("Laser"),
+            description: localized("Zero strength"),
+            power_use: 1,
+            range: 5,
+            strength: -0.5,
+            uses_per_turn: 1,
+            industry_cost: 1,
+            tech_index: NO_TECH_REQUIREMENT,
+        });
+
+        let error = data
+            .validate()
+            .expect_err("Negative strength should fail validation");
+
+        match error {
+            DataLoadError::Validation { kind, id, message } => {
+                assert_eq!(kind, "weapon");
+                assert_eq!(id, "laser");
+                assert!(message.contains("strength"));
             }
             other => panic!("Unexpected error: {other:?}"),
         }
@@ -1414,8 +1442,7 @@ mod tests {
             tech_index: 0,
         });
 
-        data
-            .validate()
+        data.validate()
             .expect("All numeric fields should pass validation");
 
         let computed = data.compute();
@@ -1614,8 +1641,8 @@ mod tests {
             description: localized("Win"),
         });
 
-        let registry = GameRegistry::from_game_data(&data)
-            .expect("Indexes should build for populated data");
+        let registry =
+            GameRegistry::from_game_data(&data).expect("Indexes should build for populated data");
 
         assert!(registry.species(&data, "orfa").is_some());
         assert!(registry.planet_size(&data, "small").is_some());

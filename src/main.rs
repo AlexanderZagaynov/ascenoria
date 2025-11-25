@@ -5,7 +5,7 @@ use bevy::{
     text::{TextColor, TextFont},
 };
 
-use data::{load_game_data, GameData, Language, LocalizedEntity};
+use data::{GameData, Language, LocalizedEntity, load_game_data};
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
 pub struct GameDataPlugin {
@@ -32,7 +32,8 @@ impl Plugin for GameDataPlugin {
                 app.insert_resource(game_data);
             }
             Err(err) => {
-                panic!("Failed to load game data from {}: {}", self.data_path, err);
+                error!("Failed to load game data from {}: {}", self.data_path, err);
+                panic!("Failed to load game data; see error log for details");
             }
         }
     }
