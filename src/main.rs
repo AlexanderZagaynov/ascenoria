@@ -1,6 +1,7 @@
 mod data;
 mod galaxy;
 mod planet;
+mod ship_design;
 mod ship_ui;
 
 use bevy::{
