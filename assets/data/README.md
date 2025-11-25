@@ -16,9 +16,10 @@ Common conventions:
 
 Files:
 - `species.toml`              — playable species
-- `planet_types.toml`         — planet sizes and surface classifications
-- `planetary_surface.toml`    — surface buildings and improvements
-- `planetary_orbital.toml`    — orbital structures
+- `planet_sizes.toml`         — planet sizes
+- `planet_surfaces.toml`      — planet surface classifications
+- `planetary_buildings.toml`  — surface buildings and improvements
+- `planetary_satellites.toml` — orbital structures
 - `planetary_projects.toml`   — long-running planetary projects
 - `ship_hulls.toml`           — ship hull size classes
 - `ships_engines.toml`        — ship engine modules

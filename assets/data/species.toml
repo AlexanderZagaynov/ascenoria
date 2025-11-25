@@ -1,85 +1,152 @@
 [[species]]
 id = "minions"
-name = { en = "Auric Minions", ru = "Minions (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Auric Minions"
+ru = "Minions (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "snovemdomas"
-name = { en = "Helix Snovemdomas", ru = "Snovemdomas (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Helix Snovemdomas"
+ru = "Snovemdomas (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "orfa"
-name = { en = "Nova Orfa", ru = "Orfa (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Nova Orfa"
+ru = "Orfa (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "hanshaks"
-name = { en = "Obsidian Hanshaks", ru = "Hanshaks (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Obsidian Hanshaks"
+ru = "Hanshaks (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "fludentri"
-name = { en = "Prismatic Fludentri", ru = "Fludentri (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Prismatic Fludentri"
+ru = "Fludentri (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "baliflids"
-name = { en = "Ion Baliflids", ru = "Baliflids (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Ion Baliflids"
+ru = "Baliflids (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "frutmaka"
-name = { en = "Quantum Frutmaka", ru = "Frutmaka (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Quantum Frutmaka"
+ru = "Frutmaka (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "shevar"
-name = { en = "Stellar Shevar", ru = "Shevar (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Stellar Shevar"
+ru = "Shevar (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "govorom"
-name = { en = "Verdant Govorom", ru = "Govorom (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Verdant Govorom"
+ru = "Govorom (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "ungooma"
-name = { en = "Crimson Ungooma", ru = "Ungooma (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Crimson Ungooma"
+ru = "Ungooma (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "dubtaks"
-name = { en = "Azure Dubtaks", ru = "Dubtaks (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Azure Dubtaks"
+ru = "Dubtaks (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "capelons"
-name = { en = "Silent Capelons", ru = "Capelons (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Silent Capelons"
+ru = "Capelons (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "mebes"
-name = { en = "Radiant Mebes", ru = "Mebes (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Radiant Mebes"
+ru = "Mebes (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "oculons"
-name = { en = "Umbral Oculons", ru = "Oculons (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Umbral Oculons"
+ru = "Oculons (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "chamachies"
-name = { en = "Auric Chamachies", ru = "Chamachies (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Auric Chamachies"
+ru = "Chamachies (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "nimbuloids"
-name = { en = "Helix Nimbuloids", ru = "Nimbuloids (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
+[species.name]
+en = "Helix Nimbuloids"
+ru = "Nimbuloids (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."
 
 [[species]]
 id = "swaparamans"
-name = { en = "Ion Swaparamans", ru = "Swaparamans (раса)" }
-description = { en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced.", ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён." }
-
+[species.name]
+en = "Ion Swaparamans"
+ru = "Swaparamans (раса)"
+[species.description]
+en = "A distinct spacefaring species in the Ascenoria sector. Original lore text has been replaced."
+ru = "Особая космическая раса в секторе Ascenoria. Исходный лор заменён."

@@ -1,25 +1,35 @@
 [[scanner]]
 id = "tonklin_frequency_analyzer"
-name = { en = "Auric Array", ru = "Сканирующий модуль 1" }
-description = { en = "Sensor suite with range 25 and sensitivity 0.75.", ru = "Сенсорный комплекс с дальностью 25 и чувствительностью 0.75." }
 range = 25
 strength = 0.75
 industry_cost = 20
+[scanner.name]
+en = "Auric Array"
+ru = "Сканирующий модуль 1"
+[scanner.description]
+en = "Sensor suite with range 25 and sensitivity 0.75."
+ru = "Сенсорный комплекс с дальностью 25 и чувствительностью 0.75."
 
 [[scanner]]
 id = "hyperwave_tympanum"
-name = { en = "Helix Array", ru = "Сканирующий модуль 2" }
-description = { en = "Sensor suite with range 100 and sensitivity 0.75.", ru = "Сенсорный комплекс с дальностью 100 и чувствительностью 0.75." }
 range = 100
 strength = 0.75
 industry_cost = 80
+[scanner.name]
+en = "Helix Array"
+ru = "Сканирующий модуль 2"
+[scanner.description]
+en = "Sensor suite with range 100 and sensitivity 0.75."
+ru = "Сенсорный комплекс с дальностью 100 и чувствительностью 0.75."
 
 [[scanner]]
 id = "murgatroyd_s_knower"
-name = { en = "Nova Array", ru = "Сканирующий модуль 3" }
-description = { en = "Sensor suite with range 200 and sensitivity 0.75.", ru = "Сенсорный комплекс с дальностью 200 и чувствительностью 0.75." }
 range = 200
 strength = 0.75
 industry_cost = 100
-
-
+[scanner.name]
+en = "Nova Array"
+ru = "Сканирующий модуль 3"
+[scanner.description]
+en = "Sensor suite with range 200 and sensitivity 0.75."
+ru = "Сенсорный комплекс с дальностью 200 и чувствительностью 0.75."

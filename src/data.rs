@@ -94,8 +94,12 @@ pub struct PlanetSurfaceType {
 }
 
 #[derive(Debug, Deserialize)]
-struct PlanetTypesData {
+struct PlanetSizesData {
     planet_size: Vec<PlanetSize>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PlanetSurfaceTypesData {
     planet_surface_type: Vec<PlanetSurfaceType>,
 }
 
@@ -633,9 +637,10 @@ pub fn load_game_data<P: AsRef<Path>>(data_dir: P) -> Result<GameData, DataLoadE
     let base = data_dir.as_ref();
 
     let species_path = base.join("species.toml");
-    let planet_types_path = base.join("planet_types.toml");
-    let planetary_surface_path = base.join("planetary_surface.toml");
-    let planetary_orbital_path = base.join("planetary_orbital.toml");
+    let planet_sizes_path = base.join("planet_sizes.toml");
+    let planet_surfaces_path = base.join("planet_surfaces.toml");
+    let planetary_surface_path = base.join("planetary_buildings.toml");
+    let planetary_orbital_path = base.join("planetary_satellites.toml");
     let planetary_projects_path = base.join("planetary_projects.toml");
     let hulls_path = base.join("ship_hulls.toml");
     let engines_path = base.join("ships_engines.toml");
@@ -647,7 +652,8 @@ pub fn load_game_data<P: AsRef<Path>>(data_dir: P) -> Result<GameData, DataLoadE
     let victories_path = base.join("victory_conditions.toml");
 
     let species_data: SpeciesData = load_toml_file(&species_path)?;
-    let planet_types: PlanetTypesData = load_toml_file(&planet_types_path)?;
+    let planet_sizes: PlanetSizesData = load_toml_file(&planet_sizes_path)?;
+    let planet_surfaces: PlanetSurfaceTypesData = load_toml_file(&planet_surfaces_path)?;
     let surface_data: PlanetarySurfaceData = load_toml_file(&planetary_surface_path)?;
     let orbital_data: PlanetaryOrbitalData = load_toml_file(&planetary_orbital_path)?;
     let projects_data: PlanetaryProjectsData = load_toml_file(&planetary_projects_path)?;
@@ -662,8 +668,8 @@ pub fn load_game_data<P: AsRef<Path>>(data_dir: P) -> Result<GameData, DataLoadE
 
     let mut game_data = GameData {
         species: species_data.species,
-        planet_sizes: planet_types.planet_size,
-        planet_surface_types: planet_types.planet_surface_type,
+        planet_sizes: planet_sizes.planet_size,
+        planet_surface_types: planet_surfaces.planet_surface_type,
         surface_items: surface_data.surface_item,
         orbital_items: orbital_data.orbital_item,
         planetary_projects: projects_data.planetary_project,

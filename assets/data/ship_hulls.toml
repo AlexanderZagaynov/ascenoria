@@ -3,29 +3,44 @@
 
 [[hull_class]]
 id = "small"
-name = { en = "Small Hull", ru = "Малый корпус" }
-description = { en = "Lightweight frame for early exploration and skirmishes.", ru = "Лёгкий корпус для ранней разведки и стычек." }
 size_index = 0
 max_items = 5
+[hull_class.name]
+en = "Small Hull"
+ru = "Малый корпус"
+[hull_class.description]
+en = "Lightweight frame for early exploration and skirmishes."
+ru = "Лёгкий корпус для ранней разведки и стычек."
 
 [[hull_class]]
 id = "medium"
-name = { en = "Medium Hull", ru = "Средний корпус" }
-description = { en = "Standard multipurpose warship hull.", ru = "Стандартный многоцелевой боевой корпус." }
 size_index = 1
 max_items = 10
+[hull_class.name]
+en = "Medium Hull"
+ru = "Средний корпус"
+[hull_class.description]
+en = "Standard multipurpose warship hull."
+ru = "Стандартный многоцелевой боевой корпус."
 
 [[hull_class]]
 id = "large"
-name = { en = "Large Hull", ru = "Большой корпус" }
-description = { en = "Heavy hull for fleets and major engagements.", ru = "Тяжёлый корпус для флотов и крупных сражений." }
 size_index = 2
 max_items = 15
+[hull_class.name]
+en = "Large Hull"
+ru = "Большой корпус"
+[hull_class.description]
+en = "Heavy hull for fleets and major engagements."
+ru = "Тяжёлый корпус для флотов и крупных сражений."
 
 [[hull_class]]
 id = "enormous"
-name = { en = "Enormous Hull", ru = "Огромный корпус" }
-description = { en = "Flagship-scale hull capable of carrying vast armaments.", ru = "Флагманский корпус, несущий огромный арсенал." }
 size_index = 3
 max_items = 25
-
+[hull_class.name]
+en = "Enormous Hull"
+ru = "Огромный корпус"
+[hull_class.description]
+en = "Flagship-scale hull capable of carrying vast armaments."
+ru = "Флагманский корпус, несущий огромный арсенал."
