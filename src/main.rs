@@ -1,4 +1,5 @@
 mod data;
+mod planet;
 
 use bevy::{
     prelude::*,
@@ -6,6 +7,7 @@ use bevy::{
 };
 
 use data::{GameData, Language, LocalizedEntity, load_game_data};
+use planet::{GeneratedPlanet, format_planet, generate_planet};
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
 pub struct GameDataPlugin {
@@ -27,8 +29,17 @@ impl Plugin for GameDataPlugin {
             Ok((game_data, registry)) => {
                 info!("Loaded game data from {}", self.data_path);
                 let computed = game_data.compute();
+                let generated_planet = generate_planet(42, &game_data);
+                if let Some(ref planet) = generated_planet {
+                    info!("Generated debug planet\n{}", format_planet(planet));
+                } else {
+                    warn!("No planet generated; check planet size and surface data.");
+                }
                 app.insert_resource(registry);
                 app.insert_resource(computed);
+                app.insert_resource(PlanetPreview {
+                    planet: generated_planet,
+                });
                 app.insert_resource(game_data);
             }
             Err(err) => {
@@ -57,7 +68,17 @@ impl LocalizationSettings {
 #[derive(Component)]
 struct LocalizedPreviewText;
 
-fn localized_preview(game_data: &GameData, language: Language) -> String {
+/// Holds a generated planet for debug visualization.
+#[derive(Resource, Default)]
+struct PlanetPreview {
+    planet: Option<GeneratedPlanet>,
+}
+
+fn localized_preview(
+    game_data: &GameData,
+    language: Language,
+    planet_preview: &PlanetPreview,
+) -> String {
     let mut lines = Vec::new();
 
     if let Some(species) = game_data.species().first() {
@@ -75,6 +96,12 @@ fn localized_preview(game_data: &GameData, language: Language) -> String {
         lines.push(engine.description(language).to_string());
     }
 
+    if let Some(planet) = &planet_preview.planet {
+        lines.push(String::new());
+        lines.push("Debug planet preview:".to_string());
+        lines.push(format_planet(planet));
+    }
+
     lines.join("\n")
 }
 
@@ -82,8 +109,9 @@ fn setup_ui(
     mut commands: Commands,
     game_data: Res<GameData>,
     localization: Res<LocalizationSettings>,
+    planet_preview: Res<PlanetPreview>,
 ) {
-    let preview = localized_preview(&game_data, localization.language);
+    let preview = localized_preview(&game_data, localization.language, &planet_preview);
     commands.spawn((
         Text::new(preview),
         TextFont {
@@ -99,6 +127,7 @@ fn toggle_language(
     input: Res<ButtonInput<KeyCode>>,
     mut localization: ResMut<LocalizationSettings>,
     game_data: Res<GameData>,
+    planet_preview: Res<PlanetPreview>,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -106,7 +135,7 @@ fn toggle_language(
     }
 
     localization.toggle();
-    let preview = localized_preview(&game_data, localization.language);
+    let preview = localized_preview(&game_data, localization.language, &planet_preview);
 
     for mut text in &mut text_query {
         text.0 = preview.clone();
