@@ -1,0 +1,277 @@
+[[surface_item]]
+id = "factory"
+name = { en = "Auric Habitat Complex", ru = "Поверхностный модуль 1" }
+description = { en = "Auric Habitat Complex provides +1 industry.", ru = "Auric Habitat Complex даёт колонии +1 к промышленности." }
+industry_bonus = 1
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 255
+
+[[surface_item]]
+id = "agriplot"
+name = { en = "Helix Habitat Complex", ru = "Поверхностный модуль 2" }
+description = { en = "Helix Habitat Complex provides +1 prosperity.", ru = "Helix Habitat Complex даёт колонии +1 к благосостоянию." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 1
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 255
+
+[[surface_item]]
+id = "laboratory"
+name = { en = "Nova Habitat Complex", ru = "Поверхностный модуль 3" }
+description = { en = "Nova Habitat Complex provides +1 research.", ru = "Nova Habitat Complex даёт колонии +1 к исследованиям." }
+industry_bonus = 0
+research_bonus = 1
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 50
+tech_index = 255
+
+[[surface_item]]
+id = "habitat"
+name = { en = "Obsidian Habitat Complex", ru = "Поверхностный модуль 4" }
+description = { en = "Obsidian Habitat Complex provides +3 max population.", ru = "Obsidian Habitat Complex даёт колонии +3 к лимиту населения." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 3
+slot_size = 0
+industry_cost = 160
+tech_index = 26
+
+[[surface_item]]
+id = "metroplex"
+name = { en = "Prismatic Habitat Complex", ru = "Поверхностный модуль 5" }
+description = { en = "Prismatic Habitat Complex provides +1 industry, +1 research, +1 prosperity, +1 max population.", ru = "Prismatic Habitat Complex даёт колонии +1 к промышленности, +1 к исследованиям, +1 к благосостоянию, +1 к лимиту населения." }
+industry_bonus = 1
+research_bonus = 1
+prosperity_bonus = 1
+max_population_bonus = 1
+slot_size = 1
+industry_cost = 90
+tech_index = 31
+
+[[surface_item]]
+id = "colony_base"
+name = { en = "Ion Habitat Complex", ru = "Поверхностный модуль 6" }
+description = { en = "Ion Habitat Complex provides +1 industry, +1 prosperity, +2 max population.", ru = "Ion Habitat Complex даёт колонии +1 к промышленности, +1 к благосостоянию, +2 к лимиту населения." }
+industry_bonus = 1
+research_bonus = 0
+prosperity_bonus = 1
+max_population_bonus = 2
+slot_size = 1
+industry_cost = 120
+tech_index = 5
+
+[[surface_item]]
+id = "industrial_megafacility"
+name = { en = "Quantum Habitat Complex", ru = "Поверхностный модуль 7" }
+description = { en = "Quantum Habitat Complex provides +3 industry.", ru = "Quantum Habitat Complex даёт колонии +3 к промышленности." }
+industry_bonus = 3
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 2
+industry_cost = 80
+tech_index = 22
+
+[[surface_item]]
+id = "artificial_hydroponifer"
+name = { en = "Stellar Habitat Complex", ru = "Поверхностный модуль 8" }
+description = { en = "Stellar Habitat Complex provides +3 prosperity.", ru = "Stellar Habitat Complex даёт колонии +3 к благосостоянию." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 3
+max_population_bonus = 0
+slot_size = 2
+industry_cost = 80
+tech_index = 10
+
+[[surface_item]]
+id = "research_campus"
+name = { en = "Verdant Habitat Complex", ru = "Поверхностный модуль 9" }
+description = { en = "Verdant Habitat Complex provides +3 research.", ru = "Verdant Habitat Complex даёт колонии +3 к исследованиям." }
+industry_bonus = 0
+research_bonus = 3
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 2
+industry_cost = 150
+tech_index = 14
+
+[[surface_item]]
+id = "logic_factory"
+name = { en = "Crimson Habitat Complex", ru = "Поверхностный модуль 10" }
+description = { en = "Crimson Habitat Complex provides +1 research, +1 prosperity.", ru = "Crimson Habitat Complex даёт колонии +1 к исследованиям, +1 к благосостоянию." }
+industry_bonus = 0
+research_bonus = 1
+prosperity_bonus = 1
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 80
+tech_index = 41
+
+[[surface_item]]
+id = "engineering_retreat"
+name = { en = "Azure Habitat Complex", ru = "Поверхностный модуль 11" }
+description = { en = "Azure Habitat Complex provides +1 industry, +1 research.", ru = "Azure Habitat Complex даёт колонии +1 к промышленности, +1 к исследованиям." }
+industry_bonus = 1
+research_bonus = 1
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 80
+tech_index = 45
+
+[[surface_item]]
+id = "surface_cloaker"
+name = { en = "Silent Habitat Complex", ru = "Поверхностный модуль 12" }
+description = { en = "Silent Habitat Complex provides a unique planetary effect.", ru = "Silent Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 40
+tech_index = 15
+
+[[surface_item]]
+id = "hyperpower_plant"
+name = { en = "Radiant Habitat Complex", ru = "Поверхностный модуль 13" }
+description = { en = "Radiant Habitat Complex provides a unique planetary effect.", ru = "Radiant Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 25
+
+[[surface_item]]
+id = "fertilization_plant"
+name = { en = "Umbral Habitat Complex", ru = "Поверхностный модуль 14" }
+description = { en = "Umbral Habitat Complex provides a unique planetary effect.", ru = "Umbral Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 52
+
+[[surface_item]]
+id = "internet"
+name = { en = "Auric Habitat Complex", ru = "Поверхностный модуль 15" }
+description = { en = "Auric Habitat Complex provides a unique planetary effect.", ru = "Auric Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 59
+
+[[surface_item]]
+id = "cloning_plant"
+name = { en = "Helix Habitat Complex", ru = "Поверхностный модуль 16" }
+description = { en = "Helix Habitat Complex provides a unique planetary effect.", ru = "Helix Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 250
+tech_index = 38
+
+[[surface_item]]
+id = "observation_installation"
+name = { en = "Nova Habitat Complex", ru = "Поверхностный модуль 17" }
+description = { en = "Nova Habitat Complex provides a unique planetary effect.", ru = "Nova Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 40
+tech_index = 20
+
+[[surface_item]]
+id = "tractor_beam_element"
+name = { en = "Obsidian Habitat Complex", ru = "Поверхностный модуль 18" }
+description = { en = "Obsidian Habitat Complex provides a unique planetary effect.", ru = "Obsidian Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 50
+tech_index = 34
+
+[[surface_item]]
+id = "surface_shield"
+name = { en = "Prismatic Habitat Complex", ru = "Поверхностный модуль 19" }
+description = { en = "Prismatic Habitat Complex provides a unique planetary effect.", ru = "Prismatic Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 30
+tech_index = 4
+
+[[surface_item]]
+id = "surface_mega_shield"
+name = { en = "Ion Habitat Complex", ru = "Поверхностный модуль 20" }
+description = { en = "Ion Habitat Complex provides a unique planetary effect.", ru = "Ion Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 1
+industry_cost = 100
+tech_index = 61
+
+[[surface_item]]
+id = "outpost"
+name = { en = "Quantum Habitat Complex", ru = "Поверхностный модуль 21" }
+description = { en = "Quantum Habitat Complex provides +1 prosperity, +1 max population.", ru = "Quantum Habitat Complex даёт колонии +1 к благосостоянию, +1 к лимиту населения." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 1
+max_population_bonus = 1
+slot_size = 0
+industry_cost = 120
+tech_index = 255
+
+[[surface_item]]
+id = "transport_tubes"
+name = { en = "Stellar Habitat Complex", ru = "Поверхностный модуль 22" }
+description = { en = "Stellar Habitat Complex provides a unique planetary effect.", ru = "Stellar Habitat Complex даёт колонии уникальный планетарный эффект." }
+industry_bonus = 0
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 0
+industry_cost = 10
+tech_index = 255
+
+[[surface_item]]
+id = "shipyard"
+name = { en = "Verdant Habitat Complex", ru = "Поверхностный модуль 23" }
+description = { en = "Verdant Habitat Complex provides +1 industry.", ru = "Verdant Habitat Complex даёт колонии +1 к промышленности." }
+industry_bonus = 1
+research_bonus = 0
+prosperity_bonus = 0
+max_population_bonus = 0
+slot_size = 2
+industry_cost = 240
+tech_index = 0
+
+

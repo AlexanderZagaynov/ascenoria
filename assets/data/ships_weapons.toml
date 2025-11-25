@@ -1,0 +1,89 @@
+[[weapon]]
+id = "mass_barrage_gun"
+name = { en = "Auric Lancer", ru = "Оружейный модуль 1" }
+description = { en = "Ship weapon: strength 0.25, range 25, 1 shots per turn.", ru = "Корабельное оружие: сила 0.25, дальность 25, выстрелов за ход 1." }
+power_use = 1
+range = 25
+strength = 0.25
+uses_per_turn = 1
+industry_cost = 10
+tech_index = 2
+
+[[weapon]]
+id = "fourier_missiles"
+name = { en = "Helix Lancer", ru = "Оружейный модуль 2" }
+description = { en = "Ship weapon: strength 0.5, range 40, 1 shots per turn.", ru = "Корабельное оружие: сила 0.5, дальность 40, выстрелов за ход 1." }
+power_use = 1
+range = 40
+strength = 0.5
+uses_per_turn = 1
+industry_cost = 20
+tech_index = 2
+
+[[weapon]]
+id = "quantum_singularity_launcher"
+name = { en = "Nova Lancer", ru = "Оружейный модуль 3" }
+description = { en = "Ship weapon: strength 1.0, range 25, 1 shots per turn.", ru = "Корабельное оружие: сила 1.0, дальность 25, выстрелов за ход 1." }
+power_use = 2
+range = 25
+strength = 1.0
+uses_per_turn = 1
+industry_cost = 30
+tech_index = 1
+
+[[weapon]]
+id = "molecular_disassociator"
+name = { en = "Obsidian Lancer", ru = "Оружейный модуль 4" }
+description = { en = "Ship weapon: strength 1.0, range 50, 1 shots per turn.", ru = "Корабельное оружие: сила 1.0, дальность 50, выстрелов за ход 1." }
+power_use = 2
+range = 50
+strength = 1.0
+uses_per_turn = 1
+industry_cost = 40
+tech_index = 1
+
+[[weapon]]
+id = "electromagnetic_pulser"
+name = { en = "Prismatic Lancer", ru = "Оружейный модуль 5" }
+description = { en = "Ship weapon: strength 0.25, range 50, 5 shots per turn.", ru = "Корабельное оружие: сила 0.25, дальность 50, выстрелов за ход 5." }
+power_use = 1
+range = 50
+strength = 0.25
+uses_per_turn = 5
+industry_cost = 50
+tech_index = 1
+
+[[weapon]]
+id = "plasmatron"
+name = { en = "Ion Lancer", ru = "Оружейный модуль 6" }
+description = { en = "Ship weapon: strength 1.0, range 100, 1 shots per turn.", ru = "Корабельное оружие: сила 1.0, дальность 100, выстрелов за ход 1." }
+power_use = 2
+range = 100
+strength = 1.0
+uses_per_turn = 1
+industry_cost = 50
+tech_index = 1
+
+[[weapon]]
+id = "hypersphere_driver"
+name = { en = "Quantum Lancer", ru = "Оружейный модуль 7" }
+description = { en = "Ship weapon: strength 2.5, range 75, 2 shots per turn.", ru = "Корабельное оружие: сила 2.5, дальность 75, выстрелов за ход 2." }
+power_use = 6
+range = 75
+strength = 2.5
+uses_per_turn = 2
+industry_cost = 100
+tech_index = 1
+
+[[weapon]]
+id = "tractor_beam"
+name = { en = "Stellar Lancer", ru = "Оружейный модуль 8" }
+description = { en = "Ship weapon: strength 0.0, range 100, 1 shots per turn.", ru = "Корабельное оружие: сила 0.0, дальность 100, выстрелов за ход 1." }
+power_use = 3
+range = 100
+strength = 0.0
+uses_per_turn = 1
+industry_cost = 30
+tech_index = 255
+
+

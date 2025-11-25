@@ -1,0 +1,417 @@
+[[special_module]]
+id = "fergnatz_lens"
+name = { en = "Auric Matrix", ru = "Специальный модуль 1" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 35
+industry_cost = 50
+
+[[special_module]]
+id = "wave_scatterer"
+name = { en = "Helix Matrix", ru = "Специальный модуль 2" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 50
+
+[[special_module]]
+id = "ion_banger"
+name = { en = "Nova Matrix", ru = "Специальный модуль 3" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 1
+range = 0
+industry_cost = 30
+
+[[special_module]]
+id = "subspace_phase_array"
+name = { en = "Obsidian Matrix", ru = "Специальный модуль 4" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 50
+industry_cost = 40
+
+[[special_module]]
+id = "aural_cloud_constructor"
+name = { en = "Prismatic Matrix", ru = "Специальный модуль 5" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 75
+industry_cost = 60
+
+[[special_module]]
+id = "nanowave_decoupling_net"
+name = { en = "Ion Matrix", ru = "Специальный модуль 6" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 1000
+industry_cost = 200
+
+[[special_module]]
+id = "proton_shaver"
+name = { en = "Quantum Matrix", ru = "Специальный модуль 7" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 2
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "subatomic_scoop"
+name = { en = "Stellar Matrix", ru = "Специальный модуль 8" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 0
+industry_cost = 35
+
+[[special_module]]
+id = "quark_express"
+name = { en = "Verdant Matrix", ru = "Специальный модуль 9" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 6
+range = 0
+industry_cost = 60
+
+[[special_module]]
+id = "van_creeg_hypersplicer"
+name = { en = "Crimson Matrix", ru = "Специальный модуль 10" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 8
+range = 0
+industry_cost = 80
+
+[[special_module]]
+id = "nanotwirler"
+name = { en = "Azure Matrix", ru = "Специальный модуль 11" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 0
+industry_cost = 100
+
+[[special_module]]
+id = "lane_blocker"
+name = { en = "Silent Matrix", ru = "Специальный модуль 12" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 3
+range = 40
+industry_cost = 30
+
+[[special_module]]
+id = "molecular_tie_down"
+name = { en = "Radiant Matrix", ru = "Специальный модуль 13" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 25
+industry_cost = 20
+
+[[special_module]]
+id = "intellect_scrambler"
+name = { en = "Umbral Matrix", ru = "Специальный модуль 14" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 25
+industry_cost = 20
+
+[[special_module]]
+id = "brunswik_dissipator"
+name = { en = "Auric Matrix", ru = "Специальный модуль 15" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 15
+range = 25
+industry_cost = 100
+
+[[special_module]]
+id = "recaller"
+name = { en = "Helix Matrix", ru = "Специальный модуль 16" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 0
+industry_cost = 40
+
+[[special_module]]
+id = "disarmer"
+name = { en = "Nova Matrix", ru = "Специальный модуль 17" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 40
+industry_cost = 30
+
+[[special_module]]
+id = "smart_bomb"
+name = { en = "Obsidian Matrix", ru = "Специальный модуль 18" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 0
+industry_cost = 30
+
+[[special_module]]
+id = "gravity_distorter"
+name = { en = "Prismatic Matrix", ru = "Специальный модуль 19" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "fleet_disperser"
+name = { en = "Ion Matrix", ru = "Специальный модуль 20" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 100
+industry_cost = 30
+
+[[special_module]]
+id = "x_ray_megaglasses"
+name = { en = "Quantum Matrix", ru = "Специальный модуль 21" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 50
+industry_cost = 100
+
+[[special_module]]
+id = "cloaker"
+name = { en = "Stellar Matrix", ru = "Специальный модуль 22" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 30
+
+[[special_module]]
+id = "positron_bouncer"
+name = { en = "Verdant Matrix", ru = "Специальный модуль 23" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 2
+range = 60
+industry_cost = 10
+
+[[special_module]]
+id = "gravimetric_catapult"
+name = { en = "Crimson Matrix", ru = "Специальный модуль 24" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 3
+range = 0
+industry_cost = 15
+
+[[special_module]]
+id = "myrmidonic_carbonizer"
+name = { en = "Azure Matrix", ru = "Специальный модуль 25" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 40
+industry_cost = 70
+
+[[special_module]]
+id = "containment_device"
+name = { en = "Silent Matrix", ru = "Специальный модуль 26" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 40
+industry_cost = 50
+
+[[special_module]]
+id = "backfirer"
+name = { en = "Radiant Matrix", ru = "Специальный модуль 27" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 25
+industry_cost = 60
+
+[[special_module]]
+id = "lane_destabilizer"
+name = { en = "Umbral Matrix", ru = "Специальный модуль 28" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 25
+industry_cost = 40
+
+[[special_module]]
+id = "cannibalizer"
+name = { en = "Auric Matrix", ru = "Специальный модуль 29" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "moving_part_exploiter"
+name = { en = "Helix Matrix", ru = "Специальный модуль 30" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 25
+industry_cost = 60
+
+[[special_module]]
+id = "hyperswapper"
+name = { en = "Nova Matrix", ru = "Специальный модуль 31" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 3
+range = 100
+industry_cost = 20
+
+[[special_module]]
+id = "gravimetric_condensor"
+name = { en = "Obsidian Matrix", ru = "Специальный модуль 32" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 0
+industry_cost = 30
+
+[[special_module]]
+id = "accutron"
+name = { en = "Prismatic Matrix", ru = "Специальный модуль 33" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 7
+range = 0
+industry_cost = 60
+
+[[special_module]]
+id = "remote_repair_facility"
+name = { en = "Ion Matrix", ru = "Специальный модуль 34" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 0
+industry_cost = 70
+
+[[special_module]]
+id = "sacrificial_orb"
+name = { en = "Quantum Matrix", ru = "Специальный модуль 35" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 3
+range = 50
+industry_cost = 20
+
+[[special_module]]
+id = "lane_magnetron"
+name = { en = "Stellar Matrix", ru = "Специальный модуль 36" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 25
+industry_cost = 50
+
+[[special_module]]
+id = "disintegrator"
+name = { en = "Verdant Matrix", ru = "Специальный модуль 37" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 25
+range = 25
+industry_cost = 150
+
+[[special_module]]
+id = "lane_endoscope"
+name = { en = "Crimson Matrix", ru = "Специальный модуль 38" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 25
+industry_cost = 20
+
+[[special_module]]
+id = "torroidal_blaster"
+name = { en = "Azure Matrix", ru = "Специальный модуль 39" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "gizmogrifier"
+name = { en = "Silent Matrix", ru = "Специальный модуль 40" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 40
+industry_cost = 30
+
+[[special_module]]
+id = "replenisher"
+name = { en = "Radiant Matrix", ru = "Специальный модуль 41" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 8
+range = 0
+industry_cost = 60
+
+[[special_module]]
+id = "specialty_blaster"
+name = { en = "Umbral Matrix", ru = "Специальный модуль 42" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 40
+industry_cost = 30
+
+[[special_module]]
+id = "gyro_inductor"
+name = { en = "Auric Matrix", ru = "Специальный модуль 43" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "plasma_coupler"
+name = { en = "Helix Matrix", ru = "Специальный модуль 44" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 50
+industry_cost = 20
+
+[[special_module]]
+id = "invulnerablizer"
+name = { en = "Nova Matrix", ru = "Специальный модуль 45" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 20
+range = 0
+industry_cost = 60
+
+[[special_module]]
+id = "phase_bomb"
+name = { en = "Obsidian Matrix", ru = "Специальный модуль 46" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 4
+range = 25
+industry_cost = 40
+
+[[special_module]]
+id = "colonizer"
+name = { en = "Prismatic Matrix", ru = "Специальный модуль 47" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 5
+range = 0
+industry_cost = 35
+
+[[special_module]]
+id = "self_destructotron"
+name = { en = "Ion Matrix", ru = "Специальный модуль 48" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 50
+
+[[special_module]]
+id = "invasion_module"
+name = { en = "Quantum Matrix", ru = "Специальный модуль 49" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 10
+range = 0
+industry_cost = 70
+
+[[special_module]]
+id = "mass_condensor"
+name = { en = "Stellar Matrix", ru = "Специальный модуль 50" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 8
+range = 100
+industry_cost = 50
+
+[[special_module]]
+id = "hyperfuel"
+name = { en = "Verdant Matrix", ru = "Специальный модуль 51" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 20
+
+[[special_module]]
+id = "ship"
+name = { en = "Crimson Matrix", ru = "Специальный модуль 52" }
+description = { en = "Specialized module with a unique tactical or strategic effect.", ru = "Специализированный модуль с уникальным тактическим или стратегическим эффектом." }
+power_use = 0
+range = 0
+industry_cost = 20
+
+

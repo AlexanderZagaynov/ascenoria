@@ -1,0 +1,43 @@
+[[shield]]
+id = "ion_wrap"
+name = { en = "Auric Screen", ru = "Щитовой модуль 1" }
+description = { en = "Defensive field generator with effective strength 0.25.", ru = "Генератор защитного поля с эффективной прочностью 0.25." }
+strength = 0.25
+industry_cost = 10
+
+[[shield]]
+id = "concussion_shield"
+name = { en = "Helix Screen", ru = "Щитовой модуль 2" }
+description = { en = "Defensive field generator with effective strength 1.0.", ru = "Генератор защитного поля с эффективной прочностью 1.0." }
+strength = 1.0
+industry_cost = 30
+
+[[shield]]
+id = "deactotron"
+name = { en = "Nova Screen", ru = "Щитовой модуль 3" }
+description = { en = "Defensive field generator with effective strength 2.5.", ru = "Генератор защитного поля с эффективной прочностью 2.5." }
+strength = 2.5
+industry_cost = 50
+
+[[shield]]
+id = "hyperwave_nullifier"
+name = { en = "Obsidian Screen", ru = "Щитовой модуль 4" }
+description = { en = "Defensive field generator with effective strength 3.25.", ru = "Генератор защитного поля с эффективной прочностью 3.25." }
+strength = 3.25
+industry_cost = 100
+
+[[shield]]
+id = "nanoshell"
+name = { en = "Prismatic Screen", ru = "Щитовой модуль 5" }
+description = { en = "Defensive field generator with effective strength 3.75.", ru = "Генератор защитного поля с эффективной прочностью 3.75." }
+strength = 3.75
+industry_cost = 200
+
+[[shield]]
+id = "shield_blaster"
+name = { en = "Ion Screen", ru = "Щитовой модуль 6" }
+description = { en = "Defensive field generator with effective strength 0.0.", ru = "Генератор защитного поля с эффективной прочностью 0.0." }
+strength = 0.0
+industry_cost = 30
+
+

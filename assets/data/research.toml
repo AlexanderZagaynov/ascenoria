@@ -1,0 +1,517 @@
+[[tech]]
+id = "orbital_structures"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 1" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 50
+
+[[tech]]
+id = "interplanetary_exploration"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 2" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 50
+
+[[tech]]
+id = "tonklin_diary"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 3" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 50
+
+[[tech]]
+id = "spacetime_surfing"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 4" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "environmental_encapsulation"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 5" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 50
+
+[[tech]]
+id = "spectral_analysis"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 6" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "advanced_interferometry"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 7" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "power_conversion"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 8" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "advanced_chemistry"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 9" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "momentum_deconservation"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 10" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 140
+
+[[tech]]
+id = "gravity_control"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 11" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 140
+
+[[tech]]
+id = "molecular_explosives"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 12" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "strong_force_weakening"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 13" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 70
+
+[[tech]]
+id = "light_bending"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 14" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 160
+
+[[tech]]
+id = "advanced_exploration"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 15" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 230
+
+[[tech]]
+id = "mass_phasing"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 16" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "positron_guidance"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 17" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "gravimetric_combustion"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 18" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "em_field_coupling"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 19" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 150
+
+[[tech]]
+id = "planetary_replenishment"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 20" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 80
+
+[[tech]]
+id = "momentum_reflection"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 21" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 130
+
+[[tech]]
+id = "energy_redirection"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 22" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "large_scale_construction"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 23" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 100
+
+[[tech]]
+id = "level_logic"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 24" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 75
+
+[[tech]]
+id = "star_lane_anatomy"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 25" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 75
+
+[[tech]]
+id = "stasis_field_science"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 26" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 75
+
+[[tech]]
+id = "coherent_photonics"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 27" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 140
+
+[[tech]]
+id = "superstring_compression"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 28" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 70
+
+[[tech]]
+id = "murgatroyd_hypothesis"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 29" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "matter_duplication"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 30" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "energy_focusing"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 31" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "scientific_sorcery"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 32" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "advanced_fun_techniques"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 33" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 90
+
+[[tech]]
+id = "repulsion_beam_tech"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 34" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "hyperwave_technology"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 35" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "fergnatz_s_last_theorem"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 36" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 160
+
+[[tech]]
+id = "thought_analysis"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 37" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "inertial_control"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 38" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 140
+
+[[tech]]
+id = "hyperdrive_technology"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 39" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "ecosphere_phase_control"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 40" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "hyperwave_emission_control"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 41" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 110
+
+[[tech]]
+id = "doom_mechanization"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 42" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 400
+
+[[tech]]
+id = "megagraph_theory"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 43" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "self_modifying_structures"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 44" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "advanced_planetary_armaments"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 45" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "accel_energy_replenishment"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 46" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "gravity_flow_control"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 47" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "action_at_a_distance"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 48" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 120
+
+[[tech]]
+id = "illusory_machinations"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 49" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 300
+
+[[tech]]
+id = "information_systems"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 50" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "bio_research"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 51" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "ion_power"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 52" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "orbital_structures"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 53" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_power_distribution"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 54" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "celestial_arms"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 55" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "high_efficiency_production"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 56" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "interplanetary_drive"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 57" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "crop_engineering"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 58" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_power_generation"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 59" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "star_drive"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 60" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "ships_of_war"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 61" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_robotics"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 62" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "hyperradition_drive"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 63" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_space_structures"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 64" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "intense_hyperscanning"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 65" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_ship_armaments"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 66" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "hyperrad_power"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 67" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "high_density_existence"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 68" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_xenodiplomacy"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 69" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "high_efficiency_ship_design"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 70" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_research_techniques"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 71" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "nanoatomic_particles"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 72" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "nanoatomic_communications"
+name = { en = "Nova Breakthrough", ru = "Технологический прорыв 73" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "nanoatomic_engineering"
+name = { en = "Obsidian Breakthrough", ru = "Технологический прорыв 74" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "nanoatomic_armaments"
+name = { en = "Prismatic Breakthrough", ru = "Технологический прорыв 75" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_espionage"
+name = { en = "Ion Breakthrough", ru = "Технологический прорыв 76" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "advanced_invisology"
+name = { en = "Quantum Breakthrough", ru = "Технологический прорыв 77" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "planetary_conversion"
+name = { en = "Stellar Breakthrough", ru = "Технологический прорыв 78" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 20
+
+[[tech]]
+id = "textitem_0_play_introduction"
+name = { en = "Verdant Breakthrough", ru = "Технологический прорыв 79" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_new_game"
+name = { en = "Crimson Breakthrough", ru = "Технологический прорыв 80" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_return_to_current_game"
+name = { en = "Azure Breakthrough", ru = "Технологический прорыв 81" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_load_game"
+name = { en = "Silent Breakthrough", ru = "Технологический прорыв 82" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_save_game"
+name = { en = "Radiant Breakthrough", ru = "Технологический прорыв 83" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_exit_to_dos"
+name = { en = "Umbral Breakthrough", ru = "Технологический прорыв 84" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+[[tech]]
+id = "textitem_0_special_ability"
+name = { en = "Auric Breakthrough", ru = "Технологический прорыв 85" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 2
+
+[[tech]]
+id = "textitem_0_star_density"
+name = { en = "Helix Breakthrough", ru = "Технологический прорыв 86" }
+description = { en = "Technology node in Ascenoria's research tree. Original name replaced, cost preserved.", ru = "Технологический узел в древе исследований Ascenoria. Исходное название заменено, стоимость сохранена." }
+research_cost = 0
+
+
