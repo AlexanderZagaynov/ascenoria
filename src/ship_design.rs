@@ -25,6 +25,19 @@ pub struct ShipDesign {
     pub modules: Vec<InstalledModule>,
 }
 
+/// Aggregate stats for a ship design.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ShipStats {
+    /// Sum of power draw across all modules.
+    pub total_power_use: i32,
+    /// Sum of weapon strength.
+    pub total_firepower: f32,
+    /// Sum of shield strength.
+    pub total_defense: f32,
+    /// Highest scanner range installed.
+    pub sensor_range: i32,
+}
+
 impl ShipDesign {
     /// Create a new design for the given hull identifier.
     pub fn new(hull_id: impl Into<String>) -> Self {
@@ -81,6 +94,74 @@ impl ShipDesign {
         }
 
         Ok(())
+    }
+
+    /// Compute aggregate stats for this design.
+    pub fn compute_stats(
+        &self,
+        data: &GameData,
+        registry: &GameRegistry,
+    ) -> Result<ShipStats, DesignError> {
+        self.validate(data, registry)?;
+
+        let mut stats = ShipStats::default();
+        for m in &self.modules {
+            match m.category {
+                ModuleCategory::Engine => {
+                    if let Some(engine) = registry.engine(data, m.id.as_str()) {
+                        stats.total_power_use += engine.power_use;
+                    } else {
+                        return Err(DesignError::ModuleNotFound {
+                            category: m.category,
+                            id: m.id.clone(),
+                        });
+                    }
+                }
+                ModuleCategory::Weapon => {
+                    if let Some(weapon) = registry.weapon(data, m.id.as_str()) {
+                        stats.total_power_use += weapon.power_use;
+                        stats.total_firepower += weapon.strength;
+                    } else {
+                        return Err(DesignError::ModuleNotFound {
+                            category: m.category,
+                            id: m.id.clone(),
+                        });
+                    }
+                }
+                ModuleCategory::Shield => {
+                    if let Some(shield) = registry.shield(data, m.id.as_str()) {
+                        stats.total_defense += shield.strength;
+                    } else {
+                        return Err(DesignError::ModuleNotFound {
+                            category: m.category,
+                            id: m.id.clone(),
+                        });
+                    }
+                }
+                ModuleCategory::Scanner => {
+                    if let Some(scanner) = registry.scanner(data, m.id.as_str()) {
+                        stats.sensor_range = stats.sensor_range.max(scanner.range);
+                    } else {
+                        return Err(DesignError::ModuleNotFound {
+                            category: m.category,
+                            id: m.id.clone(),
+                        });
+                    }
+                }
+                ModuleCategory::Special => {
+                    if let Some(module) = registry.special_module(data, m.id.as_str()) {
+                        stats.total_power_use += module.power_use;
+                    } else {
+                        return Err(DesignError::ModuleNotFound {
+                            category: m.category,
+                            id: m.id.clone(),
+                        });
+                    }
+                }
+            }
+        }
+
+        Ok(stats)
     }
 }
 
