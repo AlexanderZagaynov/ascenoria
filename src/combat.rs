@@ -8,6 +8,7 @@ pub struct Combatant {
     pub hp: i32,
     pub attack: i32,
     pub initiative: i32,
+    pub range: i32,
 }
 
 impl Combatant {
@@ -129,19 +130,20 @@ fn take_action<'a>(
 mod tests {
     use super::*;
 
-    fn attacker(id: &str, hp: i32, attack: i32, initiative: i32) -> Combatant {
+    fn attacker(id: &str, hp: i32, attack: i32, initiative: i32, range: i32) -> Combatant {
         Combatant {
             id: id.to_string(),
             hp,
             attack,
             initiative,
+            range,
         }
     }
 
     #[test]
     fn attacker_wins_when_defenders_eliminated() {
-        let attackers = vec![attacker("a1", 10, 5, 5)];
-        let defenders = vec![attacker("d1", 5, 1, 1)];
+        let attackers = vec![attacker("a1", 10, 5, 5, 3)];
+        let defenders = vec![attacker("d1", 5, 1, 1, 3)];
 
         let (outcome, log) = simulate_combat(attackers, defenders, 5);
         assert_eq!(outcome, CombatOutcome::AttackerVictory);
@@ -150,8 +152,8 @@ mod tests {
 
     #[test]
     fn defender_wins_when_attackers_eliminated() {
-        let attackers = vec![attacker("a1", 5, 1, 1)];
-        let defenders = vec![attacker("d1", 10, 5, 5)];
+        let attackers = vec![attacker("a1", 5, 1, 1, 3)];
+        let defenders = vec![attacker("d1", 10, 5, 5, 3)];
 
         let (outcome, _) = simulate_combat(attackers, defenders, 5);
         assert_eq!(outcome, CombatOutcome::DefenderVictory);
@@ -159,8 +161,8 @@ mod tests {
 
     #[test]
     fn draw_when_round_limit_reached() {
-        let attackers = vec![attacker("a1", 1, 0, 1)];
-        let defenders = vec![attacker("d1", 1, 0, 1)];
+        let attackers = vec![attacker("a1", 1, 0, 1, 3)];
+        let defenders = vec![attacker("d1", 1, 0, 1, 3)];
 
         let (outcome, _) = simulate_combat(attackers, defenders, 2);
         assert_eq!(outcome, CombatOutcome::Draw);
@@ -168,8 +170,8 @@ mod tests {
 
     #[test]
     fn honors_initiative_order() {
-        let attackers = vec![attacker("a1", 5, 5, 10)];
-        let defenders = vec![attacker("d1", 5, 1, 1)];
+        let attackers = vec![attacker("a1", 5, 5, 10, 3)];
+        let defenders = vec![attacker("d1", 5, 1, 1, 3)];
 
         let (_, log) = simulate_combat(attackers, defenders, 1);
         assert_eq!(log.entries.first().unwrap().attacker, "a1");
