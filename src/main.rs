@@ -1,3 +1,4 @@
+mod combat;
 mod data;
 mod galaxy;
 mod planet;
