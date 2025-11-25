@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use bevy::prelude::Resource;
 use serde::Deserialize;
 use thiserror::Error;
 
 /// Sentinel value indicating no technology requirement.
-const NO_TECH_REQUIREMENT: i32 = 255;
+pub const NO_TECH_REQUIREMENT: i32 = 255;
 
 /// Supported UI languages for localized strings.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -1184,6 +1184,7 @@ pub fn load_game_data<P: AsRef<Path>>(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     fn localized(text: &str) -> LocalizedText {
         LocalizedText {
