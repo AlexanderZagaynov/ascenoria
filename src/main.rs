@@ -1,4 +1,5 @@
 mod data;
+mod galaxy;
 mod planet;
 
 use bevy::{
@@ -7,6 +8,7 @@ use bevy::{
 };
 
 use data::{GameData, Language, LocalizedEntity, load_game_data};
+use galaxy::{Galaxy, format_galaxy, generate_galaxy};
 use planet::{GeneratedPlanet, format_planet, generate_planet};
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
@@ -30,15 +32,23 @@ impl Plugin for GameDataPlugin {
                 info!("Loaded game data from {}", self.data_path);
                 let computed = game_data.compute();
                 let generated_planet = generate_planet(42, &game_data);
+                let generated_galaxy = generate_galaxy(1337, &game_data, 2..=3, 1..=3);
                 if let Some(ref planet) = generated_planet {
                     info!("Generated debug planet\n{}", format_planet(planet));
                 } else {
                     warn!("No planet generated; check planet size and surface data.");
                 }
+                info!(
+                    "Generated debug galaxy\n{}",
+                    format_galaxy(&generated_galaxy)
+                );
                 app.insert_resource(registry);
                 app.insert_resource(computed);
                 app.insert_resource(PlanetPreview {
                     planet: generated_planet,
+                });
+                app.insert_resource(GalaxyPreview {
+                    galaxy: generated_galaxy,
                 });
                 app.insert_resource(game_data);
             }
@@ -74,10 +84,27 @@ struct PlanetPreview {
     planet: Option<GeneratedPlanet>,
 }
 
+/// Holds a generated galaxy snapshot.
+#[derive(Resource)]
+struct GalaxyPreview {
+    galaxy: Galaxy,
+}
+
+impl Default for GalaxyPreview {
+    fn default() -> Self {
+        Self {
+            galaxy: Galaxy {
+                systems: Vec::new(),
+            },
+        }
+    }
+}
+
 fn localized_preview(
     game_data: &GameData,
     language: Language,
     planet_preview: &PlanetPreview,
+    galaxy_preview: &GalaxyPreview,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -102,6 +129,17 @@ fn localized_preview(
         lines.push(format_planet(planet));
     }
 
+    lines.push(String::new());
+    lines.push("Debug galaxy preview:".to_string());
+    lines.push(format!("Systems: {}", galaxy_preview.galaxy.systems.len()));
+    if let Some(first) = galaxy_preview.galaxy.systems.first() {
+        lines.push(format!(
+            "First system: {} ({} planets)",
+            first.name,
+            first.planets.len()
+        ));
+    }
+
     lines.join("\n")
 }
 
@@ -110,8 +148,14 @@ fn setup_ui(
     game_data: Res<GameData>,
     localization: Res<LocalizationSettings>,
     planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
 ) {
-    let preview = localized_preview(&game_data, localization.language, &planet_preview);
+    let preview = localized_preview(
+        &game_data,
+        localization.language,
+        &planet_preview,
+        &galaxy_preview,
+    );
     commands.spawn((
         Text::new(preview),
         TextFont {
@@ -128,6 +172,7 @@ fn toggle_language(
     mut localization: ResMut<LocalizationSettings>,
     game_data: Res<GameData>,
     planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -135,7 +180,12 @@ fn toggle_language(
     }
 
     localization.toggle();
-    let preview = localized_preview(&game_data, localization.language, &planet_preview);
+    let preview = localized_preview(
+        &game_data,
+        localization.language,
+        &planet_preview,
+        &galaxy_preview,
+    );
 
     for mut text in &mut text_query {
         text.0 = preview.clone();

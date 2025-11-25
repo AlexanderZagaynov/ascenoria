@@ -27,7 +27,7 @@ impl TileColor {
 }
 
 /// Generated planet snapshot for debug display and validation.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GeneratedPlanet {
     /// Selected planet size identifier.
     pub size_id: String,
