@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::ship_design::{ModuleCategory, ShipDesign};
+use crate::ship_design::ShipDesign;
 
 /// Serializable blueprint representation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -89,7 +89,7 @@ pub fn save_blueprint(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ship_design::ShipDesign;
+    use crate::ship_design::{ModuleCategory, ShipDesign};
     use std::fs;
     use std::path::PathBuf;
 

@@ -11,9 +11,12 @@ use bevy::{
     text::{TextColor, TextFont},
 };
 
-use data::{GameData, Language, LocalizedEntity, load_game_data};
+use data::{GameData, Language, LocalizedEntity, NO_TECH_REQUIREMENT, load_game_data};
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
-use planet::{GeneratedPlanet, format_planet, generate_planet};
+use planet::{
+    GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview, format_planet,
+    generate_planet,
+};
 use ship_design::{ModuleCategory, ShipDesign};
 use ship_ui::HullSelection;
 
@@ -48,6 +51,14 @@ impl Plugin for GameDataPlugin {
                     "Generated debug galaxy\n{}",
                     format_galaxy(&generated_galaxy)
                 );
+                let tech_state = TechState { unlocked: 1 };
+                let mut surface_construction =
+                    SurfaceConstruction::with_planet(generated_planet.clone());
+                let mut orbital_construction =
+                    OrbitalConstruction::with_planet(generated_planet.clone());
+                refresh_surface_preview(&mut surface_construction, &game_data, &tech_state);
+                refresh_orbital_preview(&mut orbital_construction, &game_data, &tech_state);
+
                 app.insert_resource(registry);
                 app.insert_resource(computed);
                 app.insert_resource(PlanetPreview {
@@ -57,6 +68,9 @@ impl Plugin for GameDataPlugin {
                 app.insert_resource(GalaxyPreview {
                     galaxy: generated_galaxy,
                 });
+                app.insert_resource(surface_construction);
+                app.insert_resource(orbital_construction);
+                app.insert_resource(tech_state);
                 app.insert_resource(game_data);
             }
             Err(err) => {
@@ -107,12 +121,123 @@ impl Default for GalaxyPreview {
     }
 }
 
+/// Tracks unlocked technologies by index for filtering build options.
+#[derive(Resource, Default)]
+struct TechState {
+    unlocked: usize,
+}
+
+impl TechState {
+    fn is_unlocked(&self, tech_index: i32) -> bool {
+        tech_index == NO_TECH_REQUIREMENT || tech_index < self.unlocked as i32
+    }
+}
+
+/// Surface construction preview and selection state.
+#[derive(Resource, Default)]
+struct SurfaceConstruction {
+    surface: Option<PlanetSurface>,
+    selected_building: usize,
+    preview: Option<SurfacePreview>,
+}
+
+impl SurfaceConstruction {
+    fn with_planet(planet: Option<GeneratedPlanet>) -> Self {
+        Self {
+            surface: planet.as_ref().map(PlanetSurface::from),
+            selected_building: 0,
+            preview: None,
+        }
+    }
+}
+
+/// Orbital construction preview and selection state.
+#[derive(Resource, Default)]
+struct OrbitalConstruction {
+    orbitals: Option<PlanetOrbitals>,
+    selected_building: usize,
+    preview: Option<OrbitalPreview>,
+}
+
+impl OrbitalConstruction {
+    fn with_planet(planet: Option<GeneratedPlanet>) -> Self {
+        Self {
+            orbitals: planet.as_ref().map(PlanetOrbitals::from),
+            selected_building: 0,
+            preview: None,
+        }
+    }
+}
+
+fn refresh_surface_preview(
+    surface_construction: &mut SurfaceConstruction,
+    game_data: &GameData,
+    tech_state: &TechState,
+) {
+    let available_buildings: Vec<_> = game_data
+        .surface_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if available_buildings.is_empty() {
+        surface_construction.preview = None;
+        surface_construction.selected_building = 0;
+        return;
+    }
+
+    if surface_construction.selected_building >= available_buildings.len() {
+        surface_construction.selected_building = available_buildings.len() - 1;
+    }
+
+    if let Some(surface) = &surface_construction.surface {
+        if let Some(item) = available_buildings.get(surface_construction.selected_building) {
+            surface_construction.preview = surface.preview_placement(item).ok();
+        }
+    } else {
+        surface_construction.preview = None;
+    }
+}
+
+fn refresh_orbital_preview(
+    orbital_construction: &mut OrbitalConstruction,
+    game_data: &GameData,
+    tech_state: &TechState,
+) {
+    let available_buildings: Vec<_> = game_data
+        .orbital_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if available_buildings.is_empty() {
+        orbital_construction.preview = None;
+        orbital_construction.selected_building = 0;
+        return;
+    }
+
+    if orbital_construction.selected_building >= available_buildings.len() {
+        orbital_construction.selected_building = available_buildings.len() - 1;
+    }
+
+    if let Some(orbitals) = &orbital_construction.orbitals {
+        if let Some(item) = available_buildings.get(orbital_construction.selected_building) {
+            orbital_construction.preview = orbitals.preview_placement(item).ok();
+        }
+    } else {
+        orbital_construction.preview = None;
+    }
+}
+
 fn localized_preview(
     game_data: &GameData,
     language: Language,
     planet_preview: &PlanetPreview,
     galaxy_preview: &GalaxyPreview,
     hull_selection: &HullSelection,
+    tech_state: &TechState,
+    surface_construction: &SurfaceConstruction,
+    orbital_construction: &OrbitalConstruction,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -144,6 +269,91 @@ fn localized_preview(
     }
 
     lines.push(String::new());
+    lines.push("Orbital construction:".to_string());
+
+    let available_orbitals: Vec<_> = game_data
+        .orbital_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if let Some(orbitals) = &orbital_construction.orbitals {
+        lines.push(format!(
+            "Used orbital slots: {} / {}",
+            orbitals.used_slots(),
+            orbitals.capacity()
+        ));
+
+        if available_orbitals.is_empty() {
+            lines.push("No unlocked orbital structures.".to_string());
+        } else {
+            lines.push("Orbitals (use , and . to cycle, / to confirm):".to_string());
+            for (idx, item) in available_orbitals.iter().enumerate() {
+                let marker = if idx == orbital_construction.selected_building {
+                    '>'
+                } else {
+                    ' '
+                };
+
+                lines.push(format!(
+                    "{marker} {} (cost {})",
+                    item.name(language),
+                    item.industry_cost
+                ));
+            }
+
+            lines.push(String::new());
+            lines.push("Orbital slots:".to_string());
+            lines.push(orbitals.render_with_preview(orbital_construction.preview.as_ref()));
+        }
+    } else {
+        lines.push("No orbital capacity available.".to_string());
+    }
+
+    lines.push(String::new());
+    lines.push("Surface construction:".to_string());
+
+    let available_buildings: Vec<_> = game_data
+        .surface_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if let Some(surface) = &surface_construction.surface {
+        lines.push(format!(
+            "Used slots: {} / {}",
+            surface.used_slots(),
+            surface.capacity()
+        ));
+
+        if available_buildings.is_empty() {
+            lines.push("No unlocked surface buildings.".to_string());
+        } else {
+            lines.push("Available buildings (use [ and ] to cycle, Enter to confirm):".to_string());
+            for (idx, item) in available_buildings.iter().enumerate() {
+                let marker = if idx == surface_construction.selected_building {
+                    '>'
+                } else {
+                    ' '
+                };
+
+                lines.push(format!(
+                    "{marker} {} (slots {}, cost {})",
+                    item.name(language),
+                    item.slot_size,
+                    item.industry_cost
+                ));
+            }
+
+            lines.push(String::new());
+            lines.push("Placement preview:".to_string());
+            lines.push(surface.render_with_preview(surface_construction.preview.as_ref()));
+        }
+    } else {
+        lines.push("No planet surface generated.".to_string());
+    }
+
+    lines.push(String::new());
     lines.push("Debug galaxy preview:".to_string());
     lines.push(format!("Systems: {}", galaxy_preview.galaxy.systems.len()));
     if let Some(first) = galaxy_preview.galaxy.systems.first() {
@@ -163,6 +373,9 @@ fn rebuild_preview_text(
     planet_preview: &PlanetPreview,
     galaxy_preview: &GalaxyPreview,
     hull_selection: &HullSelection,
+    tech_state: &TechState,
+    surface_construction: &SurfaceConstruction,
+    orbital_construction: &OrbitalConstruction,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let preview = localized_preview(
@@ -171,6 +384,9 @@ fn rebuild_preview_text(
         planet_preview,
         galaxy_preview,
         hull_selection,
+        tech_state,
+        surface_construction,
+        orbital_construction,
     );
 
     for mut text in &mut text_query {
@@ -185,6 +401,9 @@ fn setup_ui(
     planet_preview: Res<PlanetPreview>,
     galaxy_preview: Res<GalaxyPreview>,
     hull_selection: Res<HullSelection>,
+    tech_state: Res<TechState>,
+    surface_construction: Res<SurfaceConstruction>,
+    orbital_construction: Res<OrbitalConstruction>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -192,6 +411,9 @@ fn setup_ui(
         &planet_preview,
         &galaxy_preview,
         hull_selection.as_ref(),
+        &tech_state,
+        &surface_construction,
+        &orbital_construction,
     );
     commands.spawn((
         Text::new(preview),
@@ -211,6 +433,9 @@ fn toggle_language(
     planet_preview: Res<PlanetPreview>,
     galaxy_preview: Res<GalaxyPreview>,
     hull_selection: Res<HullSelection>,
+    tech_state: Res<TechState>,
+    surface_construction: Res<SurfaceConstruction>,
+    orbital_construction: Res<OrbitalConstruction>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -224,6 +449,9 @@ fn toggle_language(
         &planet_preview,
         &galaxy_preview,
         hull_selection.as_ref(),
+        &tech_state,
+        &surface_construction,
+        &orbital_construction,
         text_query,
     );
 }
@@ -235,6 +463,9 @@ fn hull_selection_input(
     galaxy_preview: Res<GalaxyPreview>,
     mut hull_selection: ResMut<HullSelection>,
     localization: Res<LocalizationSettings>,
+    tech_state: Res<TechState>,
+    surface_construction: Res<SurfaceConstruction>,
+    orbital_construction: Res<OrbitalConstruction>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let mut changed = false;
@@ -253,6 +484,133 @@ fn hull_selection_input(
             &planet_preview,
             &galaxy_preview,
             hull_selection.as_ref(),
+            &tech_state,
+            &surface_construction,
+            &orbital_construction,
+            text_query,
+        );
+    }
+}
+
+fn surface_building_input(
+    input: Res<ButtonInput<KeyCode>>,
+    game_data: Res<GameData>,
+    planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
+    hull_selection: Res<HullSelection>,
+    mut surface_construction: ResMut<SurfaceConstruction>,
+    tech_state: Res<TechState>,
+    localization: Res<LocalizationSettings>,
+    orbital_construction: Res<OrbitalConstruction>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    let available_buildings: Vec<_> = game_data
+        .surface_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if available_buildings.is_empty() {
+        return;
+    }
+
+    let mut changed = false;
+    if input.just_pressed(KeyCode::BracketRight) {
+        surface_construction.selected_building =
+            (surface_construction.selected_building + 1) % available_buildings.len();
+        changed = true;
+    } else if input.just_pressed(KeyCode::BracketLeft) {
+        if surface_construction.selected_building == 0 {
+            surface_construction.selected_building = available_buildings.len() - 1;
+        } else {
+            surface_construction.selected_building -= 1;
+        }
+        changed = true;
+    }
+
+    if input.just_pressed(KeyCode::Enter) {
+        if let Some(preview) = surface_construction.preview.clone() {
+            if let Some(surface) = surface_construction.surface.as_mut() {
+                surface.apply_preview(&preview);
+                changed = true;
+            }
+        }
+    }
+
+    if changed {
+        refresh_surface_preview(&mut surface_construction, &game_data, &tech_state);
+
+        rebuild_preview_text(
+            &game_data,
+            &localization,
+            &planet_preview,
+            &galaxy_preview,
+            hull_selection.as_ref(),
+            &tech_state,
+            &surface_construction,
+            &orbital_construction,
+            text_query,
+        );
+    }
+}
+
+fn orbital_building_input(
+    input: Res<ButtonInput<KeyCode>>,
+    game_data: Res<GameData>,
+    planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
+    hull_selection: Res<HullSelection>,
+    mut orbital_construction: ResMut<OrbitalConstruction>,
+    tech_state: Res<TechState>,
+    localization: Res<LocalizationSettings>,
+    surface_construction: Res<SurfaceConstruction>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    let available_buildings: Vec<_> = game_data
+        .orbital_items()
+        .iter()
+        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .collect();
+
+    if available_buildings.is_empty() {
+        return;
+    }
+
+    let mut changed = false;
+    if input.just_pressed(KeyCode::Comma) {
+        if orbital_construction.selected_building == 0 {
+            orbital_construction.selected_building = available_buildings.len() - 1;
+        } else {
+            orbital_construction.selected_building -= 1;
+        }
+        changed = true;
+    } else if input.just_pressed(KeyCode::Period) {
+        orbital_construction.selected_building =
+            (orbital_construction.selected_building + 1) % available_buildings.len();
+        changed = true;
+    }
+
+    if input.just_pressed(KeyCode::Slash) {
+        if let Some(preview) = orbital_construction.preview.clone() {
+            if let Some(orbitals) = orbital_construction.orbitals.as_mut() {
+                orbitals.apply_preview(&preview);
+                changed = true;
+            }
+        }
+    }
+
+    if changed {
+        refresh_orbital_preview(&mut orbital_construction, &game_data, &tech_state);
+
+        rebuild_preview_text(
+            &game_data,
+            &localization,
+            &planet_preview,
+            &galaxy_preview,
+            hull_selection.as_ref(),
+            &tech_state,
+            &surface_construction,
+            &orbital_construction,
             text_query,
         );
     }
@@ -263,6 +621,14 @@ fn main() {
         .init_resource::<LocalizationSettings>()
         .add_plugins((DefaultPlugins, GameDataPlugin::default()))
         .add_systems(Startup, setup_ui)
-        .add_systems(Update, (toggle_language, hull_selection_input))
+        .add_systems(
+            Update,
+            (
+                toggle_language,
+                hull_selection_input,
+                surface_building_input,
+                orbital_building_input,
+            ),
+        )
         .run();
 }
