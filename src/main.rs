@@ -1,6 +1,7 @@
 mod data;
 mod galaxy;
 mod planet;
+mod ship_ui;
 
 use bevy::{
     prelude::*,
@@ -10,6 +11,7 @@ use bevy::{
 use data::{GameData, Language, LocalizedEntity, load_game_data};
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
 use planet::{GeneratedPlanet, format_planet, generate_planet};
+use ship_ui::HullSelection;
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
 pub struct GameDataPlugin {
@@ -47,6 +49,7 @@ impl Plugin for GameDataPlugin {
                 app.insert_resource(PlanetPreview {
                     planet: generated_planet,
                 });
+                app.insert_resource(HullSelection::from_game_data(&game_data));
                 app.insert_resource(GalaxyPreview {
                     galaxy: generated_galaxy,
                 });
@@ -105,6 +108,7 @@ fn localized_preview(
     language: Language,
     planet_preview: &PlanetPreview,
     galaxy_preview: &GalaxyPreview,
+    hull_selection: &HullSelection,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -113,10 +117,8 @@ fn localized_preview(
         lines.push(species.description(language).to_string());
     }
 
-    if let Some(hull) = game_data.hull_classes().first() {
-        lines.push(hull.name(language).to_string());
-        lines.push(hull.description(language).to_string());
-    }
+    lines.push(String::new());
+    lines.push(hull_selection.render(language));
 
     if let Some(engine) = game_data.engines().first() {
         lines.push(engine.name(language).to_string());
@@ -143,18 +145,41 @@ fn localized_preview(
     lines.join("\n")
 }
 
+fn rebuild_preview_text(
+    game_data: &GameData,
+    localization: &LocalizationSettings,
+    planet_preview: &PlanetPreview,
+    galaxy_preview: &GalaxyPreview,
+    hull_selection: &HullSelection,
+    mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    let preview = localized_preview(
+        game_data,
+        localization.language,
+        planet_preview,
+        galaxy_preview,
+        hull_selection,
+    );
+
+    for mut text in &mut text_query {
+        text.0 = preview.clone();
+    }
+}
+
 fn setup_ui(
     mut commands: Commands,
     game_data: Res<GameData>,
     localization: Res<LocalizationSettings>,
     planet_preview: Res<PlanetPreview>,
     galaxy_preview: Res<GalaxyPreview>,
+    hull_selection: Res<HullSelection>,
 ) {
     let preview = localized_preview(
         &game_data,
         localization.language,
         &planet_preview,
         &galaxy_preview,
+        hull_selection.as_ref(),
     );
     commands.spawn((
         Text::new(preview),
@@ -173,22 +198,51 @@ fn toggle_language(
     game_data: Res<GameData>,
     planet_preview: Res<PlanetPreview>,
     galaxy_preview: Res<GalaxyPreview>,
-    mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+    hull_selection: Res<HullSelection>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
         return;
     }
 
     localization.toggle();
-    let preview = localized_preview(
+    rebuild_preview_text(
         &game_data,
-        localization.language,
+        &localization,
         &planet_preview,
         &galaxy_preview,
+        hull_selection.as_ref(),
+        text_query,
     );
+}
 
-    for mut text in &mut text_query {
-        text.0 = preview.clone();
+fn hull_selection_input(
+    input: Res<ButtonInput<KeyCode>>,
+    game_data: Res<GameData>,
+    planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
+    mut hull_selection: ResMut<HullSelection>,
+    localization: Res<LocalizationSettings>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    let mut changed = false;
+    if input.just_pressed(KeyCode::ArrowDown) {
+        hull_selection.next();
+        changed = true;
+    } else if input.just_pressed(KeyCode::ArrowUp) {
+        hull_selection.prev();
+        changed = true;
+    }
+
+    if changed {
+        rebuild_preview_text(
+            &game_data,
+            &localization,
+            &planet_preview,
+            &galaxy_preview,
+            hull_selection.as_ref(),
+            text_query,
+        );
     }
 }
 
@@ -197,6 +251,6 @@ fn main() {
         .init_resource::<LocalizationSettings>()
         .add_plugins((DefaultPlugins, GameDataPlugin::default()))
         .add_systems(Startup, setup_ui)
-        .add_systems(Update, toggle_language)
+        .add_systems(Update, (toggle_language, hull_selection_input))
         .run();
 }
