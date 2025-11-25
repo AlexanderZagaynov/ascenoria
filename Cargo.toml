@@ -5,18 +5,30 @@ edition = "2024"
 
 [dependencies]
 # Dynamic linking speeds up incremental Bevy builds during dev.
-bevy = { version = "0.17.3", features = ["dynamic_linking"] }
+bevy = { version = "0.17.3" }
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 toml = "0.8"
 
-# Enable a small amount of optimization in the dev profile.
 [profile.dev]
-opt-level = 1
+debug = true
+opt-level = 0
+incremental = true
 
-# Enable a large amount of optimization in the dev profile for dependencies.
 [profile.dev.package."*"]
-opt-level = 3
+opt-level = 0
+
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=/usr/bin/mold"]
+
+# # Enable a small amount of optimization in the dev profile.
+# [profile.dev]
+# opt-level = 1
+
+# # Enable a large amount of optimization in the dev profile for dependencies.
+# [profile.dev.package."*"]
+# opt-level = 3
 
 # Enable more optimization in the release profile at the cost of compile time.
 [profile.release]
