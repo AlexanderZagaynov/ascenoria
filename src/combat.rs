@@ -6,6 +6,7 @@
 pub struct Combatant {
     pub id: String,
     pub hp: i32,
+    pub shield: i32,
     pub attack: i32,
     pub initiative: i32,
     pub range: i32,
@@ -31,7 +32,10 @@ pub struct CombatLogEntry {
     pub attacker: String,
     pub target: String,
     pub damage: i32,
+    pub shield_damage: i32,
     pub target_hp_after: i32,
+    pub target_shield_after: i32,
+    pub note: String,
 }
 
 /// Full combat log for a skirmish.
@@ -41,12 +45,22 @@ pub struct CombatLog {
 }
 
 impl CombatLog {
-    fn record(&mut self, attacker: &Combatant, target: &Combatant, damage: i32) {
+    fn record(
+        &mut self,
+        attacker: &Combatant,
+        target: &Combatant,
+        damage: i32,
+        shield_damage: i32,
+        note: String,
+    ) {
         self.entries.push(CombatLogEntry {
             attacker: attacker.id.clone(),
             target: target.id.clone(),
             damage,
+            shield_damage,
             target_hp_after: target.hp,
+            target_shield_after: target.shield,
+            note,
         });
     }
 }
@@ -100,11 +114,15 @@ fn take_round(attackers: &mut [Combatant], defenders: &mut [Combatant], log: &mu
 
     for (is_attacker, idx, _) in acting {
         if is_attacker {
-            if let Some((actor, target)) = take_action(attackers, defenders, idx) {
-                log.record(&actor, target, actor.attack);
+            if let Some((actor, target, shield_damage, note)) =
+                take_action(attackers, defenders, idx)
+            {
+                log.record(&actor, target, actor.attack, shield_damage, note);
             }
-        } else if let Some((actor, target)) = take_action(defenders, attackers, idx) {
-            log.record(&actor, target, actor.attack);
+        } else if let Some((actor, target, shield_damage, note)) =
+            take_action(defenders, attackers, idx)
+        {
+            log.record(&actor, target, actor.attack, shield_damage, note);
         }
     }
 }
@@ -113,14 +131,29 @@ fn take_action<'a>(
     actors: &'a mut [Combatant],
     targets: &'a mut [Combatant],
     actor_idx: usize,
-) -> Option<(Combatant, &'a Combatant)> {
+) -> Option<(Combatant, &'a Combatant, i32, String)> {
     if !actors.get(actor_idx).map(|c| c.alive()).unwrap_or(false) {
         return None;
     }
     let actor = actors[actor_idx].clone();
     if let Some((_, target)) = targets.iter_mut().enumerate().find(|(_, c)| c.alive()) {
-        target.hp -= actor.attack.max(0);
-        Some((actor, target))
+        let mut remaining_damage = actor.attack.max(0);
+        let mut shield_damage = 0;
+        if target.shield > 0 {
+            shield_damage = remaining_damage.min(target.shield);
+            target.shield -= shield_damage;
+            remaining_damage -= shield_damage;
+        }
+        if remaining_damage > 0 {
+            target.hp -= remaining_damage;
+        }
+        let note = if shield_damage > 0 {
+            "Shields hit"
+        } else {
+            "Hull hit"
+        }
+        .to_string();
+        Some((actor, target, shield_damage, note))
     } else {
         None
     }
@@ -130,10 +163,18 @@ fn take_action<'a>(
 mod tests {
     use super::*;
 
-    fn attacker(id: &str, hp: i32, attack: i32, initiative: i32, range: i32) -> Combatant {
+    fn attacker(
+        id: &str,
+        hp: i32,
+        shield: i32,
+        attack: i32,
+        initiative: i32,
+        range: i32,
+    ) -> Combatant {
         Combatant {
             id: id.to_string(),
             hp,
+            shield,
             attack,
             initiative,
             range,
@@ -142,8 +183,8 @@ mod tests {
 
     #[test]
     fn attacker_wins_when_defenders_eliminated() {
-        let attackers = vec![attacker("a1", 10, 5, 5, 3)];
-        let defenders = vec![attacker("d1", 5, 1, 1, 3)];
+        let attackers = vec![attacker("a1", 10, 0, 5, 5, 3)];
+        let defenders = vec![attacker("d1", 5, 0, 1, 1, 3)];
 
         let (outcome, log) = simulate_combat(attackers, defenders, 5);
         assert_eq!(outcome, CombatOutcome::AttackerVictory);
@@ -152,8 +193,8 @@ mod tests {
 
     #[test]
     fn defender_wins_when_attackers_eliminated() {
-        let attackers = vec![attacker("a1", 5, 1, 1, 3)];
-        let defenders = vec![attacker("d1", 10, 5, 5, 3)];
+        let attackers = vec![attacker("a1", 5, 0, 1, 1, 3)];
+        let defenders = vec![attacker("d1", 10, 0, 5, 5, 3)];
 
         let (outcome, _) = simulate_combat(attackers, defenders, 5);
         assert_eq!(outcome, CombatOutcome::DefenderVictory);
@@ -161,8 +202,8 @@ mod tests {
 
     #[test]
     fn draw_when_round_limit_reached() {
-        let attackers = vec![attacker("a1", 1, 0, 1, 3)];
-        let defenders = vec![attacker("d1", 1, 0, 1, 3)];
+        let attackers = vec![attacker("a1", 1, 0, 0, 1, 3)];
+        let defenders = vec![attacker("d1", 1, 0, 0, 1, 3)];
 
         let (outcome, _) = simulate_combat(attackers, defenders, 2);
         assert_eq!(outcome, CombatOutcome::Draw);
@@ -170,10 +211,34 @@ mod tests {
 
     #[test]
     fn honors_initiative_order() {
-        let attackers = vec![attacker("a1", 5, 5, 10, 3)];
-        let defenders = vec![attacker("d1", 5, 1, 1, 3)];
+        let attackers = vec![attacker("a1", 5, 0, 5, 10, 3)];
+        let defenders = vec![attacker("d1", 5, 0, 1, 1, 3)];
 
         let (_, log) = simulate_combat(attackers, defenders, 1);
         assert_eq!(log.entries.first().unwrap().attacker, "a1");
+    }
+
+    #[test]
+    fn shields_absorb_before_hull() {
+        let attackers = vec![attacker("a1", 10, 0, 5, 5, 3)];
+        let defenders = vec![attacker("d1", 5, 3, 1, 1, 3)];
+
+        let (_, log) = simulate_combat(attackers, defenders, 1);
+        let entry = &log.entries[0];
+        assert_eq!(entry.shield_damage, 3);
+        assert_eq!(entry.target_shield_after, 0);
+        assert_eq!(entry.target_hp_after, 3);
+    }
+
+    #[test]
+    fn shield_overflow_hits_hull() {
+        let attackers = vec![attacker("a1", 10, 0, 5, 5, 3)];
+        let defenders = vec![attacker("d1", 5, 2, 1, 1, 3)];
+
+        let (_, log) = simulate_combat(attackers, defenders, 1);
+        let entry = &log.entries[0];
+        assert_eq!(entry.shield_damage, 2);
+        assert_eq!(entry.target_shield_after, 0);
+        assert_eq!(entry.target_hp_after, 2);
     }
 }
