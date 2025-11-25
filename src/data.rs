@@ -15,6 +15,12 @@ pub enum Language {
     Ru,
 }
 
+impl Default for Language {
+    fn default() -> Self {
+        Language::En
+    }
+}
+
 /// Localized text wrapper with English and Russian values.
 #[derive(Debug, Clone, Deserialize)]
 pub struct LocalizedText {
@@ -32,6 +38,38 @@ impl LocalizedText {
             Language::Ru => &self.ru,
         }
     }
+}
+
+/// Trait for entities that expose localized name and description fields.
+pub trait LocalizedEntity {
+    /// Return the raw localized name fields.
+    fn name_text(&self) -> &LocalizedText;
+    /// Return the raw localized description fields.
+    fn description_text(&self) -> &LocalizedText;
+
+    /// Resolve the localized name.
+    fn name(&self, language: Language) -> &str {
+        self.name_text().get(language)
+    }
+
+    /// Resolve the localized description.
+    fn description(&self, language: Language) -> &str {
+        self.description_text().get(language)
+    }
+}
+
+macro_rules! impl_localized_entity {
+    ($type:ty) => {
+        impl LocalizedEntity for $type {
+            fn name_text(&self) -> &LocalizedText {
+                &self.name
+            }
+
+            fn description_text(&self) -> &LocalizedText {
+                &self.description
+            }
+        }
+    };
 }
 
 /// Species definition used for selection UI and AI templates.
@@ -323,6 +361,20 @@ pub struct VictoryCondition {
 struct VictoryConditionsData {
     victory_condition: Vec<VictoryCondition>,
 }
+
+impl_localized_entity!(Species);
+impl_localized_entity!(PlanetSize);
+impl_localized_entity!(PlanetSurfaceType);
+impl_localized_entity!(PlanetaryItem);
+impl_localized_entity!(PlanetaryProject);
+impl_localized_entity!(HullClass);
+impl_localized_entity!(Engine);
+impl_localized_entity!(Weapon);
+impl_localized_entity!(Shield);
+impl_localized_entity!(Scanner);
+impl_localized_entity!(SpecialModule);
+impl_localized_entity!(Tech);
+impl_localized_entity!(VictoryCondition);
 
 /// Aggregated game data loaded from TOML assets.
 #[derive(Debug, Resource)]
@@ -796,5 +848,27 @@ mod tests {
             }
             other => panic!("Unexpected error: {other:?}"),
         }
+    }
+
+    #[test]
+    fn localized_entity_helpers_resolve_language() {
+        let hull = HullClass {
+            id: "frigate".to_string(),
+            name: LocalizedText {
+                en: "Frigate".to_string(),
+                ru: "Фрегат".to_string(),
+            },
+            description: LocalizedText {
+                en: "Light hull".to_string(),
+                ru: "Легкий корпус".to_string(),
+            },
+            size_index: 1,
+            max_items: 4,
+        };
+
+        assert_eq!(hull.name(Language::En), "Frigate");
+        assert_eq!(hull.name(Language::Ru), "Фрегат");
+        assert_eq!(hull.description(Language::En), "Light hull");
+        assert_eq!(hull.description(Language::Ru), "Легкий корпус");
     }
 }
