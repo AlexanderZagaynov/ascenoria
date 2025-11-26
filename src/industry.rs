@@ -29,6 +29,7 @@ pub struct PlanetIndustry {
     pub production: i32,
     pub queue: Vec<BuildOrder>,
     pub completed: Vec<CompletedOrder>,
+    pub active_project: Option<BuildOrder>,
 }
 
 impl PlanetIndustry {
@@ -37,6 +38,7 @@ impl PlanetIndustry {
             production,
             queue: Vec::new(),
             completed: Vec::new(),
+            active_project: None,
         }
     }
 
@@ -68,6 +70,21 @@ impl PlanetIndustry {
     /// Process one turn of production, completing items as needed.
     pub fn process_turn(&mut self) {
         let mut remaining = self.production;
+
+        if let Some(project) = self.active_project.as_mut() {
+            let spend = remaining.min(project.remaining_cost);
+            project.remaining_cost -= spend;
+            remaining -= spend;
+
+            if project.remaining_cost == 0 {
+                let done = self.active_project.take().unwrap();
+                self.completed.push(CompletedOrder {
+                    kind: done.kind,
+                    id: done.id,
+                });
+            }
+        }
+
         while remaining > 0 {
             let Some(front) = self.queue.first_mut() else {
                 break;
