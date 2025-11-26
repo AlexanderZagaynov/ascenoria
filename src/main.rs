@@ -354,6 +354,24 @@ fn localized_preview(
                 sel.description(language),
                 sel.research_cost
             ));
+            let prereqs = game_data.tech_prereqs(&sel.id);
+            if prereqs.is_empty() {
+                lines.push("  Prereqs: none".to_string());
+            } else {
+                lines.push("  Prereqs:".to_string());
+                for p in prereqs {
+                    let status = if research.state.completed.contains(p) {
+                        "[done]"
+                    } else {
+                        "[locked]"
+                    };
+                    lines.push(format!("    {} {}", status, p));
+                }
+            }
+            let unlocks = game_data.tech_unlocks(&sel.id);
+            if !unlocks.is_empty() {
+                lines.push(format!("  Unlocks: {}", unlocks.join(", ")));
+            }
         }
         if research.state.completed.is_empty() {
             lines.push("  Completed: none".to_string());

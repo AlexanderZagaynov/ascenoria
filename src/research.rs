@@ -60,7 +60,16 @@ impl ResearchState {
     /// Start research on the selected tech.
     pub fn start_selected(&mut self, data: &GameData) {
         if let Some(tech) = data.techs().get(self.selected) {
-            self.active = Some(ActiveResearch::new(&tech.id, tech.research_cost));
+            if self.completed.contains(&tech.id) {
+                return;
+            }
+            let prereqs_met = data
+                .tech_prereqs(&tech.id)
+                .iter()
+                .all(|id| self.completed.contains(id));
+            if prereqs_met {
+                self.active = Some(ActiveResearch::new(&tech.id, tech.research_cost));
+            }
         }
     }
 

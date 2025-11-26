@@ -395,6 +395,27 @@ struct TechsData {
     tech: Vec<Tech>,
 }
 
+/// Edge between technologies (from prerequisite to unlock).
+#[derive(Debug, Clone, Deserialize)]
+pub struct TechEdge {
+    /// Prerequisite tech id.
+    pub from: String,
+    /// Dependent tech id.
+    pub to: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct TechEdgesData {
+    tech_edge: Vec<TechEdge>,
+}
+
+/// Research graph mapping prerequisites and unlocks.
+#[derive(Debug, Default)]
+pub struct ResearchGraph {
+    prereqs: HashMap<String, Vec<String>>,
+    unlocks: HashMap<String, Vec<String>>,
+}
+
 /// Victory condition archetype.
 #[derive(Debug, Clone, Deserialize)]
 pub struct VictoryCondition {
@@ -488,6 +509,8 @@ pub struct GameData {
     special_modules: Vec<SpecialModule>,
     /// Technologies.
     techs: Vec<Tech>,
+    /// Research graph edges.
+    research_graph: ResearchGraph,
     /// Victory condition archetypes.
     victory_conditions: Vec<VictoryCondition>,
 }
@@ -575,6 +598,24 @@ impl GameData {
     /// Get all technologies.
     pub fn techs(&self) -> &[Tech] {
         &self.techs
+    }
+
+    /// Get prerequisites for a technology id.
+    pub fn tech_prereqs(&self, id: &str) -> &[String] {
+        self.research_graph
+            .prereqs
+            .get(id)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
+    }
+
+    /// Get unlocks for a technology id.
+    pub fn tech_unlocks(&self, id: &str) -> &[String] {
+        self.research_graph
+            .unlocks
+            .get(id)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 
     /// Get victory condition archetypes.
@@ -1108,6 +1149,44 @@ fn validate_tech_reference(
     Ok(())
 }
 
+fn validate_tech_edges(edges: &[TechEdge], techs: &[Tech]) -> Result<(), DataLoadError> {
+    let ids: std::collections::HashSet<String> = techs.iter().map(|t| t.id.clone()).collect();
+    for edge in edges {
+        if !ids.contains(edge.from.as_str()) {
+            return Err(DataLoadError::Validation {
+                kind: "tech_edge",
+                id: edge.from.clone(),
+                message: "prerequisite tech id not found".to_string(),
+            });
+        }
+        if !ids.contains(edge.to.as_str()) {
+            return Err(DataLoadError::Validation {
+                kind: "tech_edge",
+                id: edge.to.clone(),
+                message: "target tech id not found".to_string(),
+            });
+        }
+    }
+    Ok(())
+}
+
+fn build_research_graph(edges: &[TechEdge]) -> ResearchGraph {
+    let mut graph = ResearchGraph::default();
+    for edge in edges {
+        graph
+            .prereqs
+            .entry(edge.to.clone())
+            .or_default()
+            .push(edge.from.clone());
+        graph
+            .unlocks
+            .entry(edge.from.clone())
+            .or_default()
+            .push(edge.to.clone());
+    }
+    graph
+}
+
 fn load_toml_file<T>(path: &Path) -> Result<T, DataLoadError>
 where
     T: for<'de> Deserialize<'de>,
@@ -1142,6 +1221,7 @@ pub fn load_game_data<P: AsRef<Path>>(
     let scanners_path = base.join("ships_scanners.toml");
     let specials_path = base.join("ships_special.toml");
     let techs_path = base.join("research.toml");
+    let tech_prereqs_path = base.join("research_prereqs.toml");
     let victories_path = base.join("victory_conditions.toml");
 
     let species_data: SpeciesData = load_toml_file(&species_path)?;
@@ -1157,7 +1237,12 @@ pub fn load_game_data<P: AsRef<Path>>(
     let scanner_data: ScannersData = load_toml_file(&scanners_path)?;
     let specials_data: SpecialModulesData = load_toml_file(&specials_path)?;
     let techs_data: TechsData = load_toml_file(&techs_path)?;
+    let tech_prereqs: TechEdgesData = load_toml_file(&tech_prereqs_path).unwrap_or(TechEdgesData {
+        tech_edge: Vec::new(),
+    });
     let victory_data: VictoryConditionsData = load_toml_file(&victories_path)?;
+
+    validate_tech_edges(&tech_prereqs.tech_edge, &techs_data.tech)?;
 
     let game_data = GameData {
         species: species_data.species,
@@ -1173,6 +1258,7 @@ pub fn load_game_data<P: AsRef<Path>>(
         scanners: scanner_data.scanner,
         special_modules: specials_data.special_module,
         techs: techs_data.tech,
+        research_graph: build_research_graph(&tech_prereqs.tech_edge),
         victory_conditions: victory_data.victory_condition,
     };
 
@@ -1208,6 +1294,7 @@ mod tests {
             scanners: Vec::new(),
             special_modules: Vec::new(),
             techs: Vec::new(),
+            research_graph: ResearchGraph::default(),
             victory_conditions: Vec::new(),
         }
     }

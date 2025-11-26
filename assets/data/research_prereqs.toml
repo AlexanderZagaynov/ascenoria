@@ -1,0 +1,11 @@
+[[tech_edge]]
+from = "orbital_structures"
+to = "interplanetary_exploration"
+
+[[tech_edge]]
+from = "interplanetary_exploration"
+to = "tonklin_diary"
+
+[[tech_edge]]
+from = "tonklin_diary"
+to = "spacetime_surfing"
