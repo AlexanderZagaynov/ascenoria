@@ -3,6 +3,7 @@ mod data;
 mod galaxy;
 mod industry;
 mod planet;
+mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
@@ -21,6 +22,7 @@ use planet::{
     GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview, format_planet,
     generate_planet,
 };
+use research::ResearchState;
 use ship_design::{ModuleCategory, ShipDesign};
 use ship_ui::HullSelection;
 
@@ -63,6 +65,9 @@ impl Plugin for GameDataPlugin {
                 refresh_surface_preview(&mut surface_construction, &game_data, &tech_state);
                 refresh_orbital_preview(&mut orbital_construction, &game_data, &tech_state);
                 let industry_preview = build_industry_preview(&game_data, &registry);
+                let research_preview = ResearchPreview {
+                    state: ResearchState::new(1),
+                };
 
                 app.insert_resource(registry);
                 app.insert_resource(computed);
@@ -74,6 +79,7 @@ impl Plugin for GameDataPlugin {
                     galaxy: generated_galaxy,
                 });
                 app.insert_resource(industry_preview);
+                app.insert_resource(research_preview);
                 app.insert_resource(surface_construction);
                 app.insert_resource(orbital_construction);
                 app.insert_resource(tech_state);
@@ -131,6 +137,20 @@ impl Default for GalaxyPreview {
 #[derive(Resource, Default)]
 struct IndustryPreview {
     industry: PlanetIndustry,
+}
+
+/// Research progress and selection.
+#[derive(Resource)]
+struct ResearchPreview {
+    state: ResearchState,
+}
+
+impl Default for ResearchPreview {
+    fn default() -> Self {
+        Self {
+            state: ResearchState::new(1),
+        }
+    }
 }
 
 fn build_industry_preview(data: &GameData, registry: &GameRegistry) -> IndustryPreview {
@@ -266,6 +286,7 @@ fn localized_preview(
     surface_construction: &SurfaceConstruction,
     orbital_construction: &OrbitalConstruction,
     industry: &IndustryPreview,
+    research: &ResearchPreview,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -308,6 +329,38 @@ fn localized_preview(
                 order.kind,
                 order.id,
                 order.remaining_cost
+            ));
+        }
+    }
+
+    lines.push(String::new());
+    lines.push("Research:".to_string());
+    let techs = game_data.techs();
+    if techs.is_empty() {
+        lines.push("  No techs loaded".to_string());
+    } else {
+        if let Some(active) = &research.state.active {
+            lines.push(format!(
+                "  Active: {} (remaining {}, spent {})",
+                active.id, active.remaining, active.spent
+            ));
+        } else {
+            lines.push("  Active: None".to_string());
+        }
+        if let Some(sel) = techs.get(research.state.selected) {
+            lines.push(format!(
+                "  Selected: {} — {} (cost {})",
+                sel.name(language),
+                sel.description(language),
+                sel.research_cost
+            ));
+        }
+        if research.state.completed.is_empty() {
+            lines.push("  Completed: none".to_string());
+        } else {
+            lines.push(format!(
+                "  Completed: {}",
+                research.state.completed.join(", ")
             ));
         }
     }
@@ -421,6 +474,7 @@ fn rebuild_preview_text(
     surface_construction: &SurfaceConstruction,
     orbital_construction: &OrbitalConstruction,
     industry: &IndustryPreview,
+    research: &ResearchPreview,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let preview = localized_preview(
@@ -433,6 +487,7 @@ fn rebuild_preview_text(
         surface_construction,
         orbital_construction,
         industry,
+        research,
     );
 
     for mut text in &mut text_query {
@@ -451,6 +506,7 @@ fn setup_ui(
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
+    research: Res<ResearchPreview>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -462,6 +518,7 @@ fn setup_ui(
         &surface_construction,
         &orbital_construction,
         &industry,
+        &research,
     );
     commands.spawn((
         Text::new(preview),
@@ -485,6 +542,7 @@ fn toggle_language(
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
+    research: Res<ResearchPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -502,6 +560,7 @@ fn toggle_language(
         &surface_construction,
         &orbital_construction,
         &industry,
+        &research,
         text_query,
     );
 }
@@ -517,6 +576,7 @@ fn hull_selection_input(
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
+    research: Res<ResearchPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let mut changed = false;
@@ -539,6 +599,7 @@ fn hull_selection_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &research,
             text_query,
         );
     }
@@ -555,6 +616,7 @@ fn surface_building_input(
     localization: Res<LocalizationSettings>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
+    research: Res<ResearchPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -603,6 +665,7 @@ fn surface_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &research,
             text_query,
         );
     }
@@ -619,6 +682,7 @@ fn orbital_building_input(
     localization: Res<LocalizationSettings>,
     surface_construction: Res<SurfaceConstruction>,
     industry: Res<IndustryPreview>,
+    research: Res<ResearchPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -667,6 +731,62 @@ fn orbital_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &research,
+            text_query,
+        );
+    }
+}
+
+fn research_input(
+    input: Res<ButtonInput<KeyCode>>,
+    game_data: Res<GameData>,
+    planet_preview: Res<PlanetPreview>,
+    galaxy_preview: Res<GalaxyPreview>,
+    hull_selection: Res<HullSelection>,
+    surface_construction: Res<SurfaceConstruction>,
+    orbital_construction: Res<OrbitalConstruction>,
+    industry: Res<IndustryPreview>,
+    mut research: ResMut<ResearchPreview>,
+    mut tech_state: ResMut<TechState>,
+    localization: Res<LocalizationSettings>,
+    mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    let total = game_data.techs().len();
+    let mut changed = false;
+
+    if input.just_pressed(KeyCode::KeyN) {
+        research.state.next(total);
+        changed = true;
+    } else if input.just_pressed(KeyCode::KeyP) {
+        research.state.prev(total);
+        changed = true;
+    }
+
+    if input.just_pressed(KeyCode::KeyR) {
+        research.state.start_selected(&game_data);
+        changed = true;
+    }
+
+    if input.just_pressed(KeyCode::KeyO) {
+        if let Some(completed) = research.state.process_turn() {
+            tech_state.unlocked = research.state.completed.len();
+            info!("Completed research {}", completed);
+        }
+        changed = true;
+    }
+
+    if changed {
+        rebuild_preview_text(
+            &game_data,
+            &localization,
+            &planet_preview,
+            &galaxy_preview,
+            hull_selection.as_ref(),
+            &tech_state,
+            &surface_construction,
+            &orbital_construction,
+            &industry,
+            research.as_ref(),
             text_query,
         );
     }
@@ -684,6 +804,7 @@ fn main() {
                 hull_selection_input,
                 surface_building_input,
                 orbital_building_input,
+                research_input,
             ),
         )
         .run();
