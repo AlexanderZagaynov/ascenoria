@@ -57,7 +57,10 @@ impl Plugin for GameDataPlugin {
                     "Generated debug galaxy\n{}",
                     format_galaxy(&generated_galaxy)
                 );
-                let tech_state = TechState { unlocked: 1 };
+                let mut tech_state = TechState::default();
+                if let Some(first) = game_data.techs().first() {
+                    tech_state.completed.insert(first.id.clone());
+                }
                 let mut surface_construction =
                     SurfaceConstruction::with_planet(generated_planet.clone());
                 let mut orbital_construction =
@@ -171,12 +174,18 @@ fn build_industry_preview(data: &GameData, registry: &GameRegistry) -> IndustryP
 /// Tracks unlocked technologies by index for filtering build options.
 #[derive(Resource, Default)]
 struct TechState {
-    unlocked: usize,
+    completed: std::collections::HashSet<String>,
 }
 
 impl TechState {
-    fn is_unlocked(&self, tech_index: i32) -> bool {
-        tech_index == NO_TECH_REQUIREMENT || tech_index < self.unlocked as i32
+    fn is_unlocked(&self, tech_index: i32, techs: &[data::Tech]) -> bool {
+        if tech_index == NO_TECH_REQUIREMENT {
+            return true;
+        }
+        techs
+            .get(tech_index as usize)
+            .map(|t| self.completed.contains(&t.id))
+            .unwrap_or(false)
     }
 }
 
@@ -224,7 +233,7 @@ fn refresh_surface_preview(
     let available_buildings: Vec<_> = game_data
         .surface_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if available_buildings.is_empty() {
@@ -254,7 +263,7 @@ fn refresh_orbital_preview(
     let available_buildings: Vec<_> = game_data
         .orbital_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if available_buildings.is_empty() {
@@ -389,7 +398,7 @@ fn localized_preview(
     let available_orbitals: Vec<_> = game_data
         .orbital_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if let Some(orbitals) = &orbital_construction.orbitals {
@@ -431,7 +440,7 @@ fn localized_preview(
     let available_buildings: Vec<_> = game_data
         .surface_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if let Some(surface) = &surface_construction.surface {
@@ -640,7 +649,7 @@ fn surface_building_input(
     let available_buildings: Vec<_> = game_data
         .surface_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if available_buildings.is_empty() {
@@ -706,7 +715,7 @@ fn orbital_building_input(
     let available_buildings: Vec<_> = game_data
         .orbital_items()
         .iter()
-        .filter(|item| tech_state.is_unlocked(item.tech_index))
+        .filter(|item| tech_state.is_unlocked(item.tech_index, game_data.techs()))
         .collect();
 
     if available_buildings.is_empty() {
@@ -787,7 +796,9 @@ fn research_input(
 
     if input.just_pressed(KeyCode::KeyO) {
         if let Some(completed) = research.state.process_turn() {
-            tech_state.unlocked = research.state.completed.len();
+            for id in &research.state.completed {
+                tech_state.completed.insert(id.clone());
+            }
             info!("Completed research {}", completed);
         }
         changed = true;
