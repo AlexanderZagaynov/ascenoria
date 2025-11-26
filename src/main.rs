@@ -25,6 +25,7 @@ use planet::{
 use research::ResearchState;
 use ship_design::{ModuleCategory, ShipDesign};
 use ship_ui::HullSelection;
+use victory::{DominationConfig, VictoryState};
 
 /// Plugin that loads game data from TOML files and registers it as a resource.
 pub struct GameDataPlugin {
@@ -71,6 +72,12 @@ impl Plugin for GameDataPlugin {
                 let research_preview = ResearchPreview {
                     state: ResearchState::new(1),
                 };
+                let victory_preview = VictoryPreview {
+                    state: VictoryState::new(
+                        generated_galaxy.systems.len() as i32,
+                        DominationConfig::default(),
+                    ),
+                };
 
                 app.insert_resource(registry);
                 app.insert_resource(computed);
@@ -83,6 +90,7 @@ impl Plugin for GameDataPlugin {
                 });
                 app.insert_resource(industry_preview);
                 app.insert_resource(research_preview);
+                app.insert_resource(victory_preview);
                 app.insert_resource(surface_construction);
                 app.insert_resource(orbital_construction);
                 app.insert_resource(tech_state);
@@ -140,6 +148,20 @@ impl Default for GalaxyPreview {
 #[derive(Resource, Default)]
 struct IndustryPreview {
     industry: PlanetIndustry,
+}
+
+/// Tracks domination victory progress.
+#[derive(Resource)]
+struct VictoryPreview {
+    state: VictoryState,
+}
+
+impl Default for VictoryPreview {
+    fn default() -> Self {
+        Self {
+            state: VictoryState::new(0, DominationConfig::default()),
+        }
+    }
 }
 
 /// Research progress and selection.
@@ -296,6 +318,7 @@ fn localized_preview(
     orbital_construction: &OrbitalConstruction,
     industry: &IndustryPreview,
     research: &ResearchPreview,
+    victory: &VictoryPreview,
 ) -> String {
     let mut lines = Vec::new();
 
@@ -390,6 +413,17 @@ fn localized_preview(
                 research.state.completed.join(", ")
             ));
         }
+    }
+
+    lines.push(String::new());
+    lines.push(format!(
+        "Domination: {} / {} systems (threshold {:.0}%)",
+        victory.state.controlled_systems,
+        victory.state.total_systems,
+        victory.state.config.threshold * 100.0
+    ));
+    if victory.state.domination_achieved {
+        lines.push("  Victory achieved!".to_string());
     }
 
     lines.push(String::new());
@@ -515,6 +549,7 @@ fn rebuild_preview_text(
         orbital_construction,
         industry,
         research,
+        victory,
     );
 
     for mut text in &mut text_query {
@@ -534,6 +569,7 @@ fn setup_ui(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
+    victory: Res<VictoryPreview>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -546,6 +582,7 @@ fn setup_ui(
         &orbital_construction,
         &industry,
         &research,
+        &victory,
     );
     commands.spawn((
         Text::new(preview),
@@ -570,6 +607,7 @@ fn toggle_language(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
+    victory: Res<VictoryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     if !input.just_pressed(KeyCode::KeyL) {
@@ -604,6 +642,7 @@ fn hull_selection_input(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
+    victory: Res<VictoryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let mut changed = false;
@@ -627,6 +666,7 @@ fn hull_selection_input(
             &orbital_construction,
             &industry,
             &research,
+            &victory,
             text_query,
         );
     }
@@ -644,6 +684,7 @@ fn surface_building_input(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
+    victory: Res<VictoryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -692,6 +733,7 @@ fn surface_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &victory,
             &research,
             text_query,
         );
@@ -710,6 +752,7 @@ fn orbital_building_input(
     surface_construction: Res<SurfaceConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
+    victory: Res<VictoryPreview>,
     text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let available_buildings: Vec<_> = game_data
@@ -758,6 +801,7 @@ fn orbital_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &victory,
             &research,
             text_query,
         );
@@ -773,6 +817,7 @@ fn research_input(
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
+    victory: Res<VictoryPreview>,
     mut research: ResMut<ResearchPreview>,
     mut tech_state: ResMut<TechState>,
     localization: Res<LocalizationSettings>,
@@ -815,6 +860,7 @@ fn research_input(
             &surface_construction,
             &orbital_construction,
             &industry,
+            &victory,
             research.as_ref(),
             text_query,
         );
