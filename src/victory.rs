@@ -18,6 +18,8 @@ pub struct VictoryState {
     pub controlled_systems: i32,
     pub domination_achieved: bool,
     pub config: DominationConfig,
+    pub tech_victory: bool,
+    pub ascension_victory: bool,
 }
 
 impl VictoryState {
@@ -27,6 +29,8 @@ impl VictoryState {
             controlled_systems: 0,
             domination_achieved: false,
             config,
+            tech_victory: false,
+            ascension_victory: false,
         }
     }
 
@@ -41,6 +45,20 @@ impl VictoryState {
             self.domination_achieved = true;
         }
         self.domination_achieved
+    }
+
+    pub fn check_tech_victory(&mut self, total_techs: usize, completed: usize) -> bool {
+        if total_techs == 0 {
+            return false;
+        }
+        if completed >= total_techs {
+            self.tech_victory = true;
+        }
+        self.tech_victory
+    }
+
+    pub fn mark_ascension_victory(&mut self) {
+        self.ascension_victory = true;
     }
 }
 

@@ -7,6 +7,7 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
+mod victory;
 
 use bevy::{
     prelude::*,
@@ -425,6 +426,9 @@ fn localized_preview(
     if victory.state.domination_achieved {
         lines.push("  Victory achieved!".to_string());
     }
+    if victory.state.tech_victory {
+        lines.push("Tech victory achieved!".to_string());
+    }
 
     lines.push(String::new());
     lines.push("Orbital construction:".to_string());
@@ -536,6 +540,7 @@ fn rebuild_preview_text(
     orbital_construction: &OrbitalConstruction,
     industry: &IndustryPreview,
     research: &ResearchPreview,
+    victory: &VictoryPreview,
     mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let preview = localized_preview(
@@ -569,7 +574,7 @@ fn setup_ui(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
-    victory: Res<VictoryPreview>,
+    mut victory: ResMut<VictoryPreview>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -626,6 +631,7 @@ fn toggle_language(
         &orbital_construction,
         &industry,
         &research,
+        &victory,
         text_query,
     );
 }
@@ -733,8 +739,8 @@ fn surface_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
-            &victory,
             &research,
+            &victory,
             text_query,
         );
     }
@@ -801,8 +807,8 @@ fn orbital_building_input(
             &surface_construction,
             &orbital_construction,
             &industry,
-            &victory,
             &research,
+            &victory,
             text_query,
         );
     }
@@ -817,7 +823,7 @@ fn research_input(
     surface_construction: Res<SurfaceConstruction>,
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
-    victory: Res<VictoryPreview>,
+    mut victory: ResMut<VictoryPreview>,
     mut research: ResMut<ResearchPreview>,
     mut tech_state: ResMut<TechState>,
     localization: Res<LocalizationSettings>,
@@ -844,6 +850,9 @@ fn research_input(
             for id in &research.state.completed {
                 tech_state.completed.insert(id.clone());
             }
+            victory
+                .state
+                .check_tech_victory(game_data.techs().len(), research.state.completed.len());
             info!("Completed research {}", completed);
         }
         changed = true;
@@ -860,8 +869,8 @@ fn research_input(
             &surface_construction,
             &orbital_construction,
             &industry,
-            &victory,
             research.as_ref(),
+            &victory,
             text_query,
         );
     }
