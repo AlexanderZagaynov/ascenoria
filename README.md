@@ -16,3 +16,8 @@ Ascenoria is a Rust/Bevy strategy prototype that loads most game content from TO
 
 - Schema compatibility is tracked via `data_schema_version` (default `1`) in `assets/data/manifest.toml`. Mods can also declare a `data_schema_version` alongside `priority` in `mod.toml`; versions newer than the runtime will be rejected.
 - Technology prerequisites from `research_prereqs.toml` are merged by `(from, to)` pair with the same last-wins rule.
+
+## Data linting
+
+- Validate and lint a data pack with `cargo run --bin data_lint -- <path-to-data-dir>` (defaults to `assets/data`).
+- The tool reuses the game loader checks and warns about missing localizations or ids that are not snake_case.
