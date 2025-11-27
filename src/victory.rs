@@ -39,8 +39,7 @@ impl VictoryState {
         if self.total_systems == 0 {
             return false;
         }
-        let required =
-            (self.total_systems as f32 * self.config.threshold).ceil() as i32;
+        let required = (self.total_systems as f32 * self.config.threshold).ceil() as i32;
         if self.controlled_systems >= required {
             self.domination_achieved = true;
         }
