@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use bevy::prelude::Resource;
 use serde::Deserialize;
@@ -1170,6 +1170,216 @@ fn validate_tech_edges(edges: &[TechEdge], techs: &[Tech]) -> Result<(), DataLoa
     Ok(())
 }
 
+fn merge_by_id<T, F>(base: &mut Vec<T>, mods: Vec<T>, id_fn: F)
+where
+    F: Fn(&T) -> &str,
+{
+    for item in mods {
+        let id = id_fn(&item);
+        if let Some(pos) = base.iter().position(|b| id_fn(b) == id) {
+            base[pos] = item;
+        } else {
+            base.push(item);
+        }
+    }
+}
+
+fn merge_tech_edges(base: &mut Vec<TechEdge>, mods: Vec<TechEdge>) {
+    if mods.is_empty() {
+        return;
+    }
+
+    let mut merged: BTreeMap<(String, String), TechEdge> = BTreeMap::new();
+    for edge in base.drain(..) {
+        merged.insert((edge.from.clone(), edge.to.clone()), edge);
+    }
+    for edge in mods {
+        merged.insert((edge.from.clone(), edge.to.clone()), edge);
+    }
+    *base = merged.into_values().collect();
+}
+
+#[derive(Default)]
+struct ModDatasets {
+    species: Vec<Species>,
+    planet_sizes: Vec<PlanetSize>,
+    planet_surface_types: Vec<PlanetSurfaceType>,
+    surface_items: Vec<PlanetaryItem>,
+    orbital_items: Vec<PlanetaryItem>,
+    planetary_projects: Vec<PlanetaryProject>,
+    hull_classes: Vec<HullClass>,
+    engines: Vec<Engine>,
+    weapons: Vec<Weapon>,
+    shields: Vec<Shield>,
+    scanners: Vec<Scanner>,
+    special_modules: Vec<SpecialModule>,
+    techs: Vec<Tech>,
+    tech_edges: Vec<TechEdge>,
+    victories: Vec<VictoryCondition>,
+}
+
+#[derive(Default, Deserialize)]
+struct ModManifest {
+    #[serde(default)]
+    priority: i32,
+}
+
+fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoadError> {
+    let mut datasets = ModDatasets::default();
+    let entries = match fs::read_dir(mods_dir) {
+        Ok(entries) => entries,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(datasets),
+        Err(source) => {
+            return Err(DataLoadError::Io {
+                source,
+                path: mods_dir.display().to_string(),
+            });
+        }
+    };
+
+    let mut mods: Vec<(i32, String, PathBuf)> = Vec::new();
+    for entry in entries {
+        let Ok(entry) = entry else {
+            continue;
+        };
+        let Ok(file_type) = entry.file_type() else {
+            continue;
+        };
+        if !file_type.is_dir() {
+            continue;
+        }
+
+        let mod_dir = entry.path();
+        let manifest = load_toml_file_optional::<ModManifest>(&mod_dir.join("mod.toml"))?;
+        let priority = manifest.map(|m| m.priority).unwrap_or_default();
+        let name = entry.file_name().to_string_lossy().to_string();
+        mods.push((priority, name, mod_dir));
+    }
+
+    mods.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
+
+    for (_, _, mod_dir) in mods {
+        let data_dir = mod_dir.join("data");
+        if !data_dir.is_dir() {
+            continue;
+        }
+        if let Some(data) = load_toml_file_optional::<SpeciesData>(&data_dir.join("species.toml"))?
+        {
+            datasets.species.extend(data.species);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<PlanetSizesData>(&data_dir.join("planet_sizes.toml"))?
+        {
+            datasets.planet_sizes.extend(data.planet_size);
+        }
+        if let Some(data) = load_toml_file_optional::<PlanetSurfaceTypesData>(
+            &data_dir.join("planet_surfaces.toml"),
+        )? {
+            datasets
+                .planet_surface_types
+                .extend(data.planet_surface_type);
+        }
+        if let Some(data) = load_toml_file_optional::<PlanetarySurfaceData>(
+            &data_dir.join("planetary_buildings.toml"),
+        )? {
+            datasets.surface_items.extend(data.surface_item);
+        }
+        if let Some(data) = load_toml_file_optional::<PlanetaryOrbitalData>(
+            &data_dir.join("planetary_satellites.toml"),
+        )? {
+            datasets.orbital_items.extend(data.orbital_item);
+        }
+        if let Some(data) = load_toml_file_optional::<PlanetaryProjectsData>(
+            &data_dir.join("planetary_projects.toml"),
+        )? {
+            datasets.planetary_projects.extend(data.planetary_project);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<HullClassesData>(&data_dir.join("ship_hulls.toml"))?
+        {
+            datasets.hull_classes.extend(data.hull_class);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<EnginesData>(&data_dir.join("ships_engines.toml"))?
+        {
+            datasets.engines.extend(data.engine);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<WeaponsData>(&data_dir.join("ships_weapons.toml"))?
+        {
+            datasets.weapons.extend(data.weapon);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<ShieldsData>(&data_dir.join("ships_shields.toml"))?
+        {
+            datasets.shields.extend(data.shield);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<ScannersData>(&data_dir.join("ships_scanners.toml"))?
+        {
+            datasets.scanners.extend(data.scanner);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<SpecialModulesData>(&data_dir.join("ships_special.toml"))?
+        {
+            datasets.special_modules.extend(data.special_module);
+        }
+        if let Some(data) = load_toml_file_optional::<TechsData>(&data_dir.join("research.toml"))? {
+            datasets.techs.extend(data.tech);
+        }
+        if let Some(data) =
+            load_toml_file_optional::<TechEdgesData>(&data_dir.join("research_prereqs.toml"))?
+        {
+            datasets.tech_edges.extend(data.tech_edge);
+        }
+        if let Some(data) = load_toml_file_optional::<VictoryConditionsData>(
+            &data_dir.join("victory_conditions.toml"),
+        )? {
+            datasets.victories.extend(data.victory_condition);
+        }
+    }
+
+    Ok(datasets)
+}
+
+fn apply_mods(game_data: &mut GameData, tech_edges: &mut Vec<TechEdge>, mods: ModDatasets) {
+    merge_by_id(&mut game_data.species, mods.species, |s| s.id.as_str());
+    merge_by_id(&mut game_data.planet_sizes, mods.planet_sizes, |s| {
+        s.id.as_str()
+    });
+    merge_by_id(
+        &mut game_data.planet_surface_types,
+        mods.planet_surface_types,
+        |s| s.id.as_str(),
+    );
+    merge_by_id(&mut game_data.surface_items, mods.surface_items, |s| {
+        s.id.as_str()
+    });
+    merge_by_id(&mut game_data.orbital_items, mods.orbital_items, |s| {
+        s.id.as_str()
+    });
+    merge_by_id(
+        &mut game_data.planetary_projects,
+        mods.planetary_projects,
+        |p| p.id.as_str(),
+    );
+    merge_by_id(&mut game_data.hull_classes, mods.hull_classes, |h| {
+        h.id.as_str()
+    });
+    merge_by_id(&mut game_data.engines, mods.engines, |e| e.id.as_str());
+    merge_by_id(&mut game_data.weapons, mods.weapons, |w| w.id.as_str());
+    merge_by_id(&mut game_data.shields, mods.shields, |s| s.id.as_str());
+    merge_by_id(&mut game_data.scanners, mods.scanners, |s| s.id.as_str());
+    merge_by_id(&mut game_data.special_modules, mods.special_modules, |s| {
+        s.id.as_str()
+    });
+    merge_by_id(&mut game_data.techs, mods.techs, |t| t.id.as_str());
+    merge_by_id(&mut game_data.victory_conditions, mods.victories, |v| {
+        v.id.as_str()
+    });
+    merge_tech_edges(tech_edges, mods.tech_edges);
+}
+
 fn build_research_graph(edges: &[TechEdge]) -> ResearchGraph {
     let mut graph = ResearchGraph::default();
     for edge in edges {
@@ -1202,6 +1412,27 @@ where
     })
 }
 
+fn load_toml_file_optional<T>(path: &Path) -> Result<Option<T>, DataLoadError>
+where
+    T: for<'de> Deserialize<'de>,
+{
+    match fs::read_to_string(path) {
+        Ok(content) => {
+            toml::from_str::<T>(&content)
+                .map(Some)
+                .map_err(|source| DataLoadError::Parse {
+                    source,
+                    path: path.display().to_string(),
+                })
+        }
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
+        Err(source) => Err(DataLoadError::Io {
+            source,
+            path: path.display().to_string(),
+        }),
+    }
+}
+
 /// Load the full set of game data from the provided directory.
 pub fn load_game_data<P: AsRef<Path>>(
     data_dir: P,
@@ -1223,6 +1454,10 @@ pub fn load_game_data<P: AsRef<Path>>(
     let techs_path = base.join("research.toml");
     let tech_prereqs_path = base.join("research_prereqs.toml");
     let victories_path = base.join("victory_conditions.toml");
+    let mods_dir = base
+        .parent()
+        .map(|p| p.join("mods"))
+        .unwrap_or_else(|| PathBuf::from("assets/mods"));
 
     let species_data: SpeciesData = load_toml_file(&species_path)?;
     let planet_sizes: PlanetSizesData = load_toml_file(&planet_sizes_path)?;
@@ -1242,9 +1477,12 @@ pub fn load_game_data<P: AsRef<Path>>(
     });
     let victory_data: VictoryConditionsData = load_toml_file(&victories_path)?;
 
-    validate_tech_edges(&tech_prereqs.tech_edge, &techs_data.tech)?;
+    let mod_datasets = load_mod_datasets(&mods_dir)?;
 
-    let game_data = GameData {
+    validate_tech_edges(&tech_prereqs.tech_edge, &techs_data.tech)?;
+    let mut tech_edges = tech_prereqs.tech_edge;
+
+    let mut game_data = GameData {
         species: species_data.species,
         planet_sizes: planet_sizes.planet_size,
         planet_surface_types: planet_surfaces.planet_surface_type,
@@ -1258,9 +1496,13 @@ pub fn load_game_data<P: AsRef<Path>>(
         scanners: scanner_data.scanner,
         special_modules: specials_data.special_module,
         techs: techs_data.tech,
-        research_graph: build_research_graph(&tech_prereqs.tech_edge),
+        research_graph: build_research_graph(&tech_edges),
         victory_conditions: victory_data.victory_condition,
     };
+
+    apply_mods(&mut game_data, &mut tech_edges, mod_datasets);
+    validate_tech_edges(&tech_edges, &game_data.techs)?;
+    game_data.research_graph = build_research_graph(&tech_edges);
 
     game_data.validate()?;
     let registry = GameRegistry::from_game_data(&game_data)?;

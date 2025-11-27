@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Load additional data packs from `assets/mods`, with deterministic priority-based overrides by `id` and TOML parity with core assets.
 - Build a `GameRegistry` with typed identifier wrappers for every collection and reject duplicate IDs during validation.
 - Compute derived weapon, engine, and planetary item stats during loading and expose them via read-only caches.
 - Enforce strict asset validation for slot sizes, hull metrics, and shield values to align with loader rules.
