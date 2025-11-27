@@ -10,12 +10,17 @@ mod ship_ui;
 mod victory;
 
 use bevy::{
+    asset::{AssetEvent, AssetPlugin, LoadedFolder},
+    ecs::message::MessageReader,
+    ecs::system::SystemParam,
     prelude::*,
     text::{TextColor, TextFont},
 };
+use std::path::Path;
 
 use data::{
-    GameData, GameRegistry, Language, LocalizedEntity, NO_TECH_REQUIREMENT, load_game_data,
+    GameData, GameDataComputed, GameRegistry, Language, LocalizedEntity, NO_TECH_REQUIREMENT,
+    load_game_data,
 };
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
 use industry::{BuildKind, PlanetIndustry, industry_cost};
@@ -34,6 +39,49 @@ pub struct GameDataPlugin {
     pub data_path: String,
 }
 
+fn asset_relative_path(path: impl AsRef<Path>) -> Option<String> {
+    let path = path.as_ref();
+    if path.is_absolute() {
+        return None;
+    }
+
+    let trimmed = path
+        .strip_prefix("assets")
+        .unwrap_or(path)
+        .to_str()?
+        .trim_start_matches(['/', '\\'])
+        .replace('\\', "/");
+
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed)
+    }
+}
+
+#[derive(Resource, Clone)]
+struct GameDataSource {
+    data_path: String,
+}
+
+#[derive(Resource, Default)]
+struct DataHotReload {
+    base_handle: Option<Handle<LoadedFolder>>,
+    mods_handle: Option<Handle<LoadedFolder>>,
+}
+
+impl DataHotReload {
+    fn matches(&self, event: &AssetEvent<LoadedFolder>) -> bool {
+        let handles = [self.base_handle.as_ref(), self.mods_handle.as_ref()];
+        handles.into_iter().flatten().any(|handle| {
+            event.is_added(handle.id())
+                || event.is_modified(handle.id())
+                || event.is_loaded_with_dependencies(handle.id())
+                || event.is_removed(handle.id())
+        })
+    }
+}
+
 impl Default for GameDataPlugin {
     fn default() -> Self {
         Self {
@@ -44,6 +92,11 @@ impl Default for GameDataPlugin {
 
 impl Plugin for GameDataPlugin {
     fn build(&self, app: &mut App) {
+        app.insert_resource(GameDataSource {
+            data_path: self.data_path.clone(),
+        });
+        app.insert_resource(DataHotReload::default());
+
         match load_game_data(&self.data_path) {
             Ok((game_data, registry)) => {
                 info!("Loaded game data from {}", self.data_path);
@@ -96,11 +149,150 @@ impl Plugin for GameDataPlugin {
                 app.insert_resource(orbital_construction);
                 app.insert_resource(tech_state);
                 app.insert_resource(game_data);
+
+                if let Some(asset_server) = app.world().get_resource::<AssetServer>().cloned() {
+                    let mut watchers = app.world_mut().resource_mut::<DataHotReload>();
+                    let base_path = asset_relative_path(&self.data_path);
+                    let mods_path = Path::new(&self.data_path)
+                        .parent()
+                        .unwrap_or_else(|| Path::new("assets"))
+                        .join("mods");
+                    watchers.base_handle = base_path.map(|path| asset_server.load_folder(path));
+                    watchers.mods_handle =
+                        asset_relative_path(&mods_path).map(|path| asset_server.load_folder(path));
+                }
+                app.add_systems(Update, hot_reload_game_data);
             }
             Err(err) => {
                 error!("Failed to load game data from {}: {}", self.data_path, err);
                 panic!("Failed to load game data; see error log for details");
             }
+        }
+    }
+}
+
+#[derive(SystemParam)]
+struct HotReloadTargets<'w> {
+    game_data: ResMut<'w, GameData>,
+    registry: ResMut<'w, GameRegistry>,
+    computed: ResMut<'w, GameDataComputed>,
+    planet_preview: ResMut<'w, PlanetPreview>,
+    galaxy_preview: ResMut<'w, GalaxyPreview>,
+    hull_selection: ResMut<'w, HullSelection>,
+    industry: ResMut<'w, IndustryPreview>,
+    research: ResMut<'w, ResearchPreview>,
+    victory: ResMut<'w, VictoryPreview>,
+    surface_construction: ResMut<'w, SurfaceConstruction>,
+    orbital_construction: ResMut<'w, OrbitalConstruction>,
+    tech_state: ResMut<'w, TechState>,
+}
+
+fn hot_reload_game_data(
+    asset_server: Res<AssetServer>,
+    source: Res<GameDataSource>,
+    watchers: Res<DataHotReload>,
+    mut events: MessageReader<AssetEvent<LoadedFolder>>,
+    targets: HotReloadTargets,
+    localization: Res<LocalizationSettings>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+) {
+    if !asset_server.watching_for_changes() {
+        return;
+    }
+
+    let mut should_reload = false;
+    for event in events.read() {
+        if watchers.matches(event) {
+            should_reload = true;
+            break;
+        }
+    }
+
+    if !should_reload {
+        return;
+    }
+
+    let HotReloadTargets {
+        mut game_data,
+        mut registry,
+        mut computed,
+        mut planet_preview,
+        mut galaxy_preview,
+        mut hull_selection,
+        mut industry,
+        mut research,
+        mut victory,
+        mut surface_construction,
+        mut orbital_construction,
+        mut tech_state,
+    } = targets;
+
+    match load_game_data(&source.data_path) {
+        Ok((new_data, new_registry)) => {
+            let new_computed = new_data.compute();
+            let new_planet = generate_planet(42, &new_data);
+            let new_galaxy = generate_galaxy(1337, &new_data, 2..=3, 1..=3);
+
+            let mut completed: std::collections::HashSet<String> = tech_state
+                .completed
+                .iter()
+                .filter(|id| new_data.techs().iter().any(|tech| &tech.id == *id))
+                .cloned()
+                .collect();
+            if completed.is_empty() {
+                if let Some(first) = new_data.techs().first() {
+                    completed.insert(first.id.clone());
+                }
+            }
+
+            *game_data = new_data;
+            *registry = new_registry;
+            *computed = new_computed;
+            *planet_preview = PlanetPreview {
+                planet: new_planet.clone(),
+            };
+            *galaxy_preview = GalaxyPreview {
+                galaxy: new_galaxy.clone(),
+            };
+            *tech_state = TechState { completed };
+            *hull_selection = HullSelection::from_game_data(&game_data);
+            *industry = build_industry_preview(&game_data, &registry);
+            *research = ResearchPreview {
+                state: ResearchState::new(1),
+            };
+            *victory = VictoryPreview {
+                state: VictoryState::new(
+                    galaxy_preview.galaxy.systems.len() as i32,
+                    DominationConfig::default(),
+                ),
+            };
+            *surface_construction = SurfaceConstruction::with_planet(new_planet.clone());
+            *orbital_construction = OrbitalConstruction::with_planet(new_planet);
+
+            victory
+                .state
+                .check_tech_victory(game_data.techs().len(), tech_state.completed.len());
+
+            refresh_surface_preview(&mut surface_construction, &game_data, &tech_state);
+            refresh_orbital_preview(&mut orbital_construction, &game_data, &tech_state);
+            rebuild_preview_text(
+                &game_data,
+                &localization,
+                &planet_preview,
+                &galaxy_preview,
+                &hull_selection,
+                &tech_state,
+                &surface_construction,
+                &orbital_construction,
+                &industry,
+                &research,
+                &victory,
+                text_query,
+            );
+            info!("Hot reloaded game data from {}", source.data_path);
+        }
+        Err(err) => {
+            warn!("Failed to hot reload game data: {err}");
         }
     }
 }
@@ -574,7 +766,7 @@ fn setup_ui(
     orbital_construction: Res<OrbitalConstruction>,
     industry: Res<IndustryPreview>,
     research: Res<ResearchPreview>,
-    mut victory: ResMut<VictoryPreview>,
+    victory: Res<VictoryPreview>,
 ) {
     let preview = localized_preview(
         &game_data,
@@ -827,7 +1019,7 @@ fn research_input(
     mut research: ResMut<ResearchPreview>,
     mut tech_state: ResMut<TechState>,
     localization: Res<LocalizationSettings>,
-    mut text_query: Query<&mut Text, With<LocalizedPreviewText>>,
+    text_query: Query<&mut Text, With<LocalizedPreviewText>>,
 ) {
     let total = game_data.techs().len();
     let mut changed = false;
@@ -879,7 +1071,13 @@ fn research_input(
 fn main() {
     App::new()
         .init_resource::<LocalizationSettings>()
-        .add_plugins((DefaultPlugins, GameDataPlugin::default()))
+        .add_plugins((
+            DefaultPlugins.set(AssetPlugin {
+                watch_for_changes_override: Some(true),
+                ..default()
+            }),
+            GameDataPlugin::default(),
+        ))
         .add_systems(Startup, setup_ui)
         .add_systems(
             Update,
