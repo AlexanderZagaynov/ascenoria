@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Track data schema version via `manifest.toml`/`mod.toml` with migration hook for future TOML changes.
 - Hot reload TOML game data via Bevy's asset change detection for faster iteration in development.
 - Load additional data packs from `assets/mods`, with deterministic priority-based overrides by `id` and TOML parity with core assets.
+- Victory rules (e.g., domination threshold) now load from `victory_rules.toml` and can be overridden by mods.
 - Build a `GameRegistry` with typed identifier wrappers for every collection and reject duplicate IDs during validation.
 - Compute derived weapon, engine, and planetary item stats during loading and expose them via read-only caches.
 - Enforce strict asset validation for slot sizes, hull metrics, and shield values to align with loader rules.

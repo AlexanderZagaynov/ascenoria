@@ -126,10 +126,13 @@ impl Plugin for GameDataPlugin {
                 let research_preview = ResearchPreview {
                     state: ResearchState::new(1),
                 };
+                let domination_config = DominationConfig {
+                    threshold: game_data.victory_rules().domination_threshold,
+                };
                 let victory_preview = VictoryPreview {
                     state: VictoryState::new(
                         generated_galaxy.systems.len() as i32,
-                        DominationConfig::default(),
+                        domination_config,
                     ),
                 };
 
@@ -260,10 +263,13 @@ fn hot_reload_game_data(
             *research = ResearchPreview {
                 state: ResearchState::new(1),
             };
+            let domination_config = DominationConfig {
+                threshold: game_data.victory_rules().domination_threshold,
+            };
             *victory = VictoryPreview {
                 state: VictoryState::new(
                     galaxy_preview.galaxy.systems.len() as i32,
-                    DominationConfig::default(),
+                    domination_config,
                 ),
             };
             *surface_construction = SurfaceConstruction::with_planet(new_planet.clone());

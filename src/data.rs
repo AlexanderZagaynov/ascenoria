@@ -459,6 +459,21 @@ struct VictoryConditionsData {
     victory_condition: Vec<VictoryCondition>,
 }
 
+/// Tunable parameters for victory checks.
+#[derive(Debug, Clone, Deserialize)]
+pub struct VictoryRules {
+    /// Fraction of systems required to claim domination.
+    pub domination_threshold: f32,
+}
+
+impl Default for VictoryRules {
+    fn default() -> Self {
+        Self {
+            domination_threshold: 0.5,
+        }
+    }
+}
+
 impl_localized_entity!(Species);
 impl_localized_entity!(PlanetSize);
 impl_localized_entity!(PlanetSurfaceType);
@@ -554,6 +569,8 @@ pub struct GameData {
     research_graph: ResearchGraph,
     /// Victory condition archetypes.
     victory_conditions: Vec<VictoryCondition>,
+    /// Tunable parameters for victory checks.
+    victory_rules: VictoryRules,
 }
 
 /// Read-only lookup tables for game data identifiers.
@@ -662,6 +679,11 @@ impl GameData {
     /// Get victory condition archetypes.
     pub fn victory_conditions(&self) -> &[VictoryCondition] {
         &self.victory_conditions
+    }
+
+    /// Get victory rules configuration.
+    pub fn victory_rules(&self) -> &VictoryRules {
+        &self.victory_rules
     }
 
     /// Compute derived stats for frequently used entities.
@@ -865,6 +887,14 @@ impl GameData {
 
         for tech in &self.techs {
             validate_non_negative("tech", &tech.id, "research_cost", tech.research_cost as f64)?;
+        }
+
+        if !(0.0..=1.0).contains(&self.victory_rules.domination_threshold) {
+            return Err(DataLoadError::Validation {
+                kind: "victory_rules",
+                id: "domination_threshold".to_string(),
+                message: "domination_threshold must be between 0.0 and 1.0".to_string(),
+            });
         }
 
         Ok(())
@@ -1266,6 +1296,7 @@ struct ModDatasets {
     techs: Vec<Tech>,
     tech_edges: Vec<TechEdge>,
     victories: Vec<VictoryCondition>,
+    victory_rules: Option<VictoryRules>,
     min_schema_version: u32,
 }
 
@@ -1287,6 +1318,7 @@ impl Default for ModDatasets {
             techs: Vec::new(),
             tech_edges: Vec::new(),
             victories: Vec::new(),
+            victory_rules: None,
             min_schema_version: DATA_SCHEMA_VERSION,
         }
     }
@@ -1429,6 +1461,11 @@ fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoadError> {
         )? {
             datasets.victories.extend(data.victory_condition);
         }
+        if let Some(rules) =
+            load_toml_file_optional::<VictoryRules>(&data_dir.join("victory_rules.toml"))?
+        {
+            datasets.victory_rules = Some(rules);
+        }
     }
 
     Ok(datasets)
@@ -1470,6 +1507,9 @@ fn apply_mods(game_data: &mut GameData, tech_edges: &mut Vec<TechEdge>, mods: Mo
         v.id.as_str()
     });
     merge_tech_edges(tech_edges, mods.tech_edges);
+    if let Some(rules) = mods.victory_rules {
+        game_data.victory_rules = rules;
+    }
 }
 
 fn migrate_game_data(
@@ -1563,6 +1603,7 @@ pub fn load_game_data<P: AsRef<Path>>(
     let techs_path = base.join("research.toml");
     let tech_prereqs_path = base.join("research_prereqs.toml");
     let victories_path = base.join("victory_conditions.toml");
+    let victory_rules_path = base.join("victory_rules.toml");
     let manifest_path = base.join("manifest.toml");
     let mods_dir = base
         .parent()
@@ -1586,6 +1627,7 @@ pub fn load_game_data<P: AsRef<Path>>(
         tech_edge: Vec::new(),
     });
     let victory_data: VictoryConditionsData = load_toml_file(&victories_path)?;
+    let victory_rules: VictoryRules = load_toml_file(&victory_rules_path)?;
     let manifest = load_toml_file_optional::<DataManifest>(&manifest_path)?;
 
     let mod_datasets = load_mod_datasets(&mods_dir)?;
@@ -1622,6 +1664,7 @@ pub fn load_game_data<P: AsRef<Path>>(
         techs: techs_data.tech,
         research_graph: build_research_graph(&tech_edges),
         victory_conditions: victory_data.victory_condition,
+        victory_rules,
     };
 
     apply_mods(&mut game_data, &mut tech_edges, mod_datasets);
@@ -1663,6 +1706,7 @@ mod tests {
             techs: Vec::new(),
             research_graph: ResearchGraph::default(),
             victory_conditions: Vec::new(),
+            victory_rules: VictoryRules::default(),
         }
     }
 
