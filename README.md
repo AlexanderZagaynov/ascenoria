@@ -14,4 +14,5 @@ Ascenoria is a Rust/Bevy strategy prototype that loads most game content from TO
   priority = 10
   ```
 
+- Schema compatibility is tracked via `data_schema_version` (default `1`) in `assets/data/manifest.toml`. Mods can also declare a `data_schema_version` alongside `priority` in `mod.toml`; versions newer than the runtime will be rejected.
 - Technology prerequisites from `research_prereqs.toml` are merged by `(from, to)` pair with the same last-wins rule.

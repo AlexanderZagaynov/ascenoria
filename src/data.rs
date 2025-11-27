@@ -8,6 +8,8 @@ use thiserror::Error;
 
 /// Sentinel value indicating no technology requirement.
 pub const NO_TECH_REQUIREMENT: i32 = 255;
+/// Current schema version for TOML game data files.
+pub const DATA_SCHEMA_VERSION: u32 = 1;
 
 /// Supported UI languages for localized strings.
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -1019,6 +1021,16 @@ pub enum DataLoadError {
         /// Path that failed.
         path: String,
     },
+    /// Schema version is newer than the loader understands.
+    #[error("Unsupported schema version {found} in {path}; current version is {current}")]
+    UnsupportedSchemaVersion {
+        /// Version found in manifest.
+        found: u32,
+        /// Latest version supported by the loader.
+        current: u32,
+        /// File path that declared the version.
+        path: String,
+    },
     /// Duplicate identifier encountered.
     #[error("Duplicate {kind} id encountered: {id}")]
     DuplicateId {
@@ -1199,7 +1211,6 @@ fn merge_tech_edges(base: &mut Vec<TechEdge>, mods: Vec<TechEdge>) {
     *base = merged.into_values().collect();
 }
 
-#[derive(Default)]
 struct ModDatasets {
     species: Vec<Species>,
     planet_sizes: Vec<PlanetSize>,
@@ -1216,12 +1227,42 @@ struct ModDatasets {
     techs: Vec<Tech>,
     tech_edges: Vec<TechEdge>,
     victories: Vec<VictoryCondition>,
+    min_schema_version: u32,
+}
+
+impl Default for ModDatasets {
+    fn default() -> Self {
+        Self {
+            species: Vec::new(),
+            planet_sizes: Vec::new(),
+            planet_surface_types: Vec::new(),
+            surface_items: Vec::new(),
+            orbital_items: Vec::new(),
+            planetary_projects: Vec::new(),
+            hull_classes: Vec::new(),
+            engines: Vec::new(),
+            weapons: Vec::new(),
+            shields: Vec::new(),
+            scanners: Vec::new(),
+            special_modules: Vec::new(),
+            techs: Vec::new(),
+            tech_edges: Vec::new(),
+            victories: Vec::new(),
+            min_schema_version: DATA_SCHEMA_VERSION,
+        }
+    }
+}
+
+#[derive(Deserialize)]
+struct DataManifest {
+    data_schema_version: Option<u32>,
 }
 
 #[derive(Default, Deserialize)]
 struct ModManifest {
     #[serde(default)]
     priority: i32,
+    data_schema_version: Option<u32>,
 }
 
 fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoadError> {
@@ -1251,7 +1292,19 @@ fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoadError> {
 
         let mod_dir = entry.path();
         let manifest = load_toml_file_optional::<ModManifest>(&mod_dir.join("mod.toml"))?;
-        let priority = manifest.map(|m| m.priority).unwrap_or_default();
+        let priority = manifest.as_ref().map(|m| m.priority).unwrap_or_default();
+        let schema_version = manifest
+            .as_ref()
+            .and_then(|m| m.data_schema_version)
+            .unwrap_or(DATA_SCHEMA_VERSION);
+        if schema_version > DATA_SCHEMA_VERSION {
+            return Err(DataLoadError::UnsupportedSchemaVersion {
+                found: schema_version,
+                current: DATA_SCHEMA_VERSION,
+                path: mod_dir.display().to_string(),
+            });
+        }
+        datasets.min_schema_version = datasets.min_schema_version.min(schema_version);
         let name = entry.file_name().to_string_lossy().to_string();
         mods.push((priority, name, mod_dir));
     }
@@ -1380,6 +1433,23 @@ fn apply_mods(game_data: &mut GameData, tech_edges: &mut Vec<TechEdge>, mods: Mo
     merge_tech_edges(tech_edges, mods.tech_edges);
 }
 
+fn migrate_game_data(
+    _game_data: &mut GameData,
+    _tech_edges: &mut Vec<TechEdge>,
+    from_version: u32,
+) -> Result<(), DataLoadError> {
+    if from_version > DATA_SCHEMA_VERSION {
+        return Err(DataLoadError::UnsupportedSchemaVersion {
+            found: from_version,
+            current: DATA_SCHEMA_VERSION,
+            path: "manifest".to_string(),
+        });
+    }
+
+    // No migrations are required yet. Future schema changes can be added here.
+    Ok(())
+}
+
 fn build_research_graph(edges: &[TechEdge]) -> ResearchGraph {
     let mut graph = ResearchGraph::default();
     for edge in edges {
@@ -1454,6 +1524,7 @@ pub fn load_game_data<P: AsRef<Path>>(
     let techs_path = base.join("research.toml");
     let tech_prereqs_path = base.join("research_prereqs.toml");
     let victories_path = base.join("victory_conditions.toml");
+    let manifest_path = base.join("manifest.toml");
     let mods_dir = base
         .parent()
         .map(|p| p.join("mods"))
@@ -1476,8 +1547,22 @@ pub fn load_game_data<P: AsRef<Path>>(
         tech_edge: Vec::new(),
     });
     let victory_data: VictoryConditionsData = load_toml_file(&victories_path)?;
+    let manifest = load_toml_file_optional::<DataManifest>(&manifest_path)?;
 
     let mod_datasets = load_mod_datasets(&mods_dir)?;
+
+    let base_schema_version = manifest
+        .as_ref()
+        .and_then(|m| m.data_schema_version)
+        .unwrap_or(DATA_SCHEMA_VERSION);
+    if base_schema_version > DATA_SCHEMA_VERSION {
+        return Err(DataLoadError::UnsupportedSchemaVersion {
+            found: base_schema_version,
+            current: DATA_SCHEMA_VERSION,
+            path: manifest_path.display().to_string(),
+        });
+    }
+    let effective_schema_version = base_schema_version.min(mod_datasets.min_schema_version);
 
     validate_tech_edges(&tech_prereqs.tech_edge, &techs_data.tech)?;
     let mut tech_edges = tech_prereqs.tech_edge;
@@ -1501,6 +1586,7 @@ pub fn load_game_data<P: AsRef<Path>>(
     };
 
     apply_mods(&mut game_data, &mut tech_edges, mod_datasets);
+    migrate_game_data(&mut game_data, &mut tech_edges, effective_schema_version)?;
     validate_tech_edges(&tech_edges, &game_data.techs)?;
     game_data.research_graph = build_research_graph(&tech_edges);
 
