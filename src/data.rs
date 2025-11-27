@@ -51,17 +51,32 @@ pub trait LocalizedEntity {
     fn name_text(&self) -> &LocalizedText;
     /// Return the raw localized description fields.
     fn description_text(&self) -> &LocalizedText;
+}
 
+/// Trait for entities with a stable identifier.
+pub trait HasId {
+    /// Borrow the identifier as a string slice.
+    fn id(&self) -> &str;
+}
+
+/// Trait for entities that expose a localized name.
+pub trait NamedEntity: LocalizedEntity {
     /// Resolve the localized name.
     fn name(&self, language: Language) -> &str {
         self.name_text().get(language)
     }
+}
 
+/// Trait for entities that expose a localized description.
+pub trait HasDescription: LocalizedEntity {
     /// Resolve the localized description.
     fn description(&self, language: Language) -> &str {
         self.description_text().get(language)
     }
 }
+
+impl<T: LocalizedEntity> NamedEntity for T {}
+impl<T: LocalizedEntity> HasDescription for T {}
 
 macro_rules! impl_localized_entity {
     ($type:ty) => {
@@ -72,6 +87,16 @@ macro_rules! impl_localized_entity {
 
             fn description_text(&self) -> &LocalizedText {
                 &self.description
+            }
+        }
+    };
+}
+
+macro_rules! impl_has_id {
+    ($type:ty) => {
+        impl HasId for $type {
+            fn id(&self) -> &str {
+                &self.id
             }
         }
     };
@@ -447,6 +472,20 @@ impl_localized_entity!(Scanner);
 impl_localized_entity!(SpecialModule);
 impl_localized_entity!(Tech);
 impl_localized_entity!(VictoryCondition);
+
+impl_has_id!(Species);
+impl_has_id!(PlanetSize);
+impl_has_id!(PlanetSurfaceType);
+impl_has_id!(PlanetaryItem);
+impl_has_id!(PlanetaryProject);
+impl_has_id!(HullClass);
+impl_has_id!(Engine);
+impl_has_id!(Weapon);
+impl_has_id!(Shield);
+impl_has_id!(Scanner);
+impl_has_id!(SpecialModule);
+impl_has_id!(Tech);
+impl_has_id!(VictoryCondition);
 
 /// Derived stats for weapon modules.
 #[derive(Debug, Clone, Copy)]

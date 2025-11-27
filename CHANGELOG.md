@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 ### Added
+- Shared `HasId`/`NamedEntity` helpers for game entities and updated UI helpers to use the generic accessors.
 - CLI data linter to validate TOML packs and warn about id naming or missing localizations.
 - Track data schema version via `manifest.toml`/`mod.toml` with migration hook for future TOML changes.
 - Hot reload TOML game data via Bevy's asset change detection for faster iteration in development.

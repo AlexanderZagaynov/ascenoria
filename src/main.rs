@@ -19,8 +19,8 @@ use bevy::{
 use std::path::Path;
 
 use data::{
-    GameData, GameDataComputed, GameRegistry, Language, LocalizedEntity, NO_TECH_REQUIREMENT,
-    load_game_data,
+    GameData, GameDataComputed, GameRegistry, HasDescription, HasId, Language, NO_TECH_REQUIREMENT,
+    NamedEntity, load_game_data,
 };
 use galaxy::{Galaxy, format_galaxy, generate_galaxy};
 use industry::{BuildKind, PlanetIndustry, industry_cost};
@@ -374,13 +374,13 @@ impl Default for ResearchPreview {
 fn build_industry_preview(data: &GameData, registry: &GameRegistry) -> IndustryPreview {
     let mut industry = PlanetIndustry::new(5);
     if let Some(item) = data.surface_items().first() {
-        if let Some(cost) = industry_cost(data, registry, &BuildKind::Surface, item.id.as_str()) {
-            industry.enqueue(BuildKind::Surface, item.id.clone(), cost);
+        if let Some(cost) = industry_cost(data, registry, &BuildKind::Surface, item.id()) {
+            industry.enqueue(BuildKind::Surface, item.id().to_string(), cost);
         }
     }
     if let Some(item) = data.orbital_items().first() {
-        if let Some(cost) = industry_cost(data, registry, &BuildKind::Orbital, item.id.as_str()) {
-            industry.enqueue(BuildKind::Orbital, item.id.clone(), cost);
+        if let Some(cost) = industry_cost(data, registry, &BuildKind::Orbital, item.id()) {
+            industry.enqueue(BuildKind::Orbital, item.id().to_string(), cost);
         }
     }
     IndustryPreview { industry }

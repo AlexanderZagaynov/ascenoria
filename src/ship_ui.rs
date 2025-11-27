@@ -1,6 +1,6 @@
 use bevy::prelude::Resource;
 
-use crate::data::{GameData, HullClass, Language, LocalizedEntity};
+use crate::data::{GameData, HasDescription, HasId, HullClass, Language, NamedEntity};
 use crate::ship_design::{ModuleCategory, ShipDesign};
 
 /// Tracks available hulls and the current selection by identifier.
@@ -43,7 +43,7 @@ impl HullSelection {
     pub fn selected_id(&self) -> Option<&str> {
         self.selected
             .and_then(|idx| self.hulls.get(idx))
-            .map(|hull| hull.id.as_str())
+            .map(|hull| hull.id())
     }
 
     /// Render the hull list with the current selection highlighted.
@@ -73,7 +73,7 @@ impl HullSelection {
         let capacity = self
             .hulls
             .iter()
-            .find(|h| h.id == design.hull_id)
+            .find(|h| h.id() == design.hull_id)
             .map(|h| h.max_items)
             .unwrap_or(0);
 
