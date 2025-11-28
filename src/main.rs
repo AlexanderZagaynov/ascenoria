@@ -1,6 +1,7 @@
 mod combat;
 mod data;
 mod galaxy;
+mod galaxy_map;
 mod industry;
 mod main_menu;
 mod planet;
@@ -19,6 +20,7 @@ use bevy::{
 };
 use std::path::Path;
 
+use galaxy_map::GalaxyMapPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 
 use data::{
@@ -332,8 +334,8 @@ struct PlanetPreview {
 
 /// Holds a generated galaxy snapshot.
 #[derive(Resource)]
-struct GalaxyPreview {
-    galaxy: Galaxy,
+pub struct GalaxyPreview {
+    pub galaxy: Galaxy,
 }
 
 impl Default for GalaxyPreview {
@@ -1108,20 +1110,11 @@ fn main() {
             }),
             GameDataPlugin::default(),
             MainMenuPlugin,
+            GalaxyMapPlugin,
         ))
-        .add_systems(OnEnter(GameState::InGame), setup_ui)
-        .add_systems(OnExit(GameState::InGame), cleanup_game_ui)
         .add_systems(
             Update,
-            (
-                toggle_language,
-                hull_selection_input,
-                surface_building_input,
-                orbital_building_input,
-                research_input,
-                return_to_menu_input,
-            )
-                .run_if(in_state(GameState::InGame)),
+            return_to_menu_input.run_if(in_state(GameState::InGame)),
         )
         .run();
 }
