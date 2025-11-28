@@ -2,6 +2,7 @@ mod combat;
 mod data;
 mod galaxy;
 mod industry;
+mod main_menu;
 mod planet;
 mod research;
 mod ship_blueprints;
@@ -17,6 +18,8 @@ use bevy::{
     text::{TextColor, TextFont},
 };
 use std::path::Path;
+
+use main_menu::{GameState, MainMenuPlugin};
 
 use data::{
     GameData, GameDataComputed, GameRegistry, HasDescription, HasId, Language, NO_TECH_REQUIREMENT,
@@ -774,6 +777,9 @@ fn setup_ui(
     research: Res<ResearchPreview>,
     victory: Res<VictoryPreview>,
 ) {
+    // Spawn camera for in-game UI
+    commands.spawn((Camera2d::default(), InGameUI));
+
     let preview = localized_preview(
         &game_data,
         localization.language,
@@ -795,6 +801,24 @@ fn setup_ui(
         },
         TextColor(Color::WHITE),
         LocalizedPreviewText,
+        InGameUI,
+    ));
+
+    // Instructions text
+    commands.spawn((
+        Text::new("Press ESC to return to main menu"),
+        TextFont {
+            font_size: 14.0,
+            ..Default::default()
+        },
+        TextColor(Color::srgba(0.7, 0.7, 0.7, 0.8)),
+        Node {
+            position_type: PositionType::Absolute,
+            bottom: Val::Px(10.0),
+            left: Val::Px(10.0),
+            ..default()
+        },
+        InGameUI,
     ));
 }
 
@@ -1083,8 +1107,10 @@ fn main() {
                 ..default()
             }),
             GameDataPlugin::default(),
+            MainMenuPlugin,
         ))
-        .add_systems(Startup, setup_ui)
+        .add_systems(OnEnter(GameState::InGame), setup_ui)
+        .add_systems(OnExit(GameState::InGame), cleanup_game_ui)
         .add_systems(
             Update,
             (
@@ -1093,7 +1119,28 @@ fn main() {
                 surface_building_input,
                 orbital_building_input,
                 research_input,
-            ),
+                return_to_menu_input,
+            )
+                .run_if(in_state(GameState::InGame)),
         )
         .run();
+}
+
+/// Marker component for in-game UI elements.
+#[derive(Component)]
+struct InGameUI;
+
+fn cleanup_game_ui(mut commands: Commands, query: Query<Entity, With<InGameUI>>) {
+    for entity in &query {
+        commands.entity(entity).despawn();
+    }
+}
+
+fn return_to_menu_input(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keyboard.just_pressed(KeyCode::Escape) {
+        next_state.set(GameState::MainMenu);
+    }
 }
