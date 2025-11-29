@@ -25,6 +25,7 @@ pub enum GameState {
     #[default]
     MainMenu,
     InGame,
+    StarSystem,
     Settings,
 }
 

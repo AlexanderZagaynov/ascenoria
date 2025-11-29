@@ -543,6 +543,8 @@ fn star_hover_system(
     mut star_query: Query<(&StarMarker, &Transform, &mut Sprite)>,
     buttons: Res<ButtonInput<MouseButton>>,
     mut map_state: ResMut<GalaxyMapState>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut star_system_state: ResMut<crate::star_system::StarSystemState>,
 ) {
     let Ok(window) = windows.single() else {
         return;
@@ -572,11 +574,19 @@ fn star_hover_system(
         }
     }
 
-    // Handle click to select
+    // Handle click to select, double-click to enter system
     if buttons.just_pressed(MouseButton::Left) {
         if let Some(idx) = hovered_star {
-            map_state.selected_system = Some(idx);
-            info!("Selected system {}", idx);
+            if map_state.selected_system == Some(idx) {
+                // Double-click on same star - enter system view
+                star_system_state.system_index = idx;
+                star_system_state.selected_planet = None;
+                next_state.set(GameState::StarSystem);
+                info!("Entering system {}", idx);
+            } else {
+                map_state.selected_system = Some(idx);
+                info!("Selected system {}", idx);
+            }
         }
     }
 }
@@ -587,12 +597,28 @@ fn panel_button_system(
         (&Interaction, &PanelButton, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
+    map_state: Res<GalaxyMapState>,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut star_system_state: ResMut<crate::star_system::StarSystemState>,
 ) {
     for (interaction, button, mut bg_color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 info!("Panel button pressed: {:?}", button);
                 *bg_color = BackgroundColor(colors::PANEL_DARK.with_alpha(1.0));
+
+                // Handle button actions
+                match button {
+                    PanelButton::Planets => {
+                        if let Some(system_idx) = map_state.selected_system {
+                            star_system_state.system_index = system_idx;
+                            star_system_state.selected_planet = None;
+                            next_state.set(GameState::StarSystem);
+                            info!("Entering system {} via Planets button", system_idx);
+                        }
+                    }
+                    _ => {}
+                }
             }
             Interaction::Hovered => {
                 *bg_color = BackgroundColor(Color::srgb(0.35, 0.38, 0.42));

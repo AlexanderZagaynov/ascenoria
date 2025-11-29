@@ -9,6 +9,7 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
+mod star_system;
 mod victory;
 
 use bevy::{
@@ -22,6 +23,7 @@ use std::path::Path;
 
 use galaxy_map::GalaxyMapPlugin;
 use main_menu::{GameState, MainMenuPlugin};
+use star_system::StarSystemPlugin;
 
 use data::{
     GameData, GameDataComputed, GameRegistry, HasDescription, HasId, Language, NO_TECH_REQUIREMENT,
@@ -1111,6 +1113,7 @@ fn main() {
             GameDataPlugin::default(),
             MainMenuPlugin,
             GalaxyMapPlugin,
+            StarSystemPlugin,
         ))
         .add_systems(
             Update,
