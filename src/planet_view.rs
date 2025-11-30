@@ -17,13 +17,21 @@ pub struct PlanetViewPlugin;
 
 impl Plugin for PlanetViewPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::PlanetView), setup_planet_view)
+        app.init_resource::<PlanetViewState>()
+            .add_systems(OnEnter(GameState::PlanetView), setup_planet_view)
             .add_systems(OnExit(GameState::PlanetView), cleanup_planet_view)
             .add_systems(
                 Update,
                 (keyboard_navigation_system, tile_hover_system).run_if(in_state(GameState::PlanetView)),
             );
     }
+}
+
+/// State for the planet view.
+#[derive(Resource, Default)]
+pub struct PlanetViewState {
+    /// Index of the currently viewed planet within its star system.
+    pub planet_index: usize,
 }
 
 /// Marker component for all planet view UI entities.
