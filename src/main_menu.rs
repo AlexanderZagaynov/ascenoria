@@ -28,6 +28,7 @@ pub enum GameState {
     SpeciesIntro,
     InGame,
     StarSystem,
+    PlanetView,
     Settings,
 }
 

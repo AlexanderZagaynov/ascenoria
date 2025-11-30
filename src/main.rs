@@ -5,6 +5,7 @@ mod galaxy_map;
 mod industry;
 mod main_menu;
 mod planet;
+mod planet_view;
 mod research;
 mod ship_blueprints;
 mod ship_design;
@@ -25,6 +26,7 @@ use std::path::Path;
 
 use galaxy_map::GalaxyMapPlugin;
 use main_menu::{GameState, MainMenuPlugin};
+use planet_view::PlanetViewPlugin;
 use species_intro::SpeciesIntroPlugin;
 use species_selection::SpeciesSelectionPlugin;
 use star_system::StarSystemPlugin;
@@ -1120,6 +1122,7 @@ fn main() {
             SpeciesIntroPlugin,
             GalaxyMapPlugin,
             StarSystemPlugin,
+            PlanetViewPlugin,
         ))
         .add_systems(
             Update,

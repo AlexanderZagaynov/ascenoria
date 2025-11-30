@@ -830,6 +830,7 @@ fn planet_hover_system(
     mut planet_query: Query<(&PlanetMarker, &Transform, &mut Sprite)>,
     buttons: Res<ButtonInput<MouseButton>>,
     mut state: ResMut<StarSystemState>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     let Ok(window) = windows.single() else {
         return;
@@ -862,11 +863,12 @@ fn planet_hover_system(
         }
     }
 
-    // Click to select planet
+    // Click to select planet and navigate to planet view
     if buttons.just_pressed(MouseButton::Left) {
         if let Some(idx) = hovered_planet {
             state.selected_planet = Some(idx);
-            info!("Selected planet {}", idx);
+            info!("Selected planet {}, opening planet view", idx);
+            next_state.set(GameState::PlanetView);
         }
     }
 }
