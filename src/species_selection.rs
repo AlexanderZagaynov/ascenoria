@@ -873,8 +873,8 @@ fn begin_game_system(
 ) {
     for interaction in &interaction_query {
         if *interaction == Interaction::Pressed {
-            info!("Beginning new game!");
-            next_state.set(GameState::InGame);
+            info!("Proceeding to species intro!");
+            next_state.set(GameState::SpeciesIntro);
         }
     }
 }
@@ -899,7 +899,7 @@ fn keyboard_navigation_system(
     if keyboard.just_pressed(KeyCode::Escape) {
         next_state.set(GameState::MainMenu);
     } else if keyboard.just_pressed(KeyCode::Enter) {
-        next_state.set(GameState::InGame);
+        next_state.set(GameState::SpeciesIntro);
     } else if keyboard.just_pressed(KeyCode::ArrowUp) {
         if settings.selected_species_index > 0 {
             settings.selected_species_index -= 1;

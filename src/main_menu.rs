@@ -25,6 +25,7 @@ pub enum GameState {
     #[default]
     MainMenu,
     SpeciesSelection,
+    SpeciesIntro,
     InGame,
     StarSystem,
     Settings,
@@ -43,7 +44,7 @@ enum MenuButton {
     Settings,
     Exit,
 }
- 
+
 /// Colors for the menu UI - inspired by Ascendancy's color scheme.
 mod colors {
     use bevy::prelude::*;
