@@ -9,6 +9,7 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
+mod species_selection;
 mod star_system;
 mod victory;
 
@@ -23,6 +24,7 @@ use std::path::Path;
 
 use galaxy_map::GalaxyMapPlugin;
 use main_menu::{GameState, MainMenuPlugin};
+use species_selection::SpeciesSelectionPlugin;
 use star_system::StarSystemPlugin;
 
 use data::{
@@ -1112,6 +1114,7 @@ fn main() {
             }),
             GameDataPlugin::default(),
             MainMenuPlugin,
+            SpeciesSelectionPlugin,
             GalaxyMapPlugin,
             StarSystemPlugin,
         ))

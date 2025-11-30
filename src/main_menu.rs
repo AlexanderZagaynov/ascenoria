@@ -24,6 +24,7 @@ impl Plugin for MainMenuPlugin {
 pub enum GameState {
     #[default]
     MainMenu,
+    SpeciesSelection,
     InGame,
     StarSystem,
     Settings,
@@ -42,7 +43,7 @@ enum MenuButton {
     Settings,
     Exit,
 }
-
+ 
 /// Colors for the menu UI - inspired by Ascendancy's color scheme.
 mod colors {
     use bevy::prelude::*;
@@ -260,8 +261,8 @@ fn menu_action_system(
         if *interaction == Interaction::Pressed {
             match button {
                 MenuButton::NewGame => {
-                    info!("Starting new game...");
-                    next_state.set(GameState::InGame);
+                    info!("Opening species selection...");
+                    next_state.set(GameState::SpeciesSelection);
                 }
                 MenuButton::LoadGame => {
                     info!("Load Game clicked");
