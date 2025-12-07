@@ -199,6 +199,8 @@ name = "ascenoria"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy_asset",
+ "bevy_mesh",
  "rand 0.8.5",
  "serde",
  "thiserror 1.0.69",
