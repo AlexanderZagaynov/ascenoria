@@ -2,7 +2,11 @@
 //!
 //! Displays species portraits, descriptions, game settings, and galaxy preview.
 
-use bevy::{ecs::hierarchy::ChildSpawnerCommands, prelude::*};
+use bevy::{
+    ecs::{hierarchy::ChildSpawnerCommands, message::MessageReader},
+    input::mouse::MouseWheel,
+    prelude::*,
+};
 
 use crate::data::{GameData, HasDescription, Language, NamedEntity, Species};
 use crate::main_menu::GameState;
@@ -22,6 +26,7 @@ impl Plugin for SpeciesSelectionPlugin {
                     settings_button_system,
                     begin_game_system,
                     keyboard_navigation_system,
+                    species_scroll_system.after(keyboard_navigation_system),
                 )
                     .run_if(in_state(GameState::SpeciesSelection)),
             );
@@ -79,6 +84,21 @@ struct SpeciesDescriptionText;
 /// Marker for galaxy info text.
 #[derive(Component)]
 struct GalaxyInfoText;
+
+/// Marker for the scrollable viewport.
+#[derive(Component)]
+struct SpeciesListViewport;
+
+/// Marker for the scrollbar thumb.
+#[derive(Component)]
+struct SpeciesListScrollThumb;
+
+/// Marker for scroll buttons.
+#[derive(Component)]
+enum ScrollButton {
+    Up,
+    Down,
+}
 
 /// Settings buttons.
 #[derive(Component, Debug, Clone, Copy)]
@@ -406,73 +426,116 @@ fn spawn_species_list_panel(parent: &mut ChildSpawnerCommands, species: &[Specie
                 },
             ));
 
-            // Scroll up button
+            // List Area with Scrollbar
             panel
-                .spawn((
-                    Button,
-                    Node {
-                        width: Val::Px(30.0),
-                        height: Val::Px(30.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        align_self: AlignSelf::FlexEnd,
-                        margin: UiRect::bottom(Val::Px(5.0)),
-                        ..default()
-                    },
-                    BackgroundColor(colors::BUTTON_NORMAL),
-                ))
-                .with_children(|btn| {
-                    btn.spawn((
-                        Text::new("▲"),
-                        TextFont {
-                            font_size: 16.0,
-                            ..default()
-                        },
-                        TextColor(colors::TEXT),
-                    ));
-                });
-
-            // Species list (scrollable area)
-            panel
-                .spawn((
-                    Node {
-                        width: Val::Percent(100.0),
+                .spawn(Node {
+                    width: Val::Percent(100.0),
+                    flex_grow: 1.0,
+                    flex_direction: FlexDirection::Row,
+                    ..default()
+                })
+                .with_children(|row| {
+                    // Left Column: Up Button + Viewport + Down Button
+                    row.spawn(Node {
                         flex_grow: 1.0,
+                        height: Val::Percent(100.0),
                         flex_direction: FlexDirection::Column,
-                        overflow: Overflow::clip_y(),
                         ..default()
-                    },
-                ))
-                .with_children(|list| {
-                    for (i, sp) in species.iter().enumerate() {
-                        spawn_species_list_item(list, i, sp, i == 0);
-                    }
-                });
+                    })
+                    .with_children(|col| {
+                        // Scroll up button
+                        col.spawn((
+                            Button,
+                            Node {
+                                width: Val::Percent(100.0),
+                                height: Val::Px(24.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                margin: UiRect::bottom(Val::Px(5.0)),
+                                ..default()
+                            },
+                            BackgroundColor(colors::BUTTON_NORMAL),
+                            ScrollButton::Up,
+                        ))
+                        .with_children(|btn| {
+                            btn.spawn((
+                                Text::new("▲"),
+                                TextFont {
+                                    font_size: 14.0,
+                                    ..default()
+                                },
+                                TextColor(colors::TEXT),
+                            ));
+                        });
 
-            // Scroll down button
-            panel
-                .spawn((
-                    Button,
-                    Node {
-                        width: Val::Px(30.0),
-                        height: Val::Px(30.0),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        align_self: AlignSelf::FlexEnd,
-                        margin: UiRect::top(Val::Px(5.0)),
-                        ..default()
-                    },
-                    BackgroundColor(colors::BUTTON_NORMAL),
-                ))
-                .with_children(|btn| {
-                    btn.spawn((
-                        Text::new("▼"),
-                        TextFont {
-                            font_size: 16.0,
+                        // Viewport
+                        col.spawn((
+                            Node {
+                                width: Val::Percent(100.0),
+                                height: Val::Px(0.0), // Force 0 height so flex_grow works correctly
+                                flex_grow: 1.0,
+                                flex_direction: FlexDirection::Column,
+                                overflow: Overflow::scroll_y(),
+                                ..default()
+                            },
+                            SpeciesListViewport,
+                        ))
+                        .with_children(|viewport| {
+                            for (i, sp) in species.iter().enumerate() {
+                                spawn_species_list_item(viewport, i, sp, i == 0);
+                            }
+                        });
+
+                        // Scroll down button
+                        col.spawn((
+                            Button,
+                            Node {
+                                width: Val::Percent(100.0),
+                                height: Val::Px(24.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                margin: UiRect::top(Val::Px(5.0)),
+                                ..default()
+                            },
+                            BackgroundColor(colors::BUTTON_NORMAL),
+                            ScrollButton::Down,
+                        ))
+                        .with_children(|btn| {
+                            btn.spawn((
+                                Text::new("▼"),
+                                TextFont {
+                                    font_size: 14.0,
+                                    ..default()
+                                },
+                                TextColor(colors::TEXT),
+                            ));
+                        });
+                    });
+
+                    // Right Column: Scrollbar Track
+                    row.spawn((
+                        Node {
+                            width: Val::Px(12.0),
+                            height: Val::Percent(100.0),
+                            margin: UiRect::left(Val::Px(5.0)),
                             ..default()
                         },
-                        TextColor(colors::TEXT),
-                    ));
+                        BackgroundColor(colors::BUTTON_NORMAL), // Track color
+                    ))
+                    .with_children(|track| {
+                        // Thumb
+                        track.spawn((
+                            Node {
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(20.0), // Initial height
+                                position_type: PositionType::Relative,
+                                top: Val::Px(0.0),
+                                ..default()
+                            },
+                            BackgroundColor(colors::TITLE), // Highlight color
+                            SpeciesListScrollThumb,
+                        ));
+                    });
                 });
         });
 }
@@ -888,6 +951,8 @@ fn keyboard_navigation_system(
     mut name_text: Query<&mut Text, (With<SpeciesNameText>, Without<SpeciesDescriptionText>)>,
     mut desc_text: Query<&mut Text, (With<SpeciesDescriptionText>, Without<SpeciesNameText>)>,
     game_data: Option<Res<GameData>>,
+    mut viewport_query: Query<(&mut ScrollPosition, &ComputedNode, &Children), With<SpeciesListViewport>>,
+    item_query: Query<(&ComputedNode, &Node), (With<SpeciesListItem>, Without<SpeciesListViewport>)>,
 ) {
     let species_count = game_data.as_ref().map(|d| d.species().len()).unwrap_or(0);
     if species_count == 0 {
@@ -930,6 +995,138 @@ fn keyboard_navigation_system(
                     **text = species.description(Language::En).to_string();
                 }
             }
+        }
+
+        // Scroll into view
+        if let Some((mut scroll_pos, viewport_computed, children)) = viewport_query.iter_mut().next() {
+            // Calculate item height dynamically
+            let item_height = if let Some(first_child) = children.first() {
+                if let Ok((computed, style)) = item_query.get(*first_child) {
+                    let h = computed.size().y;
+                    let margin = match style.margin.bottom {
+                        Val::Px(v) => v,
+                        _ => 0.0,
+                    };
+                    let total = h + margin;
+                    if h > 0.0 { total } else { 85.0 }
+                } else {
+                    85.0
+                }
+            } else {
+                85.0
+            };
+
+            let visible_height = viewport_computed.size().y;
+            let total_items = children.len() as f32;
+            let total_height = total_items * item_height;
+            let max_scroll = (total_height - visible_height).max(0.0);
+
+            let current_scroll = scroll_pos.y;
+
+            let selected_index = settings.selected_species_index as f32;
+            let item_top = selected_index * item_height;
+            let item_bottom = item_top + item_height;
+
+            // Visible range: [current_scroll, current_scroll + visible_height]
+            let viewport_top = current_scroll;
+            let viewport_bottom = viewport_top + visible_height;
+
+            let mut new_scroll = current_scroll;
+
+            if item_top < viewport_top {
+                // Item is above viewport
+                new_scroll = item_top;
+            } else if item_bottom > viewport_bottom {
+                // Item is below viewport
+                new_scroll = item_bottom - visible_height;
+            }
+
+            // Clamp
+            new_scroll = new_scroll.clamp(0.0, max_scroll);
+            
+            scroll_pos.y = new_scroll;
+        }
+    }
+}
+
+/// Handles scrolling of the species list.
+fn species_scroll_system(
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
+    mut viewport_query: Query<(&mut ScrollPosition, &ComputedNode, &Children), With<SpeciesListViewport>>,
+    mut thumb_query: Query<&mut Node, (With<SpeciesListScrollThumb>, Without<SpeciesListViewport>, Without<SpeciesListItem>)>,
+    button_query: Query<(&Interaction, &ScrollButton), (Changed<Interaction>, With<Button>)>,
+    item_query: Query<(&ComputedNode, &Node), (With<SpeciesListItem>, Without<SpeciesListViewport>, Without<SpeciesListScrollThumb>)>,
+) {
+    let Some((mut scroll_pos, viewport_computed, children)) = viewport_query.iter_mut().next() else {
+        return;
+    };
+    let Some(mut thumb_node) = thumb_query.iter_mut().next() else {
+        return;
+    };
+
+    // Get visible height from viewport
+    let visible_height = viewport_computed.size().y;
+
+    // Calculate item height dynamically
+    let item_height = if let Some(first_child) = children.first() {
+        if let Ok((computed, style)) = item_query.get(*first_child) {
+            let h = computed.size().y;
+            let margin = match style.margin.bottom {
+                Val::Px(v) => v,
+                _ => 0.0,
+            };
+            let total = h + margin;
+            if h > 0.0 { total } else { 85.0 }
+        } else {
+            85.0
+        }
+    } else {
+        85.0
+    };
+
+    let total_items = children.len() as f32;
+    let total_height = total_items * item_height;
+    let max_scroll = (total_height - visible_height).max(0.0);
+
+    let current_top = scroll_pos.y;
+    let mut new_top = current_top;
+
+    // Mouse Wheel
+    for event in mouse_wheel_events.read() {
+        new_top -= event.y * 40.0;
+    }
+
+    // Buttons
+    for (interaction, button) in &button_query {
+        if *interaction == Interaction::Pressed {
+            match button {
+                ScrollButton::Up => new_top -= 40.0,
+                ScrollButton::Down => new_top += 40.0,
+            }
+        }
+    }
+
+    // Clamp
+    new_top = new_top.clamp(0.0, max_scroll);
+
+    // Apply
+    scroll_pos.y = new_top;
+
+    // Update Thumb
+    if total_height > 0.0 {
+        let viewport_ratio = (visible_height / total_height).clamp(0.1, 1.0); // Min 10% thumb size
+        let thumb_height_percent = viewport_ratio * 100.0;
+        thumb_node.height = Val::Percent(thumb_height_percent);
+
+        if max_scroll > 0.0 {
+            let scroll_percent = new_top / max_scroll;
+            // The track is 100%. The thumb takes up `thumb_height_percent`.
+            // The available travel space is 100% - thumb_height_percent.
+            let available_travel_percent = 100.0 - thumb_height_percent;
+            let thumb_top_percent = scroll_percent * available_travel_percent;
+            thumb_node.top = Val::Percent(thumb_top_percent);
+        } else {
+            thumb_node.top = Val::Percent(0.0);
         }
     }
 }
