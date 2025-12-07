@@ -1,8 +1,14 @@
 //! Galaxy map screen implementation inspired by classic Ascendancy.
 //!
-//! Displays a star map with clickable star systems and a right-side control panel.
+//! Displays a 3D rotatable star map with clickable star systems and a right-side control panel.
+//! Stars are distributed in a spherical volume and the view can be rotated by dragging.
 
-use bevy::{ecs::hierarchy::ChildSpawnerCommands, prelude::*};
+use bevy::{
+    camera::ScalingMode,
+    ecs::hierarchy::ChildSpawnerCommands,
+    prelude::*,
+    window::PrimaryWindow,
+};
 use rand::{Rng, SeedableRng, rngs::StdRng};
 
 use crate::galaxy::Galaxy;
@@ -20,9 +26,9 @@ impl Plugin for GalaxyMapPlugin {
             .add_systems(
                 Update,
                 (
-                    star_hover_system,
+                    galaxy_rotation_system,
+                    star_click_system,
                     panel_button_system,
-                    camera_pan_system,
                     turn_control_system,
                     info_modal_system,
                     info_modal_button_system,
@@ -36,22 +42,68 @@ impl Plugin for GalaxyMapPlugin {
 #[derive(Component)]
 pub struct GalaxyMapRoot;
 
+/// Marker for the 3D galaxy view entities.
+#[derive(Component)]
+pub struct GalaxyView3D;
+
 /// Marker for star system entities on the map.
 #[derive(Component)]
 pub struct StarMarker {
     pub system_index: usize,
 }
 
+/// Marker for star lane (connection line) entities.
+#[derive(Component)]
+pub struct StarLane;
+
+/// Marker for the selection indicator around selected star.
+#[derive(Component)]
+pub struct SelectionIndicator;
+
 /// Marker for the currently selected star.
 #[derive(Component)]
 pub struct SelectedStar;
 
 /// State for the galaxy map view.
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct GalaxyMapState {
     pub selected_system: Option<usize>,
     pub camera_offset: Vec2,
     pub turn_number: u32,
+    /// Rotation angle around Y axis (horizontal rotation).
+    pub rotation_y: f32,
+    /// Rotation angle around X axis (vertical tilt).
+    pub rotation_x: f32,
+    /// Is the user currently dragging to rotate (right/middle click)?
+    pub is_dragging: bool,
+    /// Is left mouse button held down?
+    pub left_mouse_down: bool,
+    /// Has left-click drag moved enough to be considered a drag (not a click)?
+    pub left_is_dragging: bool,
+    /// Last mouse position when dragging started.
+    pub last_mouse_pos: Vec2,
+    /// Position where left-click started (for drag threshold check).
+    pub left_click_start_pos: Vec2,
+    /// Camera zoom level (1.0 = default).
+    pub zoom: f32,
+}
+
+impl Default for GalaxyMapState {
+    fn default() -> Self {
+        Self {
+            selected_system: None,
+            camera_offset: Vec2::ZERO,
+            turn_number: 0,
+            rotation_y: 0.0,
+            rotation_x: 0.3, // Slight tilt to see depth
+            is_dragging: false,
+            left_mouse_down: false,
+            left_is_dragging: false,
+            last_mouse_pos: Vec2::ZERO,
+            left_click_start_pos: Vec2::ZERO,
+            zoom: 1.0,
+        }
+    }
 }
 
 /// Side panel button types.
@@ -267,78 +319,252 @@ impl StarType {
     }
 }
 
-/// Generate star positions from galaxy data.
-fn generate_star_positions(galaxy: &Galaxy, seed: u64) -> Vec<(Vec2, StarType)> {
+/// Generate star positions from galaxy data in 3D space.
+fn generate_star_positions(galaxy: &Galaxy, seed: u64) -> Vec<(Vec3, StarType, String)> {
     let mut rng = StdRng::seed_from_u64(seed);
     let mut positions = Vec::with_capacity(galaxy.systems.len());
 
-    // Generate positions in a scattered pattern
-    let map_size = 500.0;
+    // Generate positions in a spherical volume
+    let galaxy_radius = 8.0;
 
-    for (i, _system) in galaxy.systems.iter().enumerate() {
-        let angle = Rng::r#gen::<f32>(&mut rng) * std::f32::consts::TAU;
-        let distance = Rng::r#gen::<f32>(&mut rng).sqrt() * map_size;
-        let x = angle.cos() * distance;
-        let y = angle.sin() * distance;
+    for (i, system) in galaxy.systems.iter().enumerate() {
+        // Spherical coordinates for more natural galaxy distribution
+        let theta = Rng::gen_range(&mut rng, 0.0..std::f32::consts::TAU);
+        let phi = Rng::gen_range(&mut rng, 0.0..std::f32::consts::PI);
+        let r: f32 = Rng::gen_range(&mut rng, 0.3..1.0);
+        let r = r.powf(0.5) * galaxy_radius;
+        
+        // Flatten the sphere into a disk shape (galaxy-like)
+        let disk_factor = 0.3;
+        
+        let x = r * phi.sin() * theta.cos();
+        let y = r * phi.cos() * disk_factor;
+        let z = r * phi.sin() * theta.sin();
 
         let star_type = StarType::from_seed(seed.wrapping_add(i as u64));
-        positions.push((Vec2::new(x, y), star_type));
+        positions.push((Vec3::new(x, y, z), star_type, system.name.clone()));
     }
 
     positions
 }
 
-fn setup_galaxy_map(mut commands: Commands, galaxy_preview: Res<crate::GalaxyPreview>) {
-    // Camera for the galaxy view
-    commands.spawn((Camera2d::default(), GalaxyMapRoot));
+/// Generate star lane connections based on distance (connect nearby stars).
+fn generate_star_lanes(positions: &[(Vec3, StarType, String)], max_distance: f32) -> Vec<(usize, usize)> {
+    let mut lanes = Vec::new();
+    
+    for i in 0..positions.len() {
+        for j in (i + 1)..positions.len() {
+            let dist = positions[i].0.distance(positions[j].0);
+            if dist < max_distance {
+                lanes.push((i, j));
+            }
+        }
+    }
+    
+    // Also ensure connectivity: if a star has no lanes, connect to nearest
+    for i in 0..positions.len() {
+        let has_lane = lanes.iter().any(|(a, b)| *a == i || *b == i);
+        if !has_lane && positions.len() > 1 {
+            // Find nearest star
+            let mut nearest = 0;
+            let mut nearest_dist = f32::MAX;
+            for j in 0..positions.len() {
+                if i != j {
+                    let dist = positions[i].0.distance(positions[j].0);
+                    if dist < nearest_dist {
+                        nearest_dist = dist;
+                        nearest = j;
+                    }
+                }
+            }
+            lanes.push((i.min(nearest), i.max(nearest)));
+        }
+    }
+    
+    lanes
+}
 
-    // Generate star positions
+/// Create a cylinder mesh for a star lane between two points.
+fn create_lane_mesh(start: Vec3, end: Vec3) -> (Mesh, Transform) {
+    let direction = end - start;
+    let length = direction.length();
+    let midpoint = (start + end) / 2.0;
+    
+    // Create a thin cylinder
+    let mesh = Cylinder::new(0.02, length);
+    
+    // Calculate rotation to point from start to end
+    let up = Vec3::Y;
+    let rotation = if direction.normalize().abs_diff_eq(up, 0.001) || direction.normalize().abs_diff_eq(-up, 0.001) {
+        Quat::IDENTITY
+    } else {
+        Quat::from_rotation_arc(up, direction.normalize())
+    };
+    
+    let transform = Transform::from_translation(midpoint).with_rotation(rotation);
+    
+    (mesh.into(), transform)
+}
+
+fn setup_galaxy_map(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    galaxy_preview: Res<crate::GalaxyPreview>,
+) {
+    // 3D Camera with orthographic projection for the galaxy view
+    commands.spawn((
+        Camera3d::default(),
+        Projection::from(OrthographicProjection {
+            scaling_mode: ScalingMode::FixedVertical {
+                viewport_height: 25.0,
+            },
+            ..OrthographicProjection::default_3d()
+        }),
+        Camera {
+            order: 0,
+            clear_color: ClearColorConfig::Custom(Color::srgb(0.02, 0.02, 0.05)),
+            ..default()
+        },
+        Transform::from_xyz(0.0, 0.0, 20.0).looking_at(Vec3::ZERO, Vec3::Y),
+        GalaxyMapRoot,
+        GalaxyView3D,
+    ));
+
+    // Ambient light
+    commands.spawn((
+        AmbientLight {
+            color: Color::WHITE,
+            brightness: 300.0,
+            affects_lightmapped_meshes: false,
+        },
+        GalaxyMapRoot,
+    ));
+
+    // Point light for depth effect
+    commands.spawn((
+        PointLight {
+            color: Color::srgb(1.0, 0.95, 0.9),
+            intensity: 50000.0,
+            range: 50.0,
+            ..default()
+        },
+        Transform::from_xyz(5.0, 10.0, 15.0),
+        GalaxyMapRoot,
+    ));
+
+    // Generate star positions from actual galaxy data
     let star_positions = generate_star_positions(&galaxy_preview.galaxy, 1337);
 
-    // Spawn star markers as sprites
-    for (i, (pos, star_type)) in star_positions.iter().enumerate() {
-        // Main star sprite
+    // Create star mesh (small sphere)
+    let star_mesh = meshes.add(Sphere::new(0.2));
+    let glow_mesh = meshes.add(Sphere::new(0.35));
+
+    // Spawn stars
+    for (i, (pos, star_type, name)) in star_positions.iter().enumerate() {
+        // Main star material with emission
+        let star_material = materials.add(StandardMaterial {
+            base_color: star_type.color(),
+            emissive: star_type.color().to_linear() * 5.0,
+            ..default()
+        });
+
+        // Glow material
+        let glow_material = materials.add(StandardMaterial {
+            base_color: star_type.color().with_alpha(0.3),
+            emissive: star_type.color().to_linear() * 2.0,
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        });
+
+        // Main star
         commands.spawn((
-            Sprite {
-                color: star_type.color(),
-                custom_size: Some(Vec2::splat(8.0)),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(pos.x, pos.y, 0.0)),
+            Mesh3d(star_mesh.clone()),
+            MeshMaterial3d(star_material),
+            Transform::from_translation(*pos),
             StarMarker { system_index: i },
             GalaxyMapRoot,
+            GalaxyView3D,
         ));
 
-        // Add a glow effect (larger, dimmer sprite behind)
+        // Glow effect
         commands.spawn((
-            Sprite {
-                color: star_type.color().with_alpha(0.3),
-                custom_size: Some(Vec2::splat(16.0)),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(pos.x, pos.y, -0.1)),
+            Mesh3d(glow_mesh.clone()),
+            MeshMaterial3d(glow_material),
+            Transform::from_translation(*pos),
             GalaxyMapRoot,
+            GalaxyView3D,
         ));
     }
 
-    // Add some background stars (small dots)
+    // Add background stars (tiny distant dots)
+    let bg_star_mesh = meshes.add(Sphere::new(0.03));
+    let bg_star_material = materials.add(StandardMaterial {
+        base_color: Color::srgba(0.7, 0.7, 0.8, 0.5),
+        emissive: bevy::color::LinearRgba::rgb(0.2, 0.2, 0.3),
+        alpha_mode: AlphaMode::Blend,
+        ..default()
+    });
+
     let mut bg_rng = StdRng::seed_from_u64(42);
-    for _ in 0..150 {
-        let x = Rng::gen_range(&mut bg_rng, -600.0..600.0);
-        let y = Rng::gen_range(&mut bg_rng, -400.0..400.0);
-        let brightness = Rng::gen_range(&mut bg_rng, 0.2..0.6);
-        let size = Rng::gen_range(&mut bg_rng, 1.0..3.0);
+    for _ in 0..200 {
+        let x = Rng::gen_range(&mut bg_rng, -15.0..15.0);
+        let y = Rng::gen_range(&mut bg_rng, -8.0..8.0);
+        let z = Rng::gen_range(&mut bg_rng, -15.0..15.0);
 
         commands.spawn((
-            Sprite {
-                color: Color::srgba(brightness, brightness, brightness * 1.1, 0.8),
-                custom_size: Some(Vec2::splat(size)),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(x, y, -1.0)),
+            Mesh3d(bg_star_mesh.clone()),
+            MeshMaterial3d(bg_star_material.clone()),
+            Transform::from_xyz(x, y, z),
             GalaxyMapRoot,
+            GalaxyView3D,
         ));
     }
+
+    // Generate and spawn star lanes (connections between nearby stars)
+    let lanes = generate_star_lanes(&star_positions, 5.0); // Connect stars within 5 units
+    let lane_material = materials.add(StandardMaterial {
+        base_color: Color::srgba(0.2, 0.5, 0.9, 0.6),
+        emissive: bevy::color::LinearRgba::rgb(0.1, 0.3, 0.6),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        ..default()
+    });
+
+    for (i, j) in &lanes {
+        let (lane_mesh, lane_transform) = create_lane_mesh(star_positions[*i].0, star_positions[*j].0);
+        commands.spawn((
+            Mesh3d(meshes.add(lane_mesh)),
+            MeshMaterial3d(lane_material.clone()),
+            lane_transform,
+            StarLane,
+            GalaxyMapRoot,
+            GalaxyView3D,
+        ));
+    }
+
+    // Selection indicator (hexagonal ring around selected star)
+    // Create a torus-like shape for the selection ring
+    let selection_mesh = meshes.add(Torus::new(0.3, 0.35));
+    let selection_material = materials.add(StandardMaterial {
+        base_color: colors::RING_GREEN.with_alpha(0.8),
+        emissive: bevy::color::LinearRgba::rgb(0.2, 0.8, 0.3),
+        alpha_mode: AlphaMode::Blend,
+        unlit: true,
+        double_sided: true,
+        cull_mode: None,
+        ..default()
+    });
+
+    commands.spawn((
+        Mesh3d(selection_mesh),
+        MeshMaterial3d(selection_material),
+        Transform::from_translation(Vec3::new(0.0, 0.0, -1000.0)) // Hidden initially
+            .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
+        SelectionIndicator,
+        GalaxyMapRoot,
+        GalaxyView3D,
+    ));
 
     // UI overlay - right side panel
     commands
@@ -421,7 +647,7 @@ fn setup_galaxy_map(mut commands: Commands, galaxy_preview: Res<crate::GalaxyPre
 
     // Instructions
     commands.spawn((
-        Text::new("Click stars to select • Drag to pan • ESC for menu"),
+        Text::new("Rotate: LMB/RMB drag / Arrow keys / WASD • Zoom: Q/E • Reset: R • Click star to select, twice to enter"),
         TextFont {
             font_size: 14.0,
             ..default()
@@ -676,16 +902,143 @@ fn cleanup_galaxy_map(mut commands: Commands, query: Query<Entity, With<GalaxyMa
     }
 }
 
-/// Handle hovering over stars.
-fn star_hover_system(
-    windows: Query<&Window>,
-    camera_q: Query<(&Camera, &GlobalTransform), With<GalaxyMapRoot>>,
-    mut star_query: Query<(&StarMarker, &Transform, &mut Sprite)>,
+/// Handle galaxy rotation via mouse drag and camera orbit.
+fn galaxy_rotation_system(
     buttons: Res<ButtonInput<MouseButton>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
     mut map_state: ResMut<GalaxyMapState>,
+    mut camera_query: Query<&mut Transform, (With<GalaxyMapRoot>, With<Camera3d>)>,
+    time: Res<Time>,
+) {
+    let Ok(window) = windows.single() else {
+        return;
+    };
+
+    let cursor_pos = window.cursor_position();
+    
+    // Drag threshold in pixels - movement beyond this is considered a drag, not a click
+    const DRAG_THRESHOLD: f32 = 5.0;
+
+    // Start dragging with right mouse button or middle mouse button
+    if buttons.just_pressed(MouseButton::Right) || buttons.just_pressed(MouseButton::Middle) {
+        map_state.is_dragging = true;
+        if let Some(pos) = cursor_pos {
+            map_state.last_mouse_pos = pos;
+        }
+    }
+
+    if buttons.just_released(MouseButton::Right) || buttons.just_released(MouseButton::Middle) {
+        map_state.is_dragging = false;
+    }
+    
+    // Handle left-click drag (for rotating on empty space)
+    if buttons.just_pressed(MouseButton::Left) {
+        map_state.left_mouse_down = true;
+        map_state.left_is_dragging = false;
+        if let Some(pos) = cursor_pos {
+            map_state.left_click_start_pos = pos;
+            map_state.last_mouse_pos = pos;
+        }
+    }
+    
+    if buttons.just_released(MouseButton::Left) {
+        map_state.left_mouse_down = false;
+        map_state.left_is_dragging = false;
+    }
+    
+    // Check if left-click has moved enough to be considered a drag
+    if map_state.left_mouse_down && !map_state.left_is_dragging {
+        if let Some(pos) = cursor_pos {
+            let distance_from_start = (pos - map_state.left_click_start_pos).length();
+            if distance_from_start > DRAG_THRESHOLD {
+                map_state.left_is_dragging = true;
+            }
+        }
+    }
+
+    // Rotate while dragging with mouse (right/middle click, or left-click drag)
+    let is_any_drag = map_state.is_dragging || map_state.left_is_dragging;
+    if is_any_drag {
+        if let Some(pos) = cursor_pos {
+            let delta = pos - map_state.last_mouse_pos;
+            map_state.last_mouse_pos = pos;
+
+            // Horizontal drag rotates around Y axis
+            map_state.rotation_y += delta.x * 0.01;
+            // Vertical drag rotates around X axis (clamped to avoid gimbal lock)
+            map_state.rotation_x = (map_state.rotation_x - delta.y * 0.01).clamp(-1.2, 1.2);
+        }
+    }
+
+    // Keyboard rotation controls
+    let rotation_speed = 2.0 * time.delta_secs();
+    
+    // Arrow keys and WASD for rotation
+    if keys.pressed(KeyCode::ArrowLeft) || keys.pressed(KeyCode::KeyA) {
+        map_state.rotation_y -= rotation_speed;
+    }
+    if keys.pressed(KeyCode::ArrowRight) || keys.pressed(KeyCode::KeyD) {
+        map_state.rotation_y += rotation_speed;
+    }
+    if keys.pressed(KeyCode::ArrowUp) || keys.pressed(KeyCode::KeyW) {
+        map_state.rotation_x = (map_state.rotation_x + rotation_speed).clamp(-1.2, 1.2);
+    }
+    if keys.pressed(KeyCode::ArrowDown) || keys.pressed(KeyCode::KeyS) {
+        map_state.rotation_x = (map_state.rotation_x - rotation_speed).clamp(-1.2, 1.2);
+    }
+    
+    // Zoom with Q/E or +/-
+    if keys.pressed(KeyCode::KeyQ) || keys.pressed(KeyCode::Minus) {
+        map_state.zoom = (map_state.zoom * (1.0 + time.delta_secs())).min(3.0);
+    }
+    if keys.pressed(KeyCode::KeyE) || keys.pressed(KeyCode::Equal) {
+        map_state.zoom = (map_state.zoom * (1.0 - time.delta_secs())).max(0.3);
+    }
+    
+    // Reset view with Home or R
+    if keys.just_pressed(KeyCode::Home) || keys.just_pressed(KeyCode::KeyR) {
+        map_state.rotation_y = 0.0;
+        map_state.rotation_x = 0.3;
+        map_state.zoom = 1.0;
+    }
+
+    // Update camera position to orbit around the galaxy center
+    let distance = 20.0 * map_state.zoom;
+    
+    // Spherical coordinates for camera position
+    let x = distance * map_state.rotation_x.cos() * map_state.rotation_y.sin();
+    let y = distance * map_state.rotation_x.sin();
+    let z = distance * map_state.rotation_x.cos() * map_state.rotation_y.cos();
+    
+    for mut transform in &mut camera_query {
+        transform.translation = Vec3::new(x, y, z);
+        transform.look_at(Vec3::ZERO, Vec3::Y);
+    }
+}
+
+/// Handle clicking on stars to select/enter systems.
+fn star_click_system(
+    windows: Query<&Window, With<PrimaryWindow>>,
+    camera_q: Query<(&Camera, &GlobalTransform), (With<GalaxyMapRoot>, With<Camera3d>)>,
+    star_query: Query<(&StarMarker, &GlobalTransform)>,
+    mut selection_query: Query<&mut Transform, (With<SelectionIndicator>, Without<StarMarker>)>,
+    buttons: Res<ButtonInput<MouseButton>>,
+    map_state: Res<GalaxyMapState>,
+    mut map_state_mut: ResMut<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
     mut star_system_state: ResMut<crate::star_system::StarSystemState>,
+    galaxy_preview: Res<crate::GalaxyPreview>,
 ) {
+    if !buttons.just_released(MouseButton::Left) {
+        return;
+    }
+    
+    // If left-click became a drag (moved beyond threshold), don't select a star
+    if map_state.left_is_dragging {
+        return;
+    }
+
     let Ok(window) = windows.single() else {
         return;
     };
@@ -697,36 +1050,57 @@ fn star_hover_system(
         return;
     };
 
-    let Ok(world_position) = camera.viewport_to_world_2d(camera_transform, cursor_position) else {
+    // Cast a ray from the camera through the cursor position
+    let Ok(ray) = camera.viewport_to_world(camera_transform, cursor_position) else {
         return;
     };
 
-    let mut hovered_star: Option<usize> = None;
+    // Find the closest star that the ray hits
+    let mut closest_star: Option<(usize, f32, Vec3)> = None;
+    let click_radius = 0.5; // How close the ray needs to pass to a star
 
-    for (marker, transform, mut sprite) in &mut star_query {
-        let distance = world_position.distance(transform.translation.truncate());
+    for (marker, star_transform) in &star_query {
+        let star_pos = star_transform.translation();
+        
+        // Calculate distance from ray to star
+        let to_star = star_pos - ray.origin;
+        let proj_length = to_star.dot(*ray.direction);
+        
+        if proj_length < 0.0 {
+            continue; // Star is behind the camera
+        }
+        
+        let closest_point = ray.origin + *ray.direction * proj_length;
+        let distance = (star_pos - closest_point).length();
 
-        if distance < 15.0 {
-            hovered_star = Some(marker.system_index);
-            sprite.custom_size = Some(Vec2::splat(12.0)); // Enlarge on hover
-        } else {
-            sprite.custom_size = Some(Vec2::splat(8.0)); // Normal size
+        if distance < click_radius {
+            if closest_star.is_none() || proj_length < closest_star.unwrap().1 {
+                closest_star = Some((marker.system_index, proj_length, star_pos));
+            }
         }
     }
 
-    // Handle click to select, double-click to enter system
-    if buttons.just_pressed(MouseButton::Left) {
-        if let Some(idx) = hovered_star {
-            if map_state.selected_system == Some(idx) {
-                // Double-click on same star - enter system view
-                star_system_state.system_index = idx;
-                star_system_state.selected_planet = None;
-                next_state.set(GameState::StarSystem);
-                info!("Entering system {}", idx);
-            } else {
-                map_state.selected_system = Some(idx);
-                info!("Selected system {}", idx);
+    // Handle click
+    if let Some((idx, _, star_pos)) = closest_star {
+        let system_name = galaxy_preview.galaxy.systems.get(idx)
+            .map(|s| s.name.as_str())
+            .unwrap_or("Unknown");
+        
+        if map_state.selected_system == Some(idx) {
+            // Double-click on same star - enter system view
+            star_system_state.system_index = idx;
+            star_system_state.selected_planet = None;
+            next_state.set(GameState::StarSystem);
+            info!("Entering system {} ({})", idx, system_name);
+        } else {
+            map_state_mut.selected_system = Some(idx);
+            
+            // Move selection indicator to the selected star
+            if let Ok(mut selection_transform) = selection_query.single_mut() {
+                selection_transform.translation = star_pos;
             }
+            
+            info!("Selected system {} ({})", idx, system_name);
         }
     }
 }
@@ -766,30 +1140,6 @@ fn panel_button_system(
             Interaction::None => {
                 *bg_color = BackgroundColor(colors::PANEL_DARK);
             }
-        }
-    }
-}
-
-/// Handle camera panning with right mouse drag.
-fn camera_pan_system(
-    buttons: Res<ButtonInput<MouseButton>>,
-    mut motion_events: bevy::ecs::message::MessageReader<bevy::input::mouse::MouseMotion>,
-    mut camera_query: Query<&mut Transform, (With<Camera2d>, With<GalaxyMapRoot>)>,
-) {
-    if !buttons.pressed(MouseButton::Right) {
-        motion_events.clear();
-        return;
-    }
-
-    let mut delta = Vec2::ZERO;
-    for event in motion_events.read() {
-        delta += event.delta;
-    }
-
-    if delta != Vec2::ZERO {
-        for mut transform in &mut camera_query {
-            transform.translation.x -= delta.x;
-            transform.translation.y += delta.y;
         }
     }
 }
