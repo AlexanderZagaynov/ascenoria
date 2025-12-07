@@ -4,6 +4,7 @@
 //! the game, showing their portrait, name, mission briefing, and lore.
 
 use bevy::prelude::*;
+use bevy::input::mouse::MouseWheel;
 
 use crate::data::{GameData, HasDescription, Language, NamedEntity};
 use crate::main_menu::GameState;
@@ -18,7 +19,7 @@ impl Plugin for SpeciesIntroPlugin {
             .add_systems(OnExit(GameState::SpeciesIntro), cleanup_intro_screen)
             .add_systems(
                 Update,
-                (continue_system, keyboard_navigation_system)
+                (continue_system, keyboard_navigation_system, intro_scroll_system)
                     .run_if(in_state(GameState::SpeciesIntro)),
             );
     }
@@ -58,6 +59,14 @@ mod colors {
 #[derive(Component)]
 struct IntroScreenRoot;
 
+/// Marker for the scrollable viewport.
+#[derive(Component)]
+struct IntroScrollViewport;
+
+/// Marker for the scrollable content.
+#[derive(Component)]
+struct IntroScrollContent;
+
 /// Marker for the continue button.
 #[derive(Component)]
 struct ContinueButton;
@@ -76,6 +85,9 @@ fn setup_intro_screen(
     settings: Res<NewGameSettings>,
     game_data: Option<Res<GameData>>,
 ) {
+    // Camera
+    commands.spawn((Camera2d::default(), IntroScreenRoot));
+
     // Get selected species info
     let (species_name, species_description, species_id) = game_data
         .as_ref()
@@ -242,73 +254,87 @@ fn setup_intro_screen(
 
                             // Right side - Text content
                             content
-                                .spawn(Node {
-                                    flex_grow: 1.0,
-                                    flex_direction: FlexDirection::Column,
-                                    row_gap: Val::Px(20.0),
-                                    overflow: Overflow::scroll_y(),
-                                    ..default()
-                                })
-                                .with_children(|text_area| {
-                                    // Mission briefing section
-                                    text_area
-                                        .spawn(Node {
-                                            flex_direction: FlexDirection::Column,
-                                            ..default()
-                                        })
-                                        .with_children(|section| {
-                                            section.spawn((
-                                                Text::new("MISSION BRIEFING"),
-                                                TextFont {
-                                                    font_size: 18.0,
+                                .spawn((
+                                    Node {
+                                        flex_grow: 1.0,
+                                        flex_direction: FlexDirection::Column,
+                                        overflow: Overflow::scroll_y(),
+                                        ..default()
+                                    },
+                                    ScrollPosition::default(),
+                                    IntroScrollViewport,
+                                ))
+                                .with_children(|viewport| {
+                                    viewport
+                                        .spawn((
+                                            Node {
+                                                flex_direction: FlexDirection::Column,
+                                                row_gap: Val::Px(20.0),
+                                                ..default()
+                                            },
+                                            IntroScrollContent,
+                                        ))
+                                        .with_children(|text_area| {
+                                            // Mission briefing section
+                                            text_area
+                                                .spawn(Node {
+                                                    flex_direction: FlexDirection::Column,
                                                     ..default()
-                                                },
-                                                TextColor(colors::TITLE),
-                                            ));
+                                                })
+                                                .with_children(|section| {
+                                                    section.spawn((
+                                                        Text::new("MISSION BRIEFING"),
+                                                        TextFont {
+                                                            font_size: 18.0,
+                                                            ..default()
+                                                        },
+                                                        TextColor(colors::TITLE),
+                                                    ));
 
-                                            section.spawn((
-                                                Text::new(mission_briefing.clone()),
-                                                TextFont {
-                                                    font_size: 16.0,
-                                                    ..default()
-                                                },
-                                                TextColor(colors::TEXT),
-                                                Node {
+                                                    section.spawn((
+                                                        Text::new(mission_briefing.clone()),
+                                                        TextFont {
+                                                            font_size: 16.0,
+                                                            ..default()
+                                                        },
+                                                        TextColor(colors::TEXT),
+                                                        Node {
+                                                            margin: UiRect::top(Val::Px(10.0)),
+                                                            ..default()
+                                                        },
+                                                    ));
+                                                });
+
+                                            // Species lore section
+                                            text_area
+                                                .spawn(Node {
+                                                    flex_direction: FlexDirection::Column,
                                                     margin: UiRect::top(Val::Px(10.0)),
                                                     ..default()
-                                                },
-                                            ));
-                                        });
+                                                })
+                                                .with_children(|section| {
+                                                    section.spawn((
+                                                        Text::new("SPECIES PROFILE"),
+                                                        TextFont {
+                                                            font_size: 18.0,
+                                                            ..default()
+                                                        },
+                                                        TextColor(colors::TITLE),
+                                                    ));
 
-                                    // Species lore section
-                                    text_area
-                                        .spawn(Node {
-                                            flex_direction: FlexDirection::Column,
-                                            margin: UiRect::top(Val::Px(10.0)),
-                                            ..default()
-                                        })
-                                        .with_children(|section| {
-                                            section.spawn((
-                                                Text::new("SPECIES PROFILE"),
-                                                TextFont {
-                                                    font_size: 18.0,
-                                                    ..default()
-                                                },
-                                                TextColor(colors::TITLE),
-                                            ));
-
-                                            section.spawn((
-                                                Text::new(species_description.clone()),
-                                                TextFont {
-                                                    font_size: 16.0,
-                                                    ..default()
-                                                },
-                                                TextColor(colors::TEXT),
-                                                Node {
-                                                    margin: UiRect::top(Val::Px(10.0)),
-                                                    ..default()
-                                                },
-                                            ));
+                                                    section.spawn((
+                                                        Text::new(species_description.clone()),
+                                                        TextFont {
+                                                            font_size: 16.0,
+                                                            ..default()
+                                                        },
+                                                        TextColor(colors::TEXT),
+                                                        Node {
+                                                            margin: UiRect::top(Val::Px(10.0)),
+                                                            ..default()
+                                                        },
+                                                    ));
+                                                });
                                         });
                                 });
                         });
@@ -378,7 +404,7 @@ fn setup_intro_screen(
                                 ))
                                 .with_children(|btn| {
                                     btn.spawn((
-                                        Text::new("Begin Your Journey →"),
+                                        Text::new("Continue"),
                                         TextFont {
                                             font_size: 18.0,
                                             ..default()
@@ -578,5 +604,32 @@ fn keyboard_navigation_system(
     } else if keyboard.just_pressed(KeyCode::Enter) || keyboard.just_pressed(KeyCode::Space) {
         info!("Continuing to galaxy...");
         next_state.set(GameState::InGame);
+    }
+}
+
+/// Handles scrolling of the text content.
+fn intro_scroll_system(
+    mut mouse_wheel_events: MessageReader<MouseWheel>,
+    mut viewport_query: Query<(&mut ScrollPosition, &ComputedNode), With<IntroScrollViewport>>,
+    content_query: Query<&ComputedNode, With<IntroScrollContent>>,
+) {
+    let Some((mut scroll_pos, viewport_node)) = viewport_query.iter_mut().next() else {
+        return;
+    };
+    let Some(content_node) = content_query.iter().next() else {
+        return;
+    };
+
+    let viewport_height = viewport_node.size().y;
+    let content_height = content_node.size().y;
+    let max_scroll = (content_height - viewport_height).max(0.0);
+
+    let mut delta = 0.0;
+    for event in mouse_wheel_events.read() {
+        delta -= event.y * 40.0;
+    }
+
+    if delta != 0.0 {
+        scroll_pos.y = (scroll_pos.y + delta).clamp(0.0, max_scroll);
     }
 }
