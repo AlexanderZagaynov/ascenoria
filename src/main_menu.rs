@@ -24,8 +24,8 @@ impl Plugin for MainMenuPlugin {
 pub enum GameState {
     #[default]
     MainMenu,
-    SpeciesSelection,
-    SpeciesIntro,
+    GameOptions,
+    GameSummary,
     InGame,
     StarSystem,
     PlanetView,
@@ -264,7 +264,7 @@ fn menu_action_system(
             match button {
                 MenuButton::NewGame => {
                     info!("Opening species selection...");
-                    next_state.set(GameState::SpeciesSelection);
+                    next_state.set(GameState::GameOptions);
                 }
                 MenuButton::LoadGame => {
                     info!("Load Game clicked");

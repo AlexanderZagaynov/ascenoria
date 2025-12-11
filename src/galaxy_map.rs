@@ -4,10 +4,7 @@
 //! Stars are distributed in a spherical volume and the view can be rotated by dragging.
 
 use bevy::{
-    camera::ScalingMode,
-    ecs::hierarchy::ChildSpawnerCommands,
-    prelude::*,
-    window::PrimaryWindow,
+    camera::ScalingMode, ecs::hierarchy::ChildSpawnerCommands, prelude::*, window::PrimaryWindow,
 };
 use rand::{Rng, SeedableRng, rngs::StdRng};
 
@@ -152,7 +149,10 @@ pub enum ModalAction {
     /// Close the modal.
     Dismiss,
     /// Navigate to a specific planet.
-    GoToPlanet { system_index: usize, planet_index: usize },
+    GoToPlanet {
+        system_index: usize,
+        planet_index: usize,
+    },
     /// Navigate to a specific star system.
     GoToSystem { system_index: usize },
     /// Open research screen.
@@ -213,7 +213,10 @@ impl InfoModalState {
             buttons: vec![
                 ModalButton {
                     label: "Go to Planet".to_string(),
-                    action: ModalAction::GoToPlanet { system_index, planet_index },
+                    action: ModalAction::GoToPlanet {
+                        system_index,
+                        planet_index,
+                    },
                 },
                 ModalButton {
                     label: "OK".to_string(),
@@ -333,10 +336,10 @@ fn generate_star_positions(galaxy: &Galaxy, seed: u64) -> Vec<(Vec3, StarType, S
         let phi = Rng::gen_range(&mut rng, 0.0..std::f32::consts::PI);
         let r: f32 = Rng::gen_range(&mut rng, 0.3..1.0);
         let r = r.powf(0.5) * galaxy_radius;
-        
+
         // Flatten the sphere into a disk shape (galaxy-like)
         let disk_factor = 0.3;
-        
+
         let x = r * phi.sin() * theta.cos();
         let y = r * phi.cos() * disk_factor;
         let z = r * phi.sin() * theta.sin();
@@ -349,9 +352,12 @@ fn generate_star_positions(galaxy: &Galaxy, seed: u64) -> Vec<(Vec3, StarType, S
 }
 
 /// Generate star lane connections based on distance (connect nearby stars).
-fn generate_star_lanes(positions: &[(Vec3, StarType, String)], max_distance: f32) -> Vec<(usize, usize)> {
+fn generate_star_lanes(
+    positions: &[(Vec3, StarType, String)],
+    max_distance: f32,
+) -> Vec<(usize, usize)> {
     let mut lanes = Vec::new();
-    
+
     for i in 0..positions.len() {
         for j in (i + 1)..positions.len() {
             let dist = positions[i].0.distance(positions[j].0);
@@ -360,7 +366,7 @@ fn generate_star_lanes(positions: &[(Vec3, StarType, String)], max_distance: f32
             }
         }
     }
-    
+
     // Also ensure connectivity: if a star has no lanes, connect to nearest
     for i in 0..positions.len() {
         let has_lane = lanes.iter().any(|(a, b)| *a == i || *b == i);
@@ -380,7 +386,7 @@ fn generate_star_lanes(positions: &[(Vec3, StarType, String)], max_distance: f32
             lanes.push((i.min(nearest), i.max(nearest)));
         }
     }
-    
+
     lanes
 }
 
@@ -389,20 +395,22 @@ fn create_lane_mesh(start: Vec3, end: Vec3) -> (Mesh, Transform) {
     let direction = end - start;
     let length = direction.length();
     let midpoint = (start + end) / 2.0;
-    
+
     // Create a thin cylinder
     let mesh = Cylinder::new(0.02, length);
-    
+
     // Calculate rotation to point from start to end
     let up = Vec3::Y;
-    let rotation = if direction.normalize().abs_diff_eq(up, 0.001) || direction.normalize().abs_diff_eq(-up, 0.001) {
+    let rotation = if direction.normalize().abs_diff_eq(up, 0.001)
+        || direction.normalize().abs_diff_eq(-up, 0.001)
+    {
         Quat::IDENTITY
     } else {
         Quat::from_rotation_arc(up, direction.normalize())
     };
-    
+
     let transform = Transform::from_translation(midpoint).with_rotation(rotation);
-    
+
     (mesh.into(), transform)
 }
 
@@ -532,7 +540,8 @@ fn setup_galaxy_map(
     });
 
     for (i, j) in &lanes {
-        let (lane_mesh, lane_transform) = create_lane_mesh(star_positions[*i].0, star_positions[*j].0);
+        let (lane_mesh, lane_transform) =
+            create_lane_mesh(star_positions[*i].0, star_positions[*j].0);
         commands.spawn((
             Mesh3d(meshes.add(lane_mesh)),
             MeshMaterial3d(lane_material.clone()),
@@ -916,7 +925,7 @@ fn galaxy_rotation_system(
     };
 
     let cursor_pos = window.cursor_position();
-    
+
     // Drag threshold in pixels - movement beyond this is considered a drag, not a click
     const DRAG_THRESHOLD: f32 = 5.0;
 
@@ -931,7 +940,7 @@ fn galaxy_rotation_system(
     if buttons.just_released(MouseButton::Right) || buttons.just_released(MouseButton::Middle) {
         map_state.is_dragging = false;
     }
-    
+
     // Handle left-click drag (for rotating on empty space)
     if buttons.just_pressed(MouseButton::Left) {
         map_state.left_mouse_down = true;
@@ -941,12 +950,12 @@ fn galaxy_rotation_system(
             map_state.last_mouse_pos = pos;
         }
     }
-    
+
     if buttons.just_released(MouseButton::Left) {
         map_state.left_mouse_down = false;
         map_state.left_is_dragging = false;
     }
-    
+
     // Check if left-click has moved enough to be considered a drag
     if map_state.left_mouse_down && !map_state.left_is_dragging {
         if let Some(pos) = cursor_pos {
@@ -973,7 +982,7 @@ fn galaxy_rotation_system(
 
     // Keyboard rotation controls
     let rotation_speed = 2.0 * time.delta_secs();
-    
+
     // Arrow keys and WASD for rotation
     if keys.pressed(KeyCode::ArrowLeft) || keys.pressed(KeyCode::KeyA) {
         map_state.rotation_y -= rotation_speed;
@@ -987,7 +996,7 @@ fn galaxy_rotation_system(
     if keys.pressed(KeyCode::ArrowDown) || keys.pressed(KeyCode::KeyS) {
         map_state.rotation_x = (map_state.rotation_x - rotation_speed).clamp(-1.2, 1.2);
     }
-    
+
     // Zoom with Q/E or +/-
     if keys.pressed(KeyCode::KeyQ) || keys.pressed(KeyCode::Minus) {
         map_state.zoom = (map_state.zoom * (1.0 + time.delta_secs())).min(3.0);
@@ -995,7 +1004,7 @@ fn galaxy_rotation_system(
     if keys.pressed(KeyCode::KeyE) || keys.pressed(KeyCode::Equal) {
         map_state.zoom = (map_state.zoom * (1.0 - time.delta_secs())).max(0.3);
     }
-    
+
     // Reset view with Home or R
     if keys.just_pressed(KeyCode::Home) || keys.just_pressed(KeyCode::KeyR) {
         map_state.rotation_y = 0.0;
@@ -1005,12 +1014,12 @@ fn galaxy_rotation_system(
 
     // Update camera position to orbit around the galaxy center
     let distance = 20.0 * map_state.zoom;
-    
+
     // Spherical coordinates for camera position
     let x = distance * map_state.rotation_x.cos() * map_state.rotation_y.sin();
     let y = distance * map_state.rotation_x.sin();
     let z = distance * map_state.rotation_x.cos() * map_state.rotation_y.cos();
-    
+
     for mut transform in &mut camera_query {
         transform.translation = Vec3::new(x, y, z);
         transform.look_at(Vec3::ZERO, Vec3::Y);
@@ -1033,7 +1042,7 @@ fn star_click_system(
     if !buttons.just_released(MouseButton::Left) {
         return;
     }
-    
+
     // If left-click became a drag (moved beyond threshold), don't select a star
     if map_state.left_is_dragging {
         return;
@@ -1061,15 +1070,15 @@ fn star_click_system(
 
     for (marker, star_transform) in &star_query {
         let star_pos = star_transform.translation();
-        
+
         // Calculate distance from ray to star
         let to_star = star_pos - ray.origin;
         let proj_length = to_star.dot(*ray.direction);
-        
+
         if proj_length < 0.0 {
             continue; // Star is behind the camera
         }
-        
+
         let closest_point = ray.origin + *ray.direction * proj_length;
         let distance = (star_pos - closest_point).length();
 
@@ -1082,10 +1091,13 @@ fn star_click_system(
 
     // Handle click
     if let Some((idx, _, star_pos)) = closest_star {
-        let system_name = galaxy_preview.galaxy.systems.get(idx)
+        let system_name = galaxy_preview
+            .galaxy
+            .systems
+            .get(idx)
             .map(|s| s.name.as_str())
             .unwrap_or("Unknown");
-        
+
         if map_state.selected_system == Some(idx) {
             // Double-click on same star - enter system view
             star_system_state.system_index = idx;
@@ -1094,12 +1106,12 @@ fn star_click_system(
             info!("Entering system {} ({})", idx, system_name);
         } else {
             map_state_mut.selected_system = Some(idx);
-            
+
             // Move selection indicator to the selected star
             if let Ok(mut selection_transform) = selection_query.single_mut() {
                 selection_transform.translation = star_pos;
             }
-            
+
             info!("Selected system {} ({})", idx, system_name);
         }
     }
@@ -1158,7 +1170,10 @@ fn turn_control_system(
         if map_state.turn_number % 5 == 0 {
             *modal_state = InfoModalState::planet_notification(
                 ModalIcon::Factory,
-                format!("Factory construction complete on Terra Prime (Turn {})", map_state.turn_number),
+                format!(
+                    "Factory construction complete on Terra Prime (Turn {})",
+                    map_state.turn_number
+                ),
                 0,
                 0,
             );
@@ -1399,7 +1414,8 @@ fn info_modal_system(
                         })
                         .with_children(|button_row| {
                             for modal_button in &modal_state.buttons {
-                                let is_primary = !matches!(modal_button.action, ModalAction::Dismiss);
+                                let is_primary =
+                                    !matches!(modal_button.action, ModalAction::Dismiss);
                                 let bg_color = if is_primary {
                                     Color::srgb(0.2, 0.5, 0.6)
                                 } else {
@@ -1469,7 +1485,10 @@ fn info_modal_button_system(
                     ModalAction::Dismiss => {
                         modal_state.hide();
                     }
-                    ModalAction::GoToPlanet { system_index, planet_index } => {
+                    ModalAction::GoToPlanet {
+                        system_index,
+                        planet_index,
+                    } => {
                         star_system_state.system_index = *system_index;
                         star_system_state.selected_planet = Some(*planet_index);
                         planet_view_state.planet_index = *planet_index;
@@ -1506,7 +1525,11 @@ fn info_modal_button_system(
 
 /// Public function to show a notification on the galaxy map.
 /// Call this when events happen (e.g., construction complete, research done).
-pub fn show_notification(modal_state: &mut InfoModalState, icon: ModalIcon, message: impl Into<String>) {
+pub fn show_notification(
+    modal_state: &mut InfoModalState,
+    icon: ModalIcon,
+    message: impl Into<String>,
+) {
     *modal_state = InfoModalState::notification(icon, message);
 }
 

@@ -1,31 +1,35 @@
-//! Species introduction screen.
+//! Game summary screen.
 //!
-//! Displays an atmospheric introduction to the selected species before starting
-//! the game, showing their portrait, name, mission briefing, and lore.
+//! Shows a summary of the chosen/loaded game context. When starting a new game,
+//! it presents the selected species details and a short briefing.
 
-use bevy::prelude::*;
 use bevy::input::mouse::MouseWheel;
+use bevy::prelude::*;
 
 use crate::data::{GameData, HasDescription, Language, NamedEntity};
 use crate::main_menu::GameState;
-use crate::species_selection::NewGameSettings;
+use crate::game_options::NewGameSettings;
 
-/// Plugin for the species introduction screen.
-pub struct SpeciesIntroPlugin;
+/// Plugin for the game summary screen.
+pub struct GameSummaryPlugin;
 
-impl Plugin for SpeciesIntroPlugin {
+impl Plugin for GameSummaryPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::SpeciesIntro), setup_intro_screen)
-            .add_systems(OnExit(GameState::SpeciesIntro), cleanup_intro_screen)
+        app.add_systems(OnEnter(GameState::GameSummary), setup_game_summary)
+            .add_systems(OnExit(GameState::GameSummary), cleanup_game_summary)
             .add_systems(
                 Update,
-                (continue_system, keyboard_navigation_system, intro_scroll_system)
-                    .run_if(in_state(GameState::SpeciesIntro)),
+                (
+                    continue_system,
+                    keyboard_navigation_system,
+                    summary_scroll_system,
+                )
+                    .run_if(in_state(GameState::GameSummary)),
             );
     }
 }
 
-/// Color constants for the intro screen.
+/// Color constants for the game summary screen.
 mod colors {
     use bevy::prelude::*;
 
@@ -55,17 +59,17 @@ mod colors {
     pub const BUTTON_PRESSED: Color = Color::srgb(0.15, 0.2, 0.25);
 }
 
-/// Marker component for all intro screen UI entities.
+/// Marker component for all game summary UI entities.
 #[derive(Component)]
-struct IntroScreenRoot;
+struct GameSummaryRoot;
 
 /// Marker for the scrollable viewport.
 #[derive(Component)]
-struct IntroScrollViewport;
+struct SummaryScrollViewport;
 
 /// Marker for the scrollable content.
 #[derive(Component)]
-struct IntroScrollContent;
+struct SummaryScrollContent;
 
 /// Marker for the continue button.
 #[derive(Component)]
@@ -79,14 +83,14 @@ struct BackButton;
 #[derive(Component)]
 struct StarBackground;
 
-/// Sets up the species introduction screen.
-fn setup_intro_screen(
+/// Sets up the game summary screen.
+fn setup_game_summary(
     mut commands: Commands,
     settings: Res<NewGameSettings>,
     game_data: Option<Res<GameData>>,
 ) {
     // Camera
-    commands.spawn((Camera2d::default(), IntroScreenRoot));
+    commands.spawn((Camera2d::default(), GameSummaryRoot));
 
     // Get selected species info
     let (species_name, species_description, species_id) = game_data
@@ -126,7 +130,7 @@ fn setup_intro_screen(
                 ..default()
             },
             BackgroundColor(colors::BACKGROUND),
-            IntroScreenRoot,
+            GameSummaryRoot,
         ))
         .with_children(|parent| {
             // Main content panel
@@ -168,7 +172,7 @@ fn setup_intro_screen(
 
                             // Subtitle
                             title_area.spawn((
-                                Text::new("Supreme Galactic Contenders"),
+                                Text::new("Game Summary"),
                                 TextFont {
                                     font_size: 20.0,
                                     ..default()
@@ -262,7 +266,7 @@ fn setup_intro_screen(
                                         ..default()
                                     },
                                     ScrollPosition::default(),
-                                    IntroScrollViewport,
+                                    SummaryScrollViewport,
                                 ))
                                 .with_children(|viewport| {
                                     viewport
@@ -272,7 +276,7 @@ fn setup_intro_screen(
                                                 row_gap: Val::Px(20.0),
                                                 ..default()
                                             },
-                                            IntroScrollContent,
+                                            SummaryScrollContent,
                                         ))
                                         .with_children(|text_area| {
                                             // Mission briefing section
@@ -372,7 +376,7 @@ fn setup_intro_screen(
                                 ))
                                 .with_children(|btn| {
                                     btn.spawn((
-                                        Text::new("← Back to Selection"),
+                                        Text::new("← Back to Options"),
                                         TextFont {
                                             font_size: 18.0,
                                             ..default()
@@ -417,7 +421,7 @@ fn setup_intro_screen(
 
             // Hint text at bottom
             parent.spawn((
-                Text::new("Press ENTER to continue or ESC to go back"),
+                Text::new("Press ENTER to continue or ESC to return"),
                 TextFont {
                     font_size: 16.0,
                     ..default()
@@ -510,7 +514,7 @@ fn spawn_star_background(commands: &mut Commands) {
                 ..default()
             },
             StarBackground,
-            IntroScreenRoot,
+            GameSummaryRoot,
             ZIndex(-1),
         ))
         .with_children(|parent| {
@@ -551,8 +555,8 @@ fn spawn_star_background(commands: &mut Commands) {
         });
 }
 
-/// Cleans up intro screen entities.
-fn cleanup_intro_screen(mut commands: Commands, query: Query<Entity, With<IntroScreenRoot>>) {
+/// Cleans up game summary entities.
+fn cleanup_game_summary(mut commands: Commands, query: Query<Entity, With<GameSummaryRoot>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }
@@ -562,7 +566,7 @@ fn cleanup_intro_screen(mut commands: Commands, query: Query<Entity, With<IntroS
 fn continue_system(
     mut interaction_query: Query<
         (
-            &Interaction,
+            (&Interaction,
             &mut BackgroundColor,
             Option<&ContinueButton>,
             Option<&BackButton>,
@@ -576,11 +580,11 @@ fn continue_system(
             Interaction::Pressed => {
                 *bg_color = BackgroundColor(colors::BUTTON_PRESSED);
                 if is_continue.is_some() {
-                    info!("Continuing to galaxy...");
+                    info!("Continuing to game...");
                     next_state.set(GameState::InGame);
                 } else if is_back.is_some() {
-                    info!("Returning to species selection...");
-                    next_state.set(GameState::SpeciesSelection);
+                    info!("Returning to game options...");
+                    next_state.set(GameState::GameOptions);
                 }
             }
             Interaction::Hovered => {
@@ -599,19 +603,19 @@ fn keyboard_navigation_system(
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
-        info!("Returning to species selection...");
-        next_state.set(GameState::SpeciesSelection);
+        info!("Returning to game options...");
+        next_state.set(GameState::GameOptions);
     } else if keyboard.just_pressed(KeyCode::Enter) || keyboard.just_pressed(KeyCode::Space) {
-        info!("Continuing to galaxy...");
+        info!("Continuing to game...");
         next_state.set(GameState::InGame);
     }
 }
 
 /// Handles scrolling of the text content.
-fn intro_scroll_system(
+fn summary_scroll_system(
     mut mouse_wheel_events: MessageReader<MouseWheel>,
-    mut viewport_query: Query<(&mut ScrollPosition, &ComputedNode), With<IntroScrollViewport>>,
-    content_query: Query<&ComputedNode, With<IntroScrollContent>>,
+    mut viewport_query: Query<(&mut ScrollPosition, &ComputedNode), With<SummaryScrollViewport>>,
+    content_query: Query<&ComputedNode, With<SummaryScrollContent>>,
 ) {
     let Some((mut scroll_pos, viewport_node)) = viewport_query.iter_mut().next() else {
         return;

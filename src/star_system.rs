@@ -120,13 +120,13 @@ pub mod colors {
 /// Planet type visual appearance.
 #[derive(Clone, Copy, Debug)]
 pub enum PlanetVisual {
-    Rocky,      // Gray/brown
-    Volcanic,   // Red/orange with glow
-    Oceanic,    // Blue with white clouds
-    Desert,     // Tan/yellow
-    Lush,       // Green with blue
-    Ice,        // White/light blue
-    Gas,        // Striped bands
+    Rocky,    // Gray/brown
+    Volcanic, // Red/orange with glow
+    Oceanic,  // Blue with white clouds
+    Desert,   // Tan/yellow
+    Lush,     // Green with blue
+    Ice,      // White/light blue
+    Gas,      // Striped bands
 }
 
 impl PlanetVisual {
@@ -167,7 +167,11 @@ struct PlanetPosition {
 }
 
 /// Generate planet positions for isometric view from galaxy data.
-fn generate_planet_positions(galaxy: &Galaxy, system_index: usize, seed: u64) -> Vec<PlanetPosition> {
+fn generate_planet_positions(
+    galaxy: &Galaxy,
+    system_index: usize,
+    seed: u64,
+) -> Vec<PlanetPosition> {
     let Some(system) = galaxy.systems.get(system_index) else {
         return Vec::new();
     };
@@ -315,7 +319,7 @@ fn setup_star_system(
                 Node {
                     position_type: PositionType::Absolute,
                     left: Val::Px(screen_x + 400.0 + pos.size / 2.0 + 10.0), // Offset from center
-                    top: Val::Px(300.0 - screen_y - 5.0), // Invert Y for UI
+                    top: Val::Px(300.0 - screen_y - 5.0),                    // Invert Y for UI
                     ..default()
                 },
                 StarSystemRoot,
@@ -429,11 +433,7 @@ fn spawn_grid_plane(commands: &mut Commands) {
                 custom_size: Some(Vec2::new(1.5, (y_end - y_start).abs())),
                 ..default()
             },
-            Transform::from_translation(Vec3::new(
-                x_pos + slant,
-                (y_start + y_end) / 2.0,
-                0.1,
-            )),
+            Transform::from_translation(Vec3::new(x_pos + slant, (y_start + y_end) / 2.0, 0.1)),
             GridPlane,
             StarSystemRoot,
         ));
@@ -552,15 +552,13 @@ fn spawn_system_header(panel: &mut ChildSpawnerCommands, system_name: &str) {
 fn spawn_navigation_buttons(panel: &mut ChildSpawnerCommands) {
     // Row of icon buttons (like the screenshot shows)
     panel
-        .spawn((
-            Node {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceEvenly,
-                margin: UiRect::bottom(Val::Px(8.0)),
-                column_gap: Val::Px(4.0),
-                ..default()
-            },
-        ))
+        .spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::SpaceEvenly,
+            margin: UiRect::bottom(Val::Px(8.0)),
+            column_gap: Val::Px(4.0),
+            ..default()
+        },))
         .with_children(|row| {
             // Navigation icons (simplified representations)
             for (icon, _button) in [
@@ -597,15 +595,13 @@ fn spawn_navigation_buttons(panel: &mut ChildSpawnerCommands) {
 
     // Second row of navigation icons
     panel
-        .spawn((
-            Node {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceEvenly,
-                margin: UiRect::bottom(Val::Px(12.0)),
-                column_gap: Val::Px(4.0),
-                ..default()
-            },
-        ))
+        .spawn((Node {
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::SpaceEvenly,
+            margin: UiRect::bottom(Val::Px(12.0)),
+            column_gap: Val::Px(4.0),
+            ..default()
+        },))
         .with_children(|row| {
             for icon in ["📍", "🚀", "⚙", "📋"] {
                 row.spawn((
@@ -635,7 +631,10 @@ fn spawn_navigation_buttons(panel: &mut ChildSpawnerCommands) {
         });
 }
 
-fn spawn_planet_info_area(panel: &mut ChildSpawnerCommands, system: Option<&crate::galaxy::StarSystem>) {
+fn spawn_planet_info_area(
+    panel: &mut ChildSpawnerCommands,
+    system: Option<&crate::galaxy::StarSystem>,
+) {
     // Planet preview area (large image-like box)
     panel
         .spawn((
@@ -674,7 +673,8 @@ fn spawn_planet_info_area(panel: &mut ChildSpawnerCommands, system: Option<&crat
                             ..default()
                         },
                         BackgroundColor(
-                            PlanetVisual::from_surface_type(&planet.surface_type_id).primary_color(),
+                            PlanetVisual::from_surface_type(&planet.surface_type_id)
+                                .primary_color(),
                         ),
                         BorderRadius::all(Val::Percent(50.0)),
                     ));

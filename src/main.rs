@@ -10,8 +10,8 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
-mod species_intro;
-mod species_selection;
+mod game_summary;
+mod game_options;
 mod star_system;
 mod victory;
 
@@ -27,8 +27,8 @@ use std::path::Path;
 use galaxy_map::GalaxyMapPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 use planet_view::PlanetViewPlugin;
-use species_intro::SpeciesIntroPlugin;
-use species_selection::SpeciesSelectionPlugin;
+use game_summary::GameSummaryPlugin;
+use game_options::GameOptionsPlugin;
 use star_system::StarSystemPlugin;
 
 use data::{
@@ -1118,8 +1118,8 @@ fn main() {
             }),
             GameDataPlugin::default(),
             MainMenuPlugin,
-            SpeciesSelectionPlugin,
-            SpeciesIntroPlugin,
+            GameOptionsPlugin,
+            GameSummaryPlugin,
             GalaxyMapPlugin,
             StarSystemPlugin,
             PlanetViewPlugin,

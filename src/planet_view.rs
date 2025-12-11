@@ -10,10 +10,10 @@ use bevy::prelude::*;
 use bevy::render::render_resource::PrimitiveTopology;
 
 use crate::{
+    GalaxyPreview,
     main_menu::GameState,
     planet::{PlanetSurface, TileColor},
     star_system::StarSystemState,
-    GalaxyPreview,
 };
 
 /// Plugin that manages the planet view screen.
@@ -115,7 +115,14 @@ pub struct PlanetInfoModalState {
 
 impl PlanetInfoModalState {
     /// Show the modal with planet info.
-    pub fn show(&mut self, name: impl Into<String>, prosperity: i32, days: i32, pop: i32, max_pop: i32) {
+    pub fn show(
+        &mut self,
+        name: impl Into<String>,
+        prosperity: i32,
+        days: i32,
+        pop: i32,
+        max_pop: i32,
+    ) {
         self.visible = true;
         self.planet_name = name.into();
         self.prosperity_per_day = prosperity;
@@ -193,34 +200,35 @@ fn setup_planet_view(
     let planet_index = star_system_state.selected_planet.unwrap_or(0);
 
     // Get planet data if available
-    let (planet_name, surface_type, planet_size, surface_slots, orbital_slots, tiles, row_width) = galaxy_preview
-        .galaxy
-        .systems
-        .get(system_index)
-        .and_then(|s| s.planets.get(planet_index))
-        .map(|p| {
-            let _surface = PlanetSurface::from(p);
-            (
-                format!("Planet {}", planet_index + 1),
-                p.surface_type_id.clone(),
-                p.size_id.clone(),
-                p.surface_slots,
-                p.orbital_slots,
-                p.tiles.clone(),
-                p.row_width,
-            )
-        })
-        .unwrap_or_else(|| {
-            (
-                "Unknown Planet".to_string(),
-                "unknown".to_string(),
-                "unknown".to_string(),
-                0,
-                0,
-                Vec::new(),
-                1,
-            )
-        });
+    let (planet_name, surface_type, planet_size, surface_slots, orbital_slots, tiles, row_width) =
+        galaxy_preview
+            .galaxy
+            .systems
+            .get(system_index)
+            .and_then(|s| s.planets.get(planet_index))
+            .map(|p| {
+                let _surface = PlanetSurface::from(p);
+                (
+                    format!("Planet {}", planet_index + 1),
+                    p.surface_type_id.clone(),
+                    p.size_id.clone(),
+                    p.surface_slots,
+                    p.orbital_slots,
+                    p.tiles.clone(),
+                    p.row_width,
+                )
+            })
+            .unwrap_or_else(|| {
+                (
+                    "Unknown Planet".to_string(),
+                    "unknown".to_string(),
+                    "unknown".to_string(),
+                    0,
+                    0,
+                    Vec::new(),
+                    1,
+                )
+            });
 
     let num_planets = galaxy_preview
         .galaxy
@@ -232,7 +240,7 @@ fn setup_planet_view(
     // =========================================================================
     // 3D Scene Setup
     // =========================================================================
-    
+
     // Isometric Camera
     commands.spawn((
         Camera3d::default(),
@@ -297,7 +305,7 @@ fn setup_planet_view(
     // =========================================================================
     // 2D UI Overlay
     // =========================================================================
-    
+
     // 2D Camera for UI overlay
     commands.spawn((
         Camera2d,
@@ -324,7 +332,16 @@ fn setup_planet_view(
         ))
         .with_children(|root| {
             // Top bar - planet thumbnails and info
-            spawn_top_bar(root, num_planets, planet_index, system_index, &galaxy_preview, &planet_name, &surface_type, &planet_size);
+            spawn_top_bar(
+                root,
+                num_planets,
+                planet_index,
+                system_index,
+                &galaxy_preview,
+                &planet_name,
+                &surface_type,
+                &planet_size,
+            );
 
             // Main content area - sides only (center is transparent for 3D)
             root.spawn(Node {
@@ -335,7 +352,14 @@ fn setup_planet_view(
             })
             .with_children(|main| {
                 // Left panel - Planet info
-                spawn_left_panel(main, &planet_name, &surface_type, &planet_size, surface_slots as usize, orbital_slots as usize);
+                spawn_left_panel(
+                    main,
+                    &planet_name,
+                    &surface_type,
+                    &planet_size,
+                    surface_slots as usize,
+                    orbital_slots as usize,
+                );
 
                 // Center area - transparent (3D shows through)
                 main.spawn(Node {
@@ -361,10 +385,10 @@ fn create_planet_grid_mesh(
     row_width: usize,
 ) -> Handle<Mesh> {
     let mut mesh = Mesh::new(
-        PrimitiveTopology::TriangleList, 
-        bevy_asset::RenderAssetUsages::default()
+        PrimitiveTopology::TriangleList,
+        bevy_asset::RenderAssetUsages::default(),
     );
-    
+
     let mut positions: Vec<[f32; 3]> = Vec::new();
     let mut normals: Vec<[f32; 3]> = Vec::new();
     let mut colors: Vec<[f32; 4]> = Vec::new();
@@ -414,7 +438,7 @@ fn create_planet_grid_mesh(
         indices.push(base_index);
         indices.push(base_index + 2);
         indices.push(base_index + 1);
-        
+
         indices.push(base_index);
         indices.push(base_index + 3);
         indices.push(base_index + 2);
@@ -424,7 +448,7 @@ fn create_planet_grid_mesh(
     mesh.insert_attribute(Mesh::ATTRIBUTE_NORMAL, normals);
     mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
     mesh.insert_indices(bevy_mesh::Indices::U32(indices));
-    
+
     meshes.add(mesh)
 }
 
@@ -434,7 +458,7 @@ fn create_planet_material(
     surface_type: &str,
 ) -> Handle<StandardMaterial> {
     let base_color = get_planet_base_color(surface_type);
-    
+
     materials.add(StandardMaterial {
         base_color,
         // Use vertex colors
@@ -473,7 +497,7 @@ fn spawn_surface_buildings(
 ) {
     // Create a small cube mesh for buildings
     let cube_mesh = meshes.add(Cuboid::new(0.6, 0.6, 0.6));
-    
+
     // Create materials for different building types
     let industry_mat = materials.add(StandardMaterial {
         base_color: Color::srgb(0.7, 0.5, 0.2),
@@ -494,7 +518,7 @@ fn spawn_surface_buildings(
     let rows = (tiles.len() + row_width - 1) / row_width;
     let offset_x = -((row_width as f32) * tile_size) / 2.0;
     let offset_z = -((rows as f32) * tile_size) / 2.0;
-    
+
     // Place buildings on colored (non-white, non-black) tiles
     for (i, tile) in tiles.iter().enumerate() {
         let mat = match tile {
@@ -503,16 +527,16 @@ fn spawn_surface_buildings(
             TileColor::Green => Some(prosperity_mat.clone()),
             _ => None,
         };
-        
+
         if let Some(material) = mat {
             let x_idx = i % row_width;
             let z_idx = i / row_width;
 
             let cx = offset_x + (x_idx as f32 * tile_size) + tile_size / 2.0;
             let cz = offset_z + (z_idx as f32 * tile_size) + tile_size / 2.0;
-            
+
             let pos = Vec3::new(cx, 0.3, cz); // Center of 0.6 height cube is at 0.3
-            
+
             commands.spawn((
                 Mesh3d(cube_mesh.clone()),
                 MeshMaterial3d(material),
@@ -599,78 +623,82 @@ fn spawn_top_bar(
             });
 
         // Center section: Planet info
-        top_bar.spawn(Node {
-            flex_direction: FlexDirection::Column,
-            align_items: AlignItems::Center,
-            ..default()
-        }).with_children(|info| {
-            info.spawn((
-                Text::new(planet_name),
-                TextFont {
-                    font_size: 24.0,
-                    ..default()
-                },
-                TextColor(colors::HEADER_TEXT),
-            ));
-            info.spawn((
-                Text::new(format!("{} • {}", surface_type, planet_size)),
-                TextFont {
-                    font_size: 14.0,
-                    ..default()
-                },
-                TextColor(colors::TEXT),
-            ));
-        });
+        top_bar
+            .spawn(Node {
+                flex_direction: FlexDirection::Column,
+                align_items: AlignItems::Center,
+                ..default()
+            })
+            .with_children(|info| {
+                info.spawn((
+                    Text::new(planet_name),
+                    TextFont {
+                        font_size: 24.0,
+                        ..default()
+                    },
+                    TextColor(colors::HEADER_TEXT),
+                ));
+                info.spawn((
+                    Text::new(format!("{} • {}", surface_type, planet_size)),
+                    TextFont {
+                        font_size: 14.0,
+                        ..default()
+                    },
+                    TextColor(colors::TEXT),
+                ));
+            });
 
         // Right section: Planet thumbnails
-        top_bar.spawn(Node {
-            flex_direction: FlexDirection::Row,
-            column_gap: Val::Px(5.0),
-            ..default()
-        }).with_children(|thumbs| {
-            for i in 0..num_planets {
-                let is_selected = i == planet_index;
-                let border_color = if is_selected {
-                    colors::THUMBNAIL_SELECTED
-                } else {
-                    colors::THUMBNAIL_NORMAL
-                };
+        top_bar
+            .spawn(Node {
+                flex_direction: FlexDirection::Row,
+                column_gap: Val::Px(5.0),
+                ..default()
+            })
+            .with_children(|thumbs| {
+                for i in 0..num_planets {
+                    let is_selected = i == planet_index;
+                    let border_color = if is_selected {
+                        colors::THUMBNAIL_SELECTED
+                    } else {
+                        colors::THUMBNAIL_NORMAL
+                    };
 
-                let thumb_color = galaxy_preview
-                    .galaxy
-                    .systems
-                    .get(system_index)
-                    .and_then(|s| s.planets.get(i))
-                    .map(|p| get_planet_thumbnail_color(&p.surface_type_id))
-                    .unwrap_or(colors::TILE_WHITE);
+                    let thumb_color = galaxy_preview
+                        .galaxy
+                        .systems
+                        .get(system_index)
+                        .and_then(|s| s.planets.get(i))
+                        .map(|p| get_planet_thumbnail_color(&p.surface_type_id))
+                        .unwrap_or(colors::TILE_WHITE);
 
-                thumbs
-                    .spawn((
-                        Button,
-                        Node {
-                            width: Val::Px(40.0),
-                            height: Val::Px(40.0),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            border: UiRect::all(Val::Px(2.0)),
-                            ..default()
-                        },
-                        BackgroundColor(thumb_color),
-                        BorderColor::all(border_color),
-                        PlanetThumbnail(i),
-                    ))
-                    .with_children(|btn| {
-                        btn.spawn((
-                            Text::new(format!("{}", i + 1)),
-                            TextFont {
-                                font_size: 14.0,
+                    thumbs
+                        .spawn((
+                            Button,
+                            Node {
+                                width: Val::Px(40.0),
+                                height: Val::Px(40.0),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                border: UiRect::all(Val::Px(2.0)),
                                 ..default()
                             },
-                            TextColor(Color::WHITE),
-                        ));
-                    });
-            }
-        });
+                            BackgroundColor(thumb_color),
+                            BorderColor::all(border_color),
+                            PlanetThumbnail(i),
+                        ))
+                        .with_children(|btn| {
+                            btn.spawn((
+                                Text::new(format!("{}", i + 1)),
+                                TextFont {
+                                    font_size: 14.0,
+                                    ..default()
+                                },
+                                TextColor(Color::WHITE),
+                            ));
+                        });
+                }
+            });
     });
 }
 
@@ -711,22 +739,30 @@ fn spawn_left_panel(
             ("Slots", format!("{}", surface_slots)),
             ("Orbitals", format!("{}", orbital_slots)),
         ] {
-            panel.spawn(Node {
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceBetween,
-                ..default()
-            }).with_children(|row| {
-                row.spawn((
-                    Text::new(label),
-                    TextFont { font_size: 16.0, ..default() },
-                    TextColor(colors::TEXT),
-                ));
-                row.spawn((
-                    Text::new(value),
-                    TextFont { font_size: 16.0, ..default() },
-                    TextColor(colors::HEADER_TEXT),
-                ));
-            });
+            panel
+                .spawn(Node {
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceBetween,
+                    ..default()
+                })
+                .with_children(|row| {
+                    row.spawn((
+                        Text::new(label),
+                        TextFont {
+                            font_size: 16.0,
+                            ..default()
+                        },
+                        TextColor(colors::TEXT),
+                    ));
+                    row.spawn((
+                        Text::new(value),
+                        TextFont {
+                            font_size: 16.0,
+                            ..default()
+                        },
+                        TextColor(colors::HEADER_TEXT),
+                    ));
+                });
         }
 
         // Divider
@@ -750,22 +786,24 @@ fn spawn_left_panel(
             TextColor(colors::HEADER_TEXT),
         ));
 
-        panel.spawn(Node {
-            flex_direction: FlexDirection::Row,
-            column_gap: Val::Px(4.0),
-            ..default()
-        }).with_children(|pop_row| {
-            for _ in 0..3 {
-                pop_row.spawn((
-                    Node {
-                        width: Val::Px(16.0),
-                        height: Val::Px(16.0),
-                        ..default()
-                    },
-                    BackgroundColor(Color::srgb(0.4, 0.6, 0.9)),
-                ));
-            }
-        });
+        panel
+            .spawn(Node {
+                flex_direction: FlexDirection::Row,
+                column_gap: Val::Px(4.0),
+                ..default()
+            })
+            .with_children(|pop_row| {
+                for _ in 0..3 {
+                    pop_row.spawn((
+                        Node {
+                            width: Val::Px(16.0),
+                            height: Val::Px(16.0),
+                            ..default()
+                        },
+                        BackgroundColor(Color::srgb(0.4, 0.6, 0.9)),
+                    ));
+                }
+            });
 
         // Divider
         panel.spawn((
@@ -797,23 +835,23 @@ fn spawn_left_panel(
         ));
 
         // Controls at bottom
-        panel.spawn((
-            Node {
+        panel
+            .spawn((Node {
                 margin: UiRect::top(Val::Auto),
                 flex_direction: FlexDirection::Column,
                 row_gap: Val::Px(5.0),
                 ..default()
-            },
-        )).with_children(|controls| {
-            controls.spawn((
-                Text::new("ESC - Return"),
-                TextFont {
-                    font_size: 12.0,
-                    ..default()
-                },
-                TextColor(colors::TEXT.with_alpha(0.5)),
-            ));
-        });
+            },))
+            .with_children(|controls| {
+                controls.spawn((
+                    Text::new("ESC - Return"),
+                    TextFont {
+                        font_size: 12.0,
+                        ..default()
+                    },
+                    TextColor(colors::TEXT.with_alpha(0.5)),
+                ));
+            });
     });
 }
 
@@ -928,20 +966,14 @@ fn keyboard_navigation_system(
             if let Some(planet) = system.planets.get(planet_index) {
                 // Generate planet name like setup does
                 let planet_name = format!("Planet {}", planet_index + 1);
-                
+
                 // Calculate some mock values for prosperity
                 let prosperity = 1; // 1 per day base
                 let days_to_growth = 20; // Placeholder
                 let population = 0; // No population tracking yet
                 let max_pop = planet.surface_slots as i32;
 
-                modal_state.show(
-                    planet_name,
-                    prosperity,
-                    days_to_growth,
-                    population,
-                    max_pop,
-                );
+                modal_state.show(planet_name, prosperity, days_to_growth, population, max_pop);
             }
         }
     }
@@ -963,13 +995,11 @@ fn panel_button_system(
     // Panel buttons
     for (interaction, mut bg_color, button) in &mut button_query {
         match *interaction {
-            Interaction::Pressed => {
-                match button {
-                    PanelButton::Back => {
-                        next_state.set(GameState::StarSystem);
-                    }
+            Interaction::Pressed => match button {
+                PanelButton::Back => {
+                    next_state.set(GameState::StarSystem);
                 }
-            }
+            },
             Interaction::Hovered => {
                 *bg_color = BackgroundColor(colors::BUTTON_HOVERED);
             }
@@ -990,8 +1020,6 @@ fn panel_button_system(
         }
     }
 }
-
-
 
 /// Get a representative color for planet thumbnails based on surface type.
 fn get_planet_thumbnail_color(surface_type: &str) -> Color {
@@ -1099,8 +1127,7 @@ fn planet_info_modal_system(
                             content.spawn((
                                 Text::new(format!(
                                     "{} Prosperity: {} per day",
-                                    modal_state.planet_name,
-                                    modal_state.prosperity_per_day
+                                    modal_state.planet_name, modal_state.prosperity_per_day
                                 )),
                                 TextFont {
                                     font_size: 20.0,
@@ -1111,7 +1138,10 @@ fn planet_info_modal_system(
 
                             // Population growth info
                             let growth_text = if modal_state.days_to_growth > 0 {
-                                format!("Population will grow in {} days.", modal_state.days_to_growth)
+                                format!(
+                                    "Population will grow in {} days.",
+                                    modal_state.days_to_growth
+                                )
                             } else {
                                 "Population at maximum capacity.".to_string()
                             };
@@ -1129,8 +1159,7 @@ fn planet_info_modal_system(
                             content.spawn((
                                 Text::new(format!(
                                     "Population: {} / {}",
-                                    modal_state.population,
-                                    modal_state.max_population
+                                    modal_state.population, modal_state.max_population
                                 )),
                                 TextFont {
                                     font_size: 14.0,
