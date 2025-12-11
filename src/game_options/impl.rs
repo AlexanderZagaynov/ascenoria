@@ -10,26 +10,20 @@ pub struct GameOptionsPlugin;
 
 impl Plugin for GameOptionsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            OnEnter(GameState::GameOptions),
-            setup_game_options,
-        )
-        .add_systems(
-            OnExit(GameState::GameOptions),
-            cleanup_game_options,
-        )
-        .add_systems(
-            Update,
-            (
-                button_system,
-                species_list_system,
-                settings_button_system,
-                begin_game_system,
-                keyboard_navigation_system,
-                species_scroll_system.after(keyboard_navigation_system),
-            )
-                .run_if(in_state(GameState::GameOptions)),
-        );
+        app.add_systems(OnEnter(GameState::GameOptions), setup_game_options)
+            .add_systems(OnExit(GameState::GameOptions), cleanup_game_options)
+            .add_systems(
+                Update,
+                (
+                    button_system,
+                    species_list_system,
+                    settings_button_system,
+                    begin_game_system,
+                    keyboard_navigation_system,
+                    species_scroll_system.after(keyboard_navigation_system),
+                )
+                    .run_if(in_state(GameState::GameOptions)),
+            );
     }
 }
 
@@ -92,10 +86,7 @@ fn setup_game_options(mut commands: Commands, game_data: Option<Res<GameData>>) 
         });
 }
 
-fn cleanup_game_options(
-    mut commands: Commands,
-    query: Query<Entity, With<GameOptionsRoot>>,
-) {
+fn cleanup_game_options(mut commands: Commands, query: Query<Entity, With<GameOptionsRoot>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }
@@ -287,7 +278,7 @@ fn begin_game_system(
     for interaction in &interaction_query {
         if *interaction == Interaction::Pressed {
             info!("Proceeding to species intro!");
-                next_state.set(GameState::GameSummary);
+            next_state.set(GameState::GameSummary);
         }
     }
 }
@@ -320,7 +311,7 @@ fn keyboard_navigation_system(
     if keyboard.just_pressed(KeyCode::Escape) {
         next_state.set(GameState::MainMenu);
     } else if keyboard.just_pressed(KeyCode::Enter) {
-            next_state.set(GameState::GameSummary);
+        next_state.set(GameState::GameSummary);
     } else if keyboard.just_pressed(KeyCode::ArrowUp) {
         if settings.selected_species_index > 0 {
             settings.selected_species_index -= 1;

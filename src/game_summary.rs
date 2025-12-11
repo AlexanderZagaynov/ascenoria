@@ -7,8 +7,8 @@ use bevy::input::mouse::MouseWheel;
 use bevy::prelude::*;
 
 use crate::data::{GameData, HasDescription, Language, NamedEntity};
-use crate::main_menu::GameState;
 use crate::game_options::NewGameSettings;
+use crate::main_menu::GameState;
 
 /// Plugin for the game summary screen.
 pub struct GameSummaryPlugin;
@@ -566,7 +566,7 @@ fn cleanup_game_summary(mut commands: Commands, query: Query<Entity, With<GameSu
 fn continue_system(
     mut interaction_query: Query<
         (
-            (&Interaction,
+            &Interaction,
             &mut BackgroundColor,
             Option<&ContinueButton>,
             Option<&BackButton>,

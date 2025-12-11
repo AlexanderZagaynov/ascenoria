@@ -1,9 +1,6 @@
 use std::env;
 
-#[path = "../data.rs"]
-mod data;
-
-use data::{LocalizedEntity, LocalizedText, load_game_data};
+use ascenoria::data::{LocalizedEntity, LocalizedText, load_game_data};
 
 fn main() {
     let path = env::args()

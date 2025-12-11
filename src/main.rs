@@ -2,6 +2,8 @@ mod combat;
 mod data;
 mod galaxy;
 mod galaxy_map;
+mod game_options;
+mod game_summary;
 mod industry;
 mod main_menu;
 mod planet;
@@ -10,8 +12,6 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
-mod game_summary;
-mod game_options;
 mod star_system;
 mod victory;
 
@@ -25,10 +25,10 @@ use bevy::{
 use std::path::Path;
 
 use galaxy_map::GalaxyMapPlugin;
+use game_options::GameOptionsPlugin;
+use game_summary::GameSummaryPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 use planet_view::PlanetViewPlugin;
-use game_summary::GameSummaryPlugin;
-use game_options::GameOptionsPlugin;
 use star_system::StarSystemPlugin;
 
 use data::{

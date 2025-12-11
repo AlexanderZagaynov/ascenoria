@@ -3,6 +3,18 @@ name = "ascenoria"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "ascenoria"
+path = "src/lib.rs"
+
+[[bin]]
+name = "ascenoria"
+path = "src/main.rs"
+
+[[bin]]
+name = "data_lint"
+path = "src/bin/data_lint.rs"
+
 [dependencies]
 # Dynamic linking speeds up incremental Bevy builds during dev.
 bevy = { version = "0.17.3" }
