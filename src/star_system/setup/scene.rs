@@ -1,15 +1,11 @@
-//! Star system setup and initialization.
-//!
-//! Contains the main setup function that creates the system view scene.
-
 use bevy::prelude::*;
-use rand::{Rng, SeedableRng, rngs::StdRng};
-
-use super::generation::generate_planet_positions;
-use super::types::{
-    GridPlane, PlanetMarker, PlanetStalk, StarSystemRoot, StarSystemState, colors, to_roman,
+use crate::star_system::generation::generate_planet_positions;
+use crate::star_system::types::{
+    PlanetMarker, PlanetStalk, StarSystemRoot, StarSystemState, colors, to_roman,
 };
-use super::ui::{spawn_system_label, spawn_ui_panel};
+use crate::star_system::ui::{spawn_system_label, spawn_ui_panel};
+use super::grid::spawn_grid_plane;
+use super::background::spawn_background_stars;
 
 /// Set up the star system view screen.
 pub fn setup_star_system(
@@ -169,90 +165,4 @@ pub fn setup_star_system(
         },
         StarSystemRoot,
     ));
-}
-
-/// Draw the isometric grid plane.
-fn spawn_grid_plane(commands: &mut Commands) {
-    let grid_size = 12;
-    let cell_size = 40.0;
-    let offset_x = -(grid_size as f32 * cell_size) / 2.0;
-    let offset_y = -150.0; // Below center
-
-    // Draw grid lines (simplified isometric - horizontal lines with slight perspective)
-    for i in 0..=grid_size {
-        let y_offset = i as f32 * (cell_size * 0.5);
-        let x_start = offset_x - i as f32 * 10.0;
-        let x_end = -offset_x + i as f32 * 10.0;
-
-        // Horizontal-ish lines (going "into" the screen)
-        let line_color = if i == grid_size / 2 {
-            colors::GRID_HIGHLIGHT
-        } else {
-            colors::GRID_LINE
-        };
-
-        commands.spawn((
-            Sprite {
-                color: line_color.with_alpha(0.6),
-                custom_size: Some(Vec2::new((x_end - x_start).abs(), 1.5)),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(
-                (x_start + x_end) / 2.0,
-                offset_y + y_offset,
-                0.1,
-            )),
-            GridPlane,
-            StarSystemRoot,
-        ));
-    }
-
-    // Vertical-ish lines (going "across")
-    for i in 0..=grid_size {
-        let x_pos = offset_x + i as f32 * cell_size;
-        let y_start = offset_y;
-        let y_end = offset_y + grid_size as f32 * (cell_size * 0.5);
-
-        let line_color = if i == grid_size / 2 {
-            colors::GRID_HIGHLIGHT
-        } else {
-            colors::GRID_LINE
-        };
-
-        // Slight slant for perspective
-        let slant = (i as f32 - grid_size as f32 / 2.0) * 0.8;
-
-        commands.spawn((
-            Sprite {
-                color: line_color.with_alpha(0.5),
-                custom_size: Some(Vec2::new(1.5, (y_end - y_start).abs())),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(x_pos + slant, (y_start + y_end) / 2.0, 0.1)),
-            GridPlane,
-            StarSystemRoot,
-        ));
-    }
-}
-
-/// Spawn background stars for atmosphere.
-fn spawn_background_stars(commands: &mut Commands) {
-    let mut rng = StdRng::seed_from_u64(999);
-
-    for _ in 0..80 {
-        let x = Rng::gen_range(&mut rng, -500.0..500.0);
-        let y = Rng::gen_range(&mut rng, -350.0..350.0);
-        let brightness = Rng::gen_range(&mut rng, 0.15..0.5);
-        let size = Rng::gen_range(&mut rng, 1.0..2.5);
-
-        commands.spawn((
-            Sprite {
-                color: Color::srgba(brightness, brightness, brightness * 1.1, 0.7),
-                custom_size: Some(Vec2::splat(size)),
-                ..default()
-            },
-            Transform::from_translation(Vec3::new(x, y, -5.0)),
-            StarSystemRoot,
-        ));
-    }
 }
