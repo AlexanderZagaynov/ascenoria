@@ -11,8 +11,7 @@ pub fn star_click_system(
     star_query: Query<(&StarMarker, &GlobalTransform)>,
     mut selection_query: Query<&mut Transform, (With<SelectionIndicator>, Without<StarMarker>)>,
     buttons: Res<ButtonInput<MouseButton>>,
-    map_state: Res<GalaxyMapState>,
-    mut map_state_mut: ResMut<GalaxyMapState>,
+    mut map_state: ResMut<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
     mut star_system_state: ResMut<crate::star_system::StarSystemState>,
     galaxy_preview: Res<crate::GalaxyPreview>,
@@ -83,7 +82,7 @@ pub fn star_click_system(
             next_state.set(GameState::StarSystem);
             info!("Entering system {} ({})", idx, system_name);
         } else {
-            map_state_mut.selected_system = Some(idx);
+            map_state.selected_system = Some(idx);
 
             // Move selection indicator to the selected star
             if let Ok(mut selection_transform) = selection_query.single_mut() {
