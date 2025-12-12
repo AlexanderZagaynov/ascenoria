@@ -7,6 +7,7 @@ mod briefing;
 mod setup;
 mod systems;
 mod types;
+mod ui;
 
 use bevy::prelude::*;
 
