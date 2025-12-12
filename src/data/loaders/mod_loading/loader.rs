@@ -1,62 +1,16 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use crate::data::entities::{
-    Engine, HullClass, PlanetSize, PlanetSurfaceType, PlanetaryItem, PlanetaryProject, Scanner,
-    Shield, SpecialModule, Species, Tech, TechEdge, VictoryCondition, VictoryRules, Weapon,
-};
 use crate::data::errors::DataLoadError;
+use crate::data::entities::VictoryRules;
 
-use super::toml::load_toml_file_optional;
-use super::wrappers::{
+use super::super::toml::load_toml_file_optional;
+use super::super::wrappers::{
     EnginesData, HullClassesData, ModManifest, PlanetSizesData, PlanetSurfaceTypesData,
     PlanetaryOrbitalData, PlanetaryProjectsData, PlanetarySurfaceData, ScannersData, ShieldsData,
     SpecialModulesData, SpeciesData, TechEdgesData, TechsData, VictoryConditionsData, WeaponsData,
 };
-
-pub(crate) struct ModDatasets {
-    pub species: Vec<Species>,
-    pub planet_sizes: Vec<PlanetSize>,
-    pub planet_surface_types: Vec<PlanetSurfaceType>,
-    pub surface_items: Vec<PlanetaryItem>,
-    pub orbital_items: Vec<PlanetaryItem>,
-    pub planetary_projects: Vec<PlanetaryProject>,
-    pub hull_classes: Vec<HullClass>,
-    pub engines: Vec<Engine>,
-    pub weapons: Vec<Weapon>,
-    pub shields: Vec<Shield>,
-    pub scanners: Vec<Scanner>,
-    pub special_modules: Vec<SpecialModule>,
-    pub techs: Vec<Tech>,
-    pub tech_edges: Vec<TechEdge>,
-    pub victories: Vec<VictoryCondition>,
-    pub victory_rules: Option<VictoryRules>,
-    pub min_schema_version: u32,
-}
-
-impl Default for ModDatasets {
-    fn default() -> Self {
-        Self {
-            species: Vec::new(),
-            planet_sizes: Vec::new(),
-            planet_surface_types: Vec::new(),
-            surface_items: Vec::new(),
-            orbital_items: Vec::new(),
-            planetary_projects: Vec::new(),
-            hull_classes: Vec::new(),
-            engines: Vec::new(),
-            weapons: Vec::new(),
-            shields: Vec::new(),
-            scanners: Vec::new(),
-            special_modules: Vec::new(),
-            techs: Vec::new(),
-            tech_edges: Vec::new(),
-            victories: Vec::new(),
-            victory_rules: None,
-            min_schema_version: super::DATA_SCHEMA_VERSION,
-        }
-    }
-}
+use super::types::ModDatasets;
 
 pub(crate) fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoadError> {
     let mut datasets = ModDatasets::default();
@@ -89,11 +43,11 @@ pub(crate) fn load_mod_datasets(mods_dir: &Path) -> Result<ModDatasets, DataLoad
         let schema_version = manifest
             .as_ref()
             .and_then(|m| m.data_schema_version)
-            .unwrap_or(super::DATA_SCHEMA_VERSION);
-        if schema_version > super::DATA_SCHEMA_VERSION {
+            .unwrap_or(crate::data::loaders::DATA_SCHEMA_VERSION);
+        if schema_version > crate::data::loaders::DATA_SCHEMA_VERSION {
             return Err(DataLoadError::UnsupportedSchemaVersion {
                 found: schema_version,
-                current: super::DATA_SCHEMA_VERSION,
+                current: crate::data::loaders::DATA_SCHEMA_VERSION,
                 path: mod_dir.display().to_string(),
             });
         }
