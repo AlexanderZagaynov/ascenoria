@@ -46,22 +46,32 @@ loaded at runtime into strongly-typed Rust structures.
 Key paths:
 
 - `src/`
-  Core Rust source code (game systems, data loading, Bevy setup, ECS, etc.).
+  Core Rust source code organized by feature:
+  - `data_types/` – TOML structs, loaders, validation, registry
+  - `game_data/` – Bevy plugin for resource initialization and hot reload
+  - `galaxy_data.rs` – Galaxy/star generation logic, `GalaxyPreview` resource
+  - `galaxy_view/` – Galaxy map screen (setup, systems, modal, ui)
+  - `star_data/` – Star system generation and UI
+  - `planet_data/` – Planet generation and placement logic
+  - `planet_view/` – Planet surface screen (rendering, modal, ui)
+  - `main_menu/` – Main menu screen
+  - `game_options/` – Game setup and species selection
+  - `game_summary/` – Pre-game briefing screen
+  - `ship_design/` – Ship designer logic
+  - `combat/` – Tactical combat simulation
+  - `industry.rs`, `research.rs`, `victory.rs` – Core game systems
 
 - `assets/data/`
   TOML data packs for game content, such as:
-  - `planet_types.toml`
+  - `planet_sizes.toml`, `planet_surfaces.toml`
   - `species.toml`
-  - `ships_hulls.toml`, `ships_weapons.toml`, `ships_engines.toml`, etc.
-  - `research.toml`
-  - `victory_conditions.toml`
+  - `ship_hulls.toml`, `ships_weapons.toml`, `ships_engines.toml`, etc.
+  - `research.toml`, `research_prereqs.toml`
+  - `victory_conditions.toml`, `victory_rules.toml`
   - and other gameplay data.
 
 - `assets/` (other)
   Placeholders for future art, audio, UI assets, and additional data.
-
-- `scripts/`
-  Helper scripts (for automation, data extraction, issue generation, etc.).
 
 - `Cargo.toml`, `Cargo.lock`
   Rust project configuration and dependency lockfile.

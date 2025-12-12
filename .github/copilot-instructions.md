@@ -7,6 +7,67 @@ See `AGENTS.md` for the full agent workflow, milestone structure, and GitHub iss
 
 ---
 
+## Module Organization
+
+The codebase follows a consistent naming convention:
+
+| Pattern | Purpose | Examples |
+|---------|---------|----------|
+| `*_data/` | Data types, generation, game logic | `galaxy_data/`, `star_data/`, `planet_data/` |
+| `*_view/` | UI screens, rendering, user interaction | `galaxy_view/`, `star_view/`, `planet_view/` |
+| `data_types/` | TOML structs, loaders, validation | entities, loaders, registry |
+| `game_data/` | Bevy plugin for data initialization | hot_reload, initialization |
+
+### Source Structure
+
+```
+src/
+├── main.rs                 # App entry, plugin registration
+├── lib.rs                  # Library exports
+├── main_menu/              # Main menu screen
+├── game_options/           # Game setup/species selection
+├── game_summary/           # Pre-game briefing
+│
+├── data_types/             # TOML data structures
+│   ├── entities/           # Planet, ship, species, tech, victory
+│   ├── loaders/            # TOML loading, mod support
+│   ├── registry/           # ID-based lookups
+│   ├── validation/         # Data validation
+│   └── tests/              # Unit tests
+│
+├── game_data/              # Bevy resource initialization
+│   ├── initialization.rs   # Load and insert resources
+│   └── hot_reload.rs       # File watching for dev
+│
+├── galaxy_data.rs          # Galaxy/star generation, GalaxyPreview
+├── galaxy_view/            # Galaxy map screen
+│   ├── setup/              # Scene spawning
+│   ├── systems/            # Camera, interaction, lifecycle
+│   ├── modal/              # Info dialogs
+│   └── ui/                 # Controls, indicators
+│
+├── star_data/              # Star system generation
+│   ├── setup/              # 3D scene setup
+│   └── ui/                 # System UI panels
+│
+├── planet_data/            # Planet generation, placement
+│   └── placement/          # Surface/orbital placement
+│
+├── planet_view/            # Planet surface screen
+│   ├── setup/              # Scene setup
+│   ├── rendering/          # Materials, mesh
+│   ├── modal/              # Planet dialogs
+│   └── ui/                 # Panels, top bar
+│
+├── ship_design/            # Ship designer logic
+├── combat/                 # Tactical combat simulation
+├── industry.rs             # Build queue logic
+├── research.rs             # Research state
+└── victory.rs              # Victory conditions
+```
+
+---
+
 ## Architecture Patterns
 
 ### Screen/Plugin Pattern
@@ -27,7 +88,7 @@ impl Plugin for ScreenPlugin {
 - Register in `src/main.rs` with `.add_plugins(ScreenPlugin)`
 
 ### GameState Enum
-All screens are variants of `GameState` in `src/main_menu.rs`:
+All screens are variants of `GameState` in `src/main_menu/mod.rs`:
 ```rust
 pub enum GameState {
     MainMenu, SpeciesSelection, SpeciesIntro, InGame, StarSystem, PlanetView, Settings
@@ -35,7 +96,7 @@ pub enum GameState {
 ```
 
 ### Modal Dialog Pattern
-For overlay dialogs (see `src/galaxy_view.rs`):
+For overlay dialogs (see `src/galaxy_view/modal/`):
 ```rust
 #[derive(Resource, Default)]
 pub struct InfoModalState {
@@ -66,8 +127,8 @@ These patterns differ from older Bevy versions:
 
 All game content lives in **TOML files** under `assets/data/`.
 
-- Load via `data::load_game_data("assets/data")` returning `(GameData, GameRegistry)`
-- Each data type has a corresponding Rust struct in `src/data.rs`
+- Load via `data_types::load_game_data("assets/data")` returning `(GameData, GameRegistry)`
+- Each data type has a corresponding Rust struct in `src/data_types/entities/`
 - Use `GameRegistry` for ID-based lookups
 - Computed stats are derived via `game_data.compute() -> GameDataComputed`
 
@@ -86,10 +147,12 @@ description = { en = "...", ru = "..." }
 | File | Purpose |
 |------|---------|
 | `src/main.rs` | App entry, plugin registration |
-| `src/main_menu.rs` | `GameState` enum, main menu |
-| `src/data.rs` | TOML loading, all data structs |
-| `src/galaxy_view.rs` | Galaxy view, modal system pattern |
-| `src/planet_view.rs` | Planet surface, building placement |
+| `src/main_menu/mod.rs` | `GameState` enum, main menu plugin |
+| `src/data_types/mod.rs` | Data types re-exports |
+| `src/game_data/mod.rs` | Game data Bevy plugin |
+| `src/galaxy_data.rs` | Galaxy generation, `GalaxyPreview` resource |
+| `src/galaxy_view/mod.rs` | Galaxy view screen plugin |
+| `src/planet_view/mod.rs` | Planet surface screen plugin |
 | `assets/data/README.md` | TOML file conventions |
 
 ---
@@ -106,7 +169,7 @@ cargo test            # Run unit tests
 
 ## Color Scheme
 
-Screens define colors in a local `mod colors` block (see examples in `main_menu.rs`, `galaxy_view.rs`).
+Screens define colors in a local `mod colors` block (see examples in `main_menu/colors.rs`, `galaxy_view/mod.rs`).
 Use Ascendancy-inspired palettes: navy blues, teals, warm oranges/golds.
 
 ---
