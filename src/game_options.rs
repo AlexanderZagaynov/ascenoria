@@ -3,7 +3,8 @@
 //! This module is split into smaller submodules to keep file sizes short:
 //! - `types`: ECS components/resources
 //! - `ui`: UI building/spawn helpers (and `ui::colors`)
-//! - `impl`: plugin + systems (kept separate from data structures)
+//! - `systems`: Game logic and systems
+//! - `plugin`: Plugin definition
 
 #[path = "game_options/types.rs"]
 pub mod types;
@@ -11,8 +12,11 @@ pub mod types;
 #[path = "game_options/ui.rs"]
 pub mod ui;
 
-#[path = "game_options/impl.rs"]
-mod r#impl;
+#[path = "game_options/systems/mod.rs"]
+pub mod systems;
 
-pub use r#impl::GameOptionsPlugin;
+#[path = "game_options/plugin.rs"]
+pub mod plugin;
+
+pub use plugin::GameOptionsPlugin;
 pub use types::NewGameSettings;

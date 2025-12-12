@@ -1,145 +1,11 @@
+use crate::data::{GameData, HasDescription, Language, NamedEntity};
+use crate::game_options::types::*;
+use crate::game_options::ui;
+use crate::main_menu::GameState;
 use bevy::{ecs::message::MessageReader, input::mouse::MouseWheel, prelude::*};
 
-use crate::data::{GameData, HasDescription, Language, NamedEntity};
-use crate::main_menu::GameState;
-
-use super::types::*;
-
-/// Plugin that manages the species selection screen.
-pub struct GameOptionsPlugin;
-
-impl Plugin for GameOptionsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::GameOptions), setup_game_options)
-            .add_systems(OnExit(GameState::GameOptions), cleanup_game_options)
-            .add_systems(
-                Update,
-                (
-                    button_system,
-                    species_list_system,
-                    settings_button_system,
-                    begin_game_system,
-                    keyboard_navigation_system,
-                    species_scroll_system.after(keyboard_navigation_system),
-                )
-                    .run_if(in_state(GameState::GameOptions)),
-            );
-    }
-}
-
-fn setup_game_options(mut commands: Commands, game_data: Option<Res<GameData>>) {
-    // Initialize settings if not present
-    commands.init_resource::<NewGameSettings>();
-
-    // Camera
-    commands.spawn((Camera2d::default(), GameOptionsRoot));
-
-    let species_list = game_data
-        .as_ref()
-        .map(|data| data.species().to_vec())
-        .unwrap_or_default();
-
-    // Root container
-    commands
-        .spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                flex_direction: FlexDirection::Row,
-                ..default()
-            },
-            BackgroundColor(super::ui::colors::BACKGROUND),
-            GameOptionsRoot,
-        ))
-        .with_children(|root| {
-            // Left panel - Galaxy preview
-            super::ui::spawn_galaxy_panel(root);
-
-            // Center panel - Selected species info
-            super::ui::spawn_species_info_panel(root, &species_list);
-
-            // Right panel - Species list
-            super::ui::spawn_species_list_panel(root, &species_list);
-        });
-
-    // Bottom bar with settings
-    commands
-        .spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Px(120.0),
-                position_type: PositionType::Absolute,
-                bottom: Val::Px(0.0),
-                left: Val::Px(0.0),
-                flex_direction: FlexDirection::Row,
-                justify_content: JustifyContent::SpaceEvenly,
-                align_items: AlignItems::Center,
-                padding: UiRect::horizontal(Val::Px(20.0)),
-                ..default()
-            },
-            BackgroundColor(super::ui::colors::PANEL_BG),
-            GameOptionsRoot,
-        ))
-        .with_children(|bar| {
-            super::ui::spawn_settings_buttons(bar);
-            super::ui::spawn_begin_button(bar);
-        });
-}
-
-fn cleanup_game_options(mut commands: Commands, query: Query<Entity, With<GameOptionsRoot>>) {
-    for entity in &query {
-        commands.entity(entity).despawn();
-    }
-}
-
-/// Handles button interaction visual feedback.
-fn button_system(
-    mut interaction_query: Query<
-        (
-            &Interaction,
-            &mut BackgroundColor,
-            &mut BorderColor,
-            Option<&SpeciesListItem>,
-        ),
-        (Changed<Interaction>, With<Button>),
-    >,
-    settings: Res<NewGameSettings>,
-) {
-    for (interaction, mut bg_color, mut border_color, species_item) in &mut interaction_query {
-        // Skip species list items - they have special handling
-        if let Some(item) = species_item {
-            let is_selected = item.index == settings.selected_species_index;
-            match *interaction {
-                Interaction::Pressed | Interaction::Hovered => {
-                    *border_color = BorderColor::all(super::ui::colors::TITLE);
-                }
-                Interaction::None => {
-                    *border_color = BorderColor::all(if is_selected {
-                        super::ui::colors::TITLE
-                    } else {
-                        super::ui::colors::PANEL_BORDER
-                    });
-                }
-            }
-            continue;
-        }
-
-        match *interaction {
-            Interaction::Pressed => {
-                *bg_color = BackgroundColor(super::ui::colors::BUTTON_PRESSED);
-            }
-            Interaction::Hovered => {
-                *bg_color = BackgroundColor(super::ui::colors::BUTTON_HOVERED);
-            }
-            Interaction::None => {
-                *bg_color = BackgroundColor(super::ui::colors::BUTTON_NORMAL);
-            }
-        }
-    }
-}
-
 /// Handles species list selection.
-fn species_list_system(
+pub fn species_list_system(
     interaction_query: Query<
         (&Interaction, &SpeciesListItem),
         (Changed<Interaction>, With<Button>),
@@ -164,14 +30,14 @@ fn species_list_system(
         for (item, mut bg, mut border) in &mut species_items {
             let is_selected = item.index == settings.selected_species_index;
             *bg = BackgroundColor(if is_selected {
-                super::ui::colors::SELECTED
+                ui::colors::SELECTED
             } else {
-                super::ui::colors::BUTTON_NORMAL
+                ui::colors::BUTTON_NORMAL
             });
             *border = BorderColor::all(if is_selected {
-                super::ui::colors::TITLE
+                ui::colors::TITLE
             } else {
-                super::ui::colors::PANEL_BORDER
+                ui::colors::PANEL_BORDER
             });
         }
 
@@ -189,102 +55,8 @@ fn species_list_system(
     }
 }
 
-/// Handles settings button clicks.
-fn settings_button_system(
-    interaction_query: Query<(&Interaction, &SettingsButton), (Changed<Interaction>, With<Button>)>,
-    mut settings: ResMut<NewGameSettings>,
-    mut color_buttons: Query<(&SettingsButton, &mut BorderColor)>,
-    mut info_text: Query<&mut Text, With<GalaxyInfoText>>,
-) {
-    for (interaction, button) in &interaction_query {
-        if *interaction == Interaction::Pressed {
-            match button {
-                SettingsButton::StarDensity => {
-                    settings.star_density = (settings.star_density + 1) % 3;
-                    info!(
-                        "Star density: {}",
-                        ["Sparse", "Average", "Dense"][settings.star_density]
-                    );
-                }
-                SettingsButton::NumSpecies => {
-                    settings.num_species = if settings.num_species >= 7 {
-                        1
-                    } else {
-                        settings.num_species + 1
-                    };
-                    info!("Number of species: {}", settings.num_species);
-                }
-                SettingsButton::Atmosphere => {
-                    settings.atmosphere = (settings.atmosphere + 1) % 3;
-                    info!(
-                        "Atmosphere: {}",
-                        ["Neutral", "Oxygen", "Methane"][settings.atmosphere]
-                    );
-                }
-                SettingsButton::PlayerColor(index) => {
-                    settings.player_color = *index;
-                    // Update border highlights
-                    for (btn, mut border) in &mut color_buttons {
-                        if let SettingsButton::PlayerColor(i) = btn {
-                            *border = BorderColor::all(if *i == settings.player_color {
-                                Color::WHITE
-                            } else {
-                                super::ui::colors::PANEL_BORDER
-                            });
-                        }
-                    }
-                    info!("Player color: {}", index);
-                }
-            }
-
-            // Update info text
-            let density_names = [
-                "Sparse Star Cluster",
-                "Average Star Cluster",
-                "Dense Star Cluster",
-            ];
-            let species_text = match settings.num_species {
-                1 => "One Species",
-                2 => "Two Species",
-                3 => "Three Species",
-                4 => "Four Species",
-                5 => "Five Species",
-                6 => "Six Species",
-                _ => "Seven Species",
-            };
-            let atmosphere_names = [
-                "Neutral Atmosphere",
-                "Oxygen Atmosphere",
-                "Methane Atmosphere",
-            ];
-
-            for mut text in &mut info_text {
-                **text = format!(
-                    "{}\n{}\n{}",
-                    density_names[settings.star_density],
-                    species_text,
-                    atmosphere_names[settings.atmosphere]
-                );
-            }
-        }
-    }
-}
-
-/// Handles begin game button.
-fn begin_game_system(
-    interaction_query: Query<&Interaction, (Changed<Interaction>, With<BeginGameButton>)>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    for interaction in &interaction_query {
-        if *interaction == Interaction::Pressed {
-            info!("Proceeding to species intro!");
-            next_state.set(GameState::GameSummary);
-        }
-    }
-}
-
 /// Handles keyboard navigation.
-fn keyboard_navigation_system(
+pub fn keyboard_navigation_system(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut settings: ResMut<NewGameSettings>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -329,14 +101,14 @@ fn keyboard_navigation_system(
         for (item, mut bg, mut border) in &mut species_items {
             let is_selected = item.index == settings.selected_species_index;
             *bg = BackgroundColor(if is_selected {
-                super::ui::colors::SELECTED
+                ui::colors::SELECTED
             } else {
-                super::ui::colors::BUTTON_NORMAL
+                ui::colors::BUTTON_NORMAL
             });
             *border = BorderColor::all(if is_selected {
-                super::ui::colors::TITLE
+                ui::colors::TITLE
             } else {
-                super::ui::colors::PANEL_BORDER
+                ui::colors::PANEL_BORDER
             });
         }
 
@@ -407,7 +179,7 @@ fn keyboard_navigation_system(
 }
 
 /// Handles scrolling of the species list.
-fn species_scroll_system(
+pub fn species_scroll_system(
     mut mouse_wheel_events: MessageReader<MouseWheel>,
     mut viewport_query: Query<
         (&mut ScrollPosition, &ComputedNode, &Children),
