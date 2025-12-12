@@ -1,76 +1,9 @@
-//! Main menu screen implementation inspired by classic Ascendancy.
-//!
-//! Displays a title and menu buttons for game actions like New Game, Load, Save, and Exit.
-
 use bevy::{ecs::hierarchy::ChildSpawnerCommands, ecs::message::MessageWriter, prelude::*};
+use super::colors;
+use super::components::{MainMenuRoot, MenuButton};
+use super::GameState;
 
-/// Plugin that manages the main menu screen.
-pub struct MainMenuPlugin;
-
-impl Plugin for MainMenuPlugin {
-    fn build(&self, app: &mut App) {
-        app.init_state::<GameState>()
-            .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
-            .add_systems(OnExit(GameState::MainMenu), cleanup_main_menu)
-            .add_systems(
-                Update,
-                (button_system, menu_action_system).run_if(in_state(GameState::MainMenu)),
-            );
-    }
-}
-
-/// Game state machine for managing screens.
-#[derive(States, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum GameState {
-    #[default]
-    MainMenu,
-    GameOptions,
-    GameSummary,
-    InGame,
-    StarSystem,
-    PlanetView,
-    Settings,
-}
-
-/// Marker component for all main menu UI entities.
-#[derive(Component)]
-struct MainMenuRoot;
-
-/// Marker for menu buttons with their action type.
-#[derive(Component, Clone, Copy)]
-enum MenuButton {
-    NewGame,
-    LoadGame,
-    SaveGame,
-    Settings,
-    Exit,
-}
-
-/// Colors for the menu UI - inspired by Ascendancy's color scheme.
-mod colors {
-    use bevy::prelude::*;
-
-    /// Dark navy blue for button backgrounds.
-    pub const BUTTON_NORMAL: Color = Color::srgb(0.08, 0.12, 0.20);
-    /// Slightly lighter blue for hover state.
-    pub const BUTTON_HOVERED: Color = Color::srgb(0.12, 0.18, 0.28);
-    /// Even lighter for pressed state.
-    pub const BUTTON_PRESSED: Color = Color::srgb(0.16, 0.24, 0.36);
-    /// Teal/cyan border color.
-    pub const BUTTON_BORDER: Color = Color::srgb(0.2, 0.5, 0.6);
-    /// Light cyan text.
-    pub const BUTTON_TEXT: Color = Color::srgb(0.7, 0.85, 0.9);
-    /// Warm orange/amber background.
-    pub const BACKGROUND: Color = Color::srgb(0.85, 0.55, 0.25);
-    /// Darker orange for contrast areas.
-    pub const BACKGROUND_DARK: Color = Color::srgb(0.45, 0.25, 0.12);
-    /// Title text color - warm gold.
-    pub const TITLE_TEXT: Color = Color::srgb(0.95, 0.75, 0.35);
-    /// Subtitle/version text.
-    pub const SUBTITLE_TEXT: Color = Color::srgb(0.7, 0.5, 0.25);
-}
-
-fn setup_main_menu(mut commands: Commands) {
+pub fn setup_main_menu(mut commands: Commands) {
     // Camera for the menu
     commands.spawn((Camera2d::default(), MainMenuRoot));
 
@@ -205,14 +138,14 @@ fn spawn_menu_button(
         });
 }
 
-fn cleanup_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenuRoot>>) {
+pub fn cleanup_main_menu(mut commands: Commands, query: Query<Entity, With<MainMenuRoot>>) {
     for entity in &query {
         commands.entity(entity).despawn();
     }
 }
 
 /// Handles button interaction visual feedback.
-fn button_system(
+pub fn button_system(
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor, &mut BorderColor),
         (Changed<Interaction>, With<Button>),
@@ -237,7 +170,7 @@ fn button_system(
 }
 
 /// Handles menu button actions.
-fn menu_action_system(
+pub fn menu_action_system(
     interaction_query: Query<(&Interaction, &MenuButton), (Changed<Interaction>, With<Button>)>,
     keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
