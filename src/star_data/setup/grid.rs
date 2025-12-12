@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::star::types::{GridPlane, StarRoot, colors};
+use crate::star_data::types::{GridPlane, StarRoot, colors};
 
 /// Draw the isometric grid plane.
 pub fn spawn_grid_plane(commands: &mut Commands) {

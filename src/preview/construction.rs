@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::data::GameData;
-use crate::planet::{GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview};
+use crate::planet_data::{GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview};
 use super::tech::TechState;
 
 /// Surface construction preview and selection state.

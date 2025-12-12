@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy::Galaxy;
+use crate::galaxy_data::Galaxy;
 use super::super::types::{StarRoot, colors};
 
 use super::header::spawn_system_header;

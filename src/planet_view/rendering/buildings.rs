@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::planet::TileColor;
+use crate::planet_data::TileColor;
 use crate::planet_view::types::{PlanetView3D, TileCube};
 
 /// Spawn building cubes on special tiles.

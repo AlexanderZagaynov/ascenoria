@@ -1,7 +1,7 @@
 use bevy::prelude::*;
-use crate::galaxy::Galaxy;
+use crate::galaxy_data::Galaxy;
 use crate::industry::PlanetIndustry;
-use crate::planet::GeneratedPlanet;
+use crate::planet_data::GeneratedPlanet;
 use crate::research::ResearchState;
 use crate::victory::{DominationConfig, VictoryState};
 

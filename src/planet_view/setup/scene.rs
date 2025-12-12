@@ -8,7 +8,7 @@ pub fn setup_3d_scene(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
-    tiles: &[crate::planet::TileColor],
+    tiles: &[crate::planet_data::TileColor],
     row_width: usize,
     surface_type: &str,
 ) {

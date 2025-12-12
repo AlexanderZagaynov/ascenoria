@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use std::path::Path;
 
 use crate::data::{GameData, GameRegistry, HasId};
-use crate::galaxy::generate_galaxy;
+use crate::galaxy_data::generate_galaxy;
 use crate::industry::{BuildKind, PlanetIndustry, industry_cost};
-use crate::planet::generate_planet;
+use crate::planet_data::generate_planet;
 use crate::preview::{
     GalaxyPreview, IndustryPreview, OrbitalConstruction, PlanetPreview, ResearchPreview,
     SurfaceConstruction, TechState, VictoryPreview, refresh_orbital_preview,
@@ -50,14 +50,14 @@ pub fn initialize_game_resources(
     if let Some(ref planet) = generated_planet {
         info!(
             "Generated debug planet\n{}",
-            crate::planet::format_planet(planet)
+            crate::planet_data::format_planet(planet)
         );
     } else {
         warn!("No planet generated; check planet size and surface data.");
     }
     info!(
         "Generated debug galaxy\n{}",
-        crate::galaxy::format_galaxy(&generated_galaxy)
+        crate::galaxy_data::format_galaxy(&generated_galaxy)
     );
 
     let mut tech_state = TechState::default();

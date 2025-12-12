@@ -31,7 +31,7 @@ pub struct PlanetThumbnail(pub usize);
 #[derive(Component)]
 pub struct SurfaceTileMarker {
     pub index: usize,
-    pub color: crate::planet::TileColor,
+    pub color: crate::planet_data::TileColor,
 }
 
 /// Marker for tile cube on the planet surface.

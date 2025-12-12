@@ -2,7 +2,7 @@ mod overlay;
 mod scene;
 
 use bevy::prelude::*;
-use crate::{GalaxyPreview, planet::PlanetSurface, star::StarState};
+use crate::{GalaxyPreview, planet_data::PlanetSurface, star_data::StarState};
 use crate::planet_view::types::PlanetViewState;
 
 use self::overlay::setup_ui_overlay;

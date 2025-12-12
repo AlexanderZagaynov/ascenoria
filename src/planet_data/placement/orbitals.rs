@@ -1,5 +1,5 @@
 use crate::data::PlanetaryItem;
-use crate::planet::types::{
+use crate::planet_data::types::{
     GeneratedPlanet, OrbitalPlacementError, OrbitalPreview, PlanetOrbitals,
 };
 

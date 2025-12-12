@@ -4,7 +4,7 @@
 
 use bevy::prelude::*;
 
-use crate::{GalaxyPreview, main_menu::GameState, star::StarState};
+use crate::{GalaxyPreview, main_menu::GameState, star_data::StarState};
 
 use super::modal::PlanetInfoModalState;
 use super::types::{PanelButton, PlanetThumbnail, PlanetView3D, PlanetViewRoot, colors};

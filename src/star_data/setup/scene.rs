@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use crate::star::generation::generate_planet_positions;
-use crate::star::types::{
+use crate::star_data::generation::generate_planet_positions;
+use crate::star_data::types::{
     PlanetMarker, PlanetStalk, StarRoot, StarState, colors, to_roman,
 };
-use crate::star::ui::{spawn_system_label, spawn_ui_panel};
+use crate::star_data::ui::{spawn_system_label, spawn_ui_panel};
 use super::grid::spawn_grid_plane;
 use super::background::spawn_background_stars;
 

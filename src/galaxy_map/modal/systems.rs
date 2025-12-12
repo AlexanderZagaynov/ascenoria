@@ -54,7 +54,7 @@ pub fn info_modal_button_system(
     >,
     mut modal_state: ResMut<InfoModalState>,
     mut next_state: ResMut<NextState<crate::main_menu::GameState>>,
-    mut star_state: ResMut<crate::star::StarState>,
+    mut star_state: ResMut<crate::star_data::StarState>,
     mut planet_view_state: ResMut<crate::planet_view::PlanetViewState>,
 ) {
     for (interaction, modal_button, mut bg_color) in &mut interaction_query {

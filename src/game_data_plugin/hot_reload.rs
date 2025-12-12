@@ -6,8 +6,8 @@ use bevy::{
 };
 
 use crate::data::{GameData, GameDataComputed, GameRegistry, HasId, load_game_data};
-use crate::galaxy::generate_galaxy;
-use crate::planet::generate_planet;
+use crate::galaxy_data::generate_galaxy;
+use crate::planet_data::generate_planet;
 use crate::preview::{
     GalaxyPreview, IndustryPreview, OrbitalConstruction, PlanetPreview, ResearchPreview,
     SurfaceConstruction, TechState, VictoryPreview, refresh_orbital_preview,

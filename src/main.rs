@@ -4,21 +4,21 @@
 
 mod combat;
 mod data;
-mod galaxy;
+mod galaxy_data;
 mod galaxy_map;
 mod game_data_plugin;
 mod game_options;
 mod game_summary;
 mod industry;
 mod main_menu;
-mod planet;
+mod planet_data;
 mod planet_view;
 mod preview;
 mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
-mod star;
+mod star_data;
 mod victory;
 
 use bevy::{asset::AssetPlugin, prelude::*};
@@ -30,7 +30,7 @@ use game_summary::GameSummaryPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 use planet_view::PlanetViewPlugin;
 use preview::LocalizationSettings;
-use star::StarPlugin;
+use star_data::StarPlugin;
 
 // Re-export commonly used types for other modules
 pub use preview::GalaxyPreview;

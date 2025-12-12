@@ -1,6 +1,6 @@
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
-use crate::galaxy::StarSystem;
+use crate::galaxy_data::StarSystem;
 use super::super::types::{PlanetVisual, colors};
 
 pub fn spawn_planet_info_area(panel: &mut ChildSpawnerCommands, system: Option<&StarSystem>) {

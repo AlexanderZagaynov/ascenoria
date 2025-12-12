@@ -6,7 +6,7 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::StdRng};
 
-use crate::galaxy::Galaxy;
+use crate::galaxy_data::Galaxy;
 
 use super::types::StarType;
 

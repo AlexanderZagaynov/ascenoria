@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy::render::render_resource::PrimitiveTopology;
-use crate::planet::TileColor;
+use crate::planet_data::TileColor;
 
 /// Create a planet grid mesh with vertex colors based on tiles.
 pub fn create_planet_grid_mesh(

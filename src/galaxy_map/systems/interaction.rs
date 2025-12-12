@@ -13,7 +13,7 @@ pub fn star_click_system(
     buttons: Res<ButtonInput<MouseButton>>,
     mut map_state: ResMut<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut star_state: ResMut<crate::star::StarState>,
+    mut star_state: ResMut<crate::star_data::StarState>,
     galaxy_preview: Res<crate::GalaxyPreview>,
 ) {
     if !buttons.just_released(MouseButton::Left) {
@@ -102,7 +102,7 @@ pub fn panel_button_system(
     >,
     map_state: Res<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut star_state: ResMut<crate::star::StarState>,
+    mut star_state: ResMut<crate::star_data::StarState>,
 ) {
     for (interaction, button, mut bg_color) in &mut interaction_query {
         match *interaction {

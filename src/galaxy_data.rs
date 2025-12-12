@@ -2,7 +2,7 @@ use rand::{Rng, RngCore, SeedableRng, rngs::StdRng};
 
 use crate::{
     data::GameData,
-    planet::{GeneratedPlanet, format_planet, generate_planet},
+    planet_data::{GeneratedPlanet, format_planet, generate_planet},
 };
 
 /// A star system with a deterministic list of generated planets.

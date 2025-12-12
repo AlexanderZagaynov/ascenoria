@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::StdRng};
-use crate::star::types::StarRoot;
+use crate::star_data::types::StarRoot;
 
 /// Spawn background stars for atmosphere.
 pub fn spawn_background_stars(commands: &mut Commands) {
