@@ -70,7 +70,6 @@ pub fn setup_main_menu(mut commands: Commands) {
                     spawn_menu_button(menu, "New Game", MenuButton::NewGame, None);
                     spawn_menu_button(menu, "Load Game", MenuButton::LoadGame, Some("Alt-L"));
                     spawn_menu_button(menu, "Save Game", MenuButton::SaveGame, Some("Alt-S"));
-                    spawn_menu_button(menu, "Settings", MenuButton::Settings, None);
                     spawn_menu_button(menu, "Exit", MenuButton::Exit, Some("Alt-X"));
                 });
 

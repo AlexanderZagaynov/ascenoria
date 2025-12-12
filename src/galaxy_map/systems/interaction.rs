@@ -13,7 +13,7 @@ pub fn star_click_system(
     buttons: Res<ButtonInput<MouseButton>>,
     mut map_state: ResMut<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut star_system_state: ResMut<crate::star_system::StarSystemState>,
+    mut star_state: ResMut<crate::star::StarState>,
     galaxy_preview: Res<crate::GalaxyPreview>,
 ) {
     if !buttons.just_released(MouseButton::Left) {
@@ -61,7 +61,7 @@ pub fn star_click_system(
 
         if distance < click_radius {
             if closest_star.is_none() || proj_length < closest_star.unwrap().1 {
-                closest_star = Some((marker.system_index, proj_length, star_pos));
+                closest_star = Some((marker.star_index, proj_length, star_pos));
             }
         }
     }
@@ -77,9 +77,9 @@ pub fn star_click_system(
 
         if map_state.selected_system == Some(idx) {
             // Double-click on same star - enter system view
-            star_system_state.system_index = idx;
-            star_system_state.selected_planet = None;
-            next_state.set(GameState::StarSystem);
+            star_state.star_index = idx;
+            star_state.selected_planet = None;
+            next_state.set(GameState::StarView);
             info!("Entering system {} ({})", idx, system_name);
         } else {
             map_state.selected_system = Some(idx);
@@ -102,7 +102,7 @@ pub fn panel_button_system(
     >,
     map_state: Res<GalaxyMapState>,
     mut next_state: ResMut<NextState<GameState>>,
-    mut star_system_state: ResMut<crate::star_system::StarSystemState>,
+    mut star_state: ResMut<crate::star::StarState>,
 ) {
     for (interaction, button, mut bg_color) in &mut interaction_query {
         match *interaction {
@@ -114,9 +114,9 @@ pub fn panel_button_system(
                 match button {
                     PanelButton::Planets => {
                         if let Some(system_idx) = map_state.selected_system {
-                            star_system_state.system_index = system_idx;
-                            star_system_state.selected_planet = None;
-                            next_state.set(GameState::StarSystem);
+                            star_state.star_index = system_idx;
+                            star_state.selected_planet = None;
+                            next_state.set(GameState::StarView);
                             info!("Entering system {} via Planets button", system_idx);
                         }
                     }

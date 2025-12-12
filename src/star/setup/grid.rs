@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::star_system::types::{GridPlane, StarSystemRoot, colors};
+use crate::star::types::{GridPlane, StarRoot, colors};
 
 /// Draw the isometric grid plane.
 pub fn spawn_grid_plane(commands: &mut Commands) {
@@ -33,7 +33,7 @@ pub fn spawn_grid_plane(commands: &mut Commands) {
                 0.1,
             )),
             GridPlane,
-            StarSystemRoot,
+            StarRoot,
         ));
     }
 
@@ -60,7 +60,7 @@ pub fn spawn_grid_plane(commands: &mut Commands) {
             },
             Transform::from_translation(Vec3::new(x_pos + slant, (y_start + y_end) / 2.0, 0.1)),
             GridPlane,
-            StarSystemRoot,
+            StarRoot,
         ));
     }
 }

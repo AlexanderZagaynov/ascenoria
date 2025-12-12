@@ -2,7 +2,7 @@ mod overlay;
 mod scene;
 
 use bevy::prelude::*;
-use crate::{GalaxyPreview, planet::PlanetSurface, star_system::StarSystemState};
+use crate::{GalaxyPreview, planet::PlanetSurface, star::StarState};
 use crate::planet_view::types::PlanetViewState;
 
 use self::overlay::setup_ui_overlay;
@@ -13,20 +13,20 @@ pub fn setup_planet_view(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    star_system_state: Res<StarSystemState>,
+    star_state: Res<StarState>,
     galaxy_preview: Res<GalaxyPreview>,
     mut _planet_state: ResMut<PlanetViewState>,
 ) {
-    // Get current planet info from star system state
-    let system_index = star_system_state.system_index;
-    let planet_index = star_system_state.selected_planet.unwrap_or(0);
+// Get current planet info from star system state
+    let star_index = star_state.star_index;
+    let planet_index = star_state.selected_planet.unwrap_or(0);
 
     // Get planet data if available
     let (planet_name, surface_type, planet_size, surface_slots, orbital_slots, tiles, row_width) =
         galaxy_preview
             .galaxy
             .systems
-            .get(system_index)
+            .get(star_index)
             .and_then(|s| s.planets.get(planet_index))
             .map(|p| {
                 let _surface = PlanetSurface::from(p);
@@ -55,7 +55,7 @@ pub fn setup_planet_view(
     let num_planets = galaxy_preview
         .galaxy
         .systems
-        .get(system_index)
+        .get(star_index)
         .map(|s| s.planets.len())
         .unwrap_or(0);
 
@@ -80,7 +80,7 @@ pub fn setup_planet_view(
         &mut commands,
         num_planets,
         planet_index,
-        system_index,
+        star_index,
         &galaxy_preview,
         &planet_name,
         &surface_type,

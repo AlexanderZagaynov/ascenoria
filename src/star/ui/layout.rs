@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use crate::galaxy::Galaxy;
-use super::super::types::{StarSystemRoot, colors};
+use super::super::types::{StarRoot, colors};
 
 use super::header::spawn_system_header;
 use super::navigation::spawn_navigation_buttons;
@@ -8,8 +8,8 @@ use super::info::spawn_planet_info_area;
 use super::controls::spawn_bottom_controls;
 
 /// Spawn the right-side UI panel.
-pub fn spawn_ui_panel(commands: &mut Commands, galaxy: &Galaxy, system_index: usize) {
-    let system = galaxy.systems.get(system_index);
+pub fn spawn_ui_panel(commands: &mut Commands, galaxy: &Galaxy, star_index: usize) {
+    let system = galaxy.systems.get(star_index);
     let system_name = system.map(|s| s.name.as_str()).unwrap_or("Unknown");
 
     commands
@@ -21,7 +21,7 @@ pub fn spawn_ui_panel(commands: &mut Commands, galaxy: &Galaxy, system_index: us
                 justify_content: JustifyContent::FlexEnd,
                 ..default()
             },
-            StarSystemRoot,
+            StarRoot,
         ))
         .with_children(|parent| {
             // Right panel

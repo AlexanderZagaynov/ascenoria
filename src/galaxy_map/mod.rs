@@ -57,8 +57,8 @@ impl Plugin for GalaxyMapPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<GalaxyMapState>()
             .init_resource::<InfoModalState>()
-            .add_systems(OnEnter(GameState::InGame), setup::setup_galaxy_map)
-            .add_systems(OnExit(GameState::InGame), systems::cleanup_galaxy_map)
+            .add_systems(OnEnter(GameState::GalaxyView), setup::setup_galaxy_map)
+            .add_systems(OnExit(GameState::GalaxyView), systems::cleanup_galaxy_map)
             .add_systems(
                 Update,
                 (
@@ -69,7 +69,7 @@ impl Plugin for GalaxyMapPlugin {
                     modal::info_modal_system,
                     modal::info_modal_button_system,
                 )
-                    .run_if(in_state(GameState::InGame)),
+                    .run_if(in_state(GameState::GalaxyView)),
             );
     }
 }

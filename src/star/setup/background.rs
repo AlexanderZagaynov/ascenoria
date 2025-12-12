@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::StdRng};
-use crate::star_system::types::StarSystemRoot;
+use crate::star::types::StarRoot;
 
 /// Spawn background stars for atmosphere.
 pub fn spawn_background_stars(commands: &mut Commands) {
@@ -19,7 +19,7 @@ pub fn spawn_background_stars(commands: &mut Commands) {
                 ..default()
             },
             Transform::from_translation(Vec3::new(x, y, -5.0)),
-            StarSystemRoot,
+            StarRoot,
         ));
     }
 }

@@ -16,7 +16,7 @@ pub struct GalaxyView3D;
 /// Marker for star system entities on the map.
 #[derive(Component)]
 pub struct StarMarker {
-    pub system_index: usize,
+    pub star_index: usize,
 }
 
 /// Marker for star lane (connection line) entities.

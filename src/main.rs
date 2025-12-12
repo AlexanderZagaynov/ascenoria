@@ -18,7 +18,7 @@ mod research;
 mod ship_blueprints;
 mod ship_design;
 mod ship_ui;
-mod star_system;
+mod star;
 mod victory;
 
 use bevy::{asset::AssetPlugin, prelude::*};
@@ -30,7 +30,7 @@ use game_summary::GameSummaryPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 use planet_view::PlanetViewPlugin;
 use preview::LocalizationSettings;
-use star_system::StarSystemPlugin;
+use star::StarPlugin;
 
 // Re-export commonly used types for other modules
 pub use preview::GalaxyPreview;
@@ -48,12 +48,12 @@ fn main() {
             GameOptionsPlugin,
             GameSummaryPlugin,
             GalaxyMapPlugin,
-            StarSystemPlugin,
+            StarPlugin,
             PlanetViewPlugin,
         ))
         .add_systems(
             Update,
-            return_to_menu_input.run_if(in_state(GameState::InGame)),
+            return_to_menu_input.run_if(in_state(GameState::GalaxyView)),
         )
         .run();
 }

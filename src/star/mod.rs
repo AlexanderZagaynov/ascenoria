@@ -17,16 +17,16 @@ use bevy::prelude::*;
 use crate::main_menu::GameState;
 
 // Re-export public types
-pub use types::StarSystemState;
+pub use types::StarState;
 
 /// Plugin that manages the star system view screen.
-pub struct StarSystemPlugin;
+pub struct StarPlugin;
 
-impl Plugin for StarSystemPlugin {
+impl Plugin for StarPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<StarSystemState>()
-            .add_systems(OnEnter(GameState::StarSystem), setup::setup_star_system)
-            .add_systems(OnExit(GameState::StarSystem), systems::cleanup_star_system)
+        app.init_resource::<StarState>()
+            .add_systems(OnEnter(GameState::StarView), setup::setup_star)
+            .add_systems(OnExit(GameState::StarView), systems::cleanup_star)
             .add_systems(
                 Update,
                 (
@@ -35,7 +35,7 @@ impl Plugin for StarSystemPlugin {
                     systems::camera_control_system,
                     systems::keyboard_navigation_system,
                 )
-                    .run_if(in_state(GameState::StarSystem)),
+                    .run_if(in_state(GameState::StarView)),
             );
     }
 }

@@ -11,7 +11,7 @@ pub fn spawn_top_bar(
     root: &mut ChildSpawnerCommands,
     num_planets: usize,
     planet_index: usize,
-    system_index: usize,
+    star_index: usize,
     galaxy_preview: &GalaxyPreview,
     planet_name: &str,
     surface_type: &str,
@@ -44,7 +44,7 @@ pub fn spawn_top_bar(
             top_bar,
             num_planets,
             planet_index,
-            system_index,
+            star_index,
             galaxy_preview,
         );
     });
@@ -117,7 +117,7 @@ fn spawn_planet_thumbnails(
     top_bar: &mut ChildSpawnerCommands,
     num_planets: usize,
     planet_index: usize,
-    system_index: usize,
+    star_index: usize,
     galaxy_preview: &GalaxyPreview,
 ) {
     top_bar
@@ -138,7 +138,7 @@ fn spawn_planet_thumbnails(
                 let thumb_color = galaxy_preview
                     .galaxy
                     .systems
-                    .get(system_index)
+                    .get(star_index)
                     .and_then(|s| s.planets.get(i))
                     .map(|p| get_planet_thumbnail_color(&p.surface_type_id))
                     .unwrap_or(colors::TILE_WHITE);

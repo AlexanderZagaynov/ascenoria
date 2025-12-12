@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use super::super::types::{StarSystemRoot, colors};
+use super::super::types::{StarRoot, colors};
 
 /// Spawn system labels (player icons in corners).
 pub fn spawn_system_label(commands: &mut Commands, _system_name: &str) {
@@ -19,7 +19,7 @@ pub fn spawn_system_label(commands: &mut Commands, _system_name: &str) {
             },
             BackgroundColor(colors::PANEL_DARK),
             BorderColor::all(colors::SELECTION_GREEN),
-            StarSystemRoot,
+            StarRoot,
         ))
         .with_children(|icon| {
             icon.spawn((
@@ -48,7 +48,7 @@ pub fn spawn_system_label(commands: &mut Commands, _system_name: &str) {
             },
             BackgroundColor(colors::PANEL_DARK),
             BorderColor::all(colors::SELECTION_GREEN),
-            StarSystemRoot,
+            StarRoot,
         ))
         .with_children(|icon| {
             icon.spawn((

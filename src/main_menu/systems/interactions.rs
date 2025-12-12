@@ -67,10 +67,6 @@ pub fn menu_action_system(
                     info!("Save Game clicked");
                     // TODO: Implement save game dialog
                 }
-                MenuButton::Settings => {
-                    info!("Settings clicked");
-                    next_state.set(GameState::Settings);
-                }
                 MenuButton::Exit => {
                     exit_events.write(AppExit::Success);
                 }

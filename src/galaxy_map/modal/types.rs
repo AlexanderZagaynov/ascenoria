@@ -31,11 +31,11 @@ pub enum ModalAction {
     Dismiss,
     /// Navigate to a specific planet.
     GoToPlanet {
-        system_index: usize,
+        star_index: usize,
         planet_index: usize,
     },
     /// Navigate to a specific star system.
-    GoToSystem { system_index: usize },
+    GoToStar { star_index: usize },
     /// Open research screen.
     OpenResearch,
     /// Open ship designer.
@@ -83,7 +83,7 @@ impl InfoModalState {
     pub fn planet_notification(
         icon: ModalIcon,
         message: impl Into<String>,
-        system_index: usize,
+        star_index: usize,
         planet_index: usize,
     ) -> Self {
         Self {
@@ -95,7 +95,7 @@ impl InfoModalState {
                 ModalButton {
                     label: "Go to Planet".to_string(),
                     action: ModalAction::GoToPlanet {
-                        system_index,
+                        star_index,
                         planet_index,
                     },
                 },

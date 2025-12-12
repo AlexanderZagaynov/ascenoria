@@ -1,20 +1,20 @@
 use bevy::prelude::*;
-use crate::star_system::generation::generate_planet_positions;
-use crate::star_system::types::{
-    PlanetMarker, PlanetStalk, StarSystemRoot, StarSystemState, colors, to_roman,
+use crate::star::generation::generate_planet_positions;
+use crate::star::types::{
+    PlanetMarker, PlanetStalk, StarRoot, StarState, colors, to_roman,
 };
-use crate::star_system::ui::{spawn_system_label, spawn_ui_panel};
+use crate::star::ui::{spawn_system_label, spawn_ui_panel};
 use super::grid::spawn_grid_plane;
 use super::background::spawn_background_stars;
 
 /// Set up the star system view screen.
-pub fn setup_star_system(
+pub fn setup_star(
     mut commands: Commands,
     galaxy_preview: Res<crate::GalaxyPreview>,
-    state: Res<StarSystemState>,
+    state: Res<StarState>,
 ) {
     // Camera for the system view
-    commands.spawn((Camera2d::default(), StarSystemRoot));
+    commands.spawn((Camera2d::default(), StarRoot));
 
     // Background (space)
     commands.spawn((
@@ -24,17 +24,17 @@ pub fn setup_star_system(
             ..default()
         },
         Transform::from_translation(Vec3::new(0.0, 0.0, -10.0)),
-        StarSystemRoot,
+        StarRoot,
     ));
 
     // Draw the grid plane
     spawn_grid_plane(&mut commands);
 
     // Generate and spawn planets with stalks
-    let positions = generate_planet_positions(&galaxy_preview.galaxy, state.system_index, 42);
+    let positions = generate_planet_positions(&galaxy_preview.galaxy, state.star_index, 42);
 
     // Get system info for the panel
-    let system = galaxy_preview.galaxy.systems.get(state.system_index);
+    let system = galaxy_preview.galaxy.systems.get(state.star_index);
     let system_name = system.map(|s| s.name.as_str()).unwrap_or("Unknown System");
 
     for (i, pos) in positions.iter().enumerate() {
@@ -62,7 +62,7 @@ pub fn setup_star_system(
                 0.5,
             )),
             PlanetStalk { planet_index: i },
-            StarSystemRoot,
+            StarRoot,
         ));
 
         // Small base marker on grid
@@ -73,7 +73,7 @@ pub fn setup_star_system(
                 ..default()
             },
             Transform::from_translation(Vec3::new(screen_x, stalk_base_y, 0.4)),
-            StarSystemRoot,
+            StarRoot,
         ));
 
         // Planet sphere (represented as circle)
@@ -85,7 +85,7 @@ pub fn setup_star_system(
             },
             Transform::from_translation(Vec3::new(screen_x, screen_y, 1.0)),
             PlanetMarker { planet_index: i },
-            StarSystemRoot,
+            StarRoot,
         ));
 
         // Planet highlight/atmosphere glow
@@ -96,7 +96,7 @@ pub fn setup_star_system(
                 ..default()
             },
             Transform::from_translation(Vec3::new(screen_x, screen_y, 0.9)),
-            StarSystemRoot,
+            StarRoot,
         ));
 
         // Planet label (name)
@@ -114,7 +114,7 @@ pub fn setup_star_system(
                 top: Val::Px(300.0 - screen_y - 5.0),                    // Invert Y for UI
                 ..default()
             },
-            StarSystemRoot,
+            StarRoot,
         ));
     }
 
@@ -126,7 +126,7 @@ pub fn setup_star_system(
             ..default()
         },
         Transform::from_translation(Vec3::new(-50.0, 80.0, 0.8)),
-        StarSystemRoot,
+        StarRoot,
     ));
 
     // Star glow
@@ -137,14 +137,14 @@ pub fn setup_star_system(
             ..default()
         },
         Transform::from_translation(Vec3::new(-50.0, 80.0, 0.7)),
-        StarSystemRoot,
+        StarRoot,
     ));
 
     // Spawn background stars
     spawn_background_stars(&mut commands);
 
     // UI overlay - right side panel
-    spawn_ui_panel(&mut commands, &galaxy_preview.galaxy, state.system_index);
+    spawn_ui_panel(&mut commands, &galaxy_preview.galaxy, state.star_index);
 
     // System name in top-left
     spawn_system_label(&mut commands, system_name);
@@ -163,6 +163,6 @@ pub fn setup_star_system(
             left: Val::Px(10.0),
             ..default()
         },
-        StarSystemRoot,
+        StarRoot,
     ));
 }

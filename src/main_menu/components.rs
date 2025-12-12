@@ -10,6 +10,5 @@ pub enum MenuButton {
     NewGame,
     LoadGame,
     SaveGame,
-    Settings,
     Exit,
 }

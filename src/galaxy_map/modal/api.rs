@@ -14,8 +14,8 @@ pub fn show_planet_notification(
     modal_state: &mut InfoModalState,
     icon: ModalIcon,
     message: impl Into<String>,
-    system_index: usize,
+    star_index: usize,
     planet_index: usize,
 ) {
-    *modal_state = InfoModalState::planet_notification(icon, message, system_index, planet_index);
+    *modal_state = InfoModalState::planet_notification(icon, message, star_index, planet_index);
 }

@@ -36,7 +36,7 @@ pub fn continue_system(
                 *bg_color = BackgroundColor(colors::BUTTON_PRESSED);
                 if is_continue.is_some() {
                     info!("Continuing to game...");
-                    next_state.set(GameState::InGame);
+                    next_state.set(GameState::GalaxyView);
                 } else if is_back.is_some() {
                     info!("Returning to game options...");
                     next_state.set(GameState::GameOptions);
@@ -62,7 +62,7 @@ pub fn keyboard_navigation_system(
         next_state.set(GameState::GameOptions);
     } else if keyboard.just_pressed(KeyCode::Enter) || keyboard.just_pressed(KeyCode::Space) {
         info!("Continuing to game...");
-        next_state.set(GameState::InGame);
+        next_state.set(GameState::GalaxyView);
     }
 }
 

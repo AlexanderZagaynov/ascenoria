@@ -6,7 +6,7 @@ use bevy::prelude::*;
 
 /// Marker component for all star system view entities.
 #[derive(Component)]
-pub struct StarSystemRoot;
+pub struct StarRoot;
 
 /// Marker for planet entities in the system view.
 #[derive(Component)]
@@ -30,9 +30,9 @@ pub struct GridPlane;
 
 /// State for the star system view.
 #[derive(Resource, Default)]
-pub struct StarSystemState {
-    /// Currently viewing system index.
-    pub system_index: usize,
+pub struct StarState {
+    /// Currently viewing star index.
+    pub star_index: usize,
     /// Currently selected planet (if any).
     pub selected_planet: Option<usize>,
     /// Camera rotation angle (for view rotation).

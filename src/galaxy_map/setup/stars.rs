@@ -35,7 +35,7 @@ pub fn spawn_stars(
             Mesh3d(star_mesh.clone()),
             MeshMaterial3d(star_material),
             Transform::from_translation(*pos),
-            StarMarker { system_index: i },
+            StarMarker { star_index: i },
             GalaxyMapRoot,
             GalaxyView3D,
         ));

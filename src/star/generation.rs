@@ -12,14 +12,14 @@ use super::types::{PlanetPosition, PlanetVisual};
 /// Generate planet positions for isometric view from galaxy data.
 pub fn generate_planet_positions(
     galaxy: &Galaxy,
-    system_index: usize,
+    star_index: usize,
     seed: u64,
 ) -> Vec<PlanetPosition> {
-    let Some(system) = galaxy.systems.get(system_index) else {
+    let Some(system) = galaxy.systems.get(star_index) else {
         return Vec::new();
     };
 
-    let mut rng = StdRng::seed_from_u64(seed.wrapping_add(system_index as u64));
+    let mut rng = StdRng::seed_from_u64(seed.wrapping_add(star_index as u64));
     let mut positions = Vec::with_capacity(system.planets.len());
 
     let base_radius = 120.0;

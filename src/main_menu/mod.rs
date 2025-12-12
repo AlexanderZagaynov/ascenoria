@@ -32,8 +32,7 @@ pub enum GameState {
     MainMenu,
     GameOptions,
     GameSummary,
-    InGame,
-    StarSystem,
+    GalaxyView,
+    StarView,
     PlanetView,
-    Settings,
 }

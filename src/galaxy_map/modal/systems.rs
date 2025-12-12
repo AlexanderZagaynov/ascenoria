@@ -54,7 +54,7 @@ pub fn info_modal_button_system(
     >,
     mut modal_state: ResMut<InfoModalState>,
     mut next_state: ResMut<NextState<crate::main_menu::GameState>>,
-    mut star_system_state: ResMut<crate::star_system::StarSystemState>,
+    mut star_state: ResMut<crate::star::StarState>,
     mut planet_view_state: ResMut<crate::planet_view::PlanetViewState>,
 ) {
     for (interaction, modal_button, mut bg_color) in &mut interaction_query {
@@ -74,20 +74,20 @@ pub fn info_modal_button_system(
                         modal_state.hide();
                     }
                     ModalAction::GoToPlanet {
-                        system_index,
+                        star_index,
                         planet_index,
                     } => {
-                        star_system_state.system_index = *system_index;
-                        star_system_state.selected_planet = Some(*planet_index);
+                        star_state.star_index = *star_index;
+                        star_state.selected_planet = Some(*planet_index);
                         planet_view_state.planet_index = *planet_index;
                         modal_state.hide();
                         next_state.set(crate::main_menu::GameState::PlanetView);
                     }
-                    ModalAction::GoToSystem { system_index } => {
-                        star_system_state.system_index = *system_index;
-                        star_system_state.selected_planet = None;
+                    ModalAction::GoToStar { star_index } => {
+                        star_state.star_index = *star_index;
+                        star_state.selected_planet = None;
                         modal_state.hide();
-                        next_state.set(crate::main_menu::GameState::StarSystem);
+                        next_state.set(crate::main_menu::GameState::StarView);
                     }
                     ModalAction::OpenResearch => {
                         modal_state.hide();

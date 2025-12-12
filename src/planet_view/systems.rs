@@ -4,7 +4,7 @@
 
 use bevy::prelude::*;
 
-use crate::{GalaxyPreview, main_menu::GameState, star_system::StarSystemState};
+use crate::{GalaxyPreview, main_menu::GameState, star::StarState};
 
 use super::modal::PlanetInfoModalState;
 use super::types::{PanelButton, PlanetThumbnail, PlanetView3D, PlanetViewRoot, colors};
@@ -28,23 +28,23 @@ pub fn keyboard_navigation_system(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
     mut modal_state: ResMut<PlanetInfoModalState>,
-    star_system_state: Res<StarSystemState>,
+    star_state: Res<StarState>,
     galaxy_preview: Res<GalaxyPreview>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
         if modal_state.visible {
             modal_state.hide();
         } else {
-            next_state.set(GameState::StarSystem);
+            next_state.set(GameState::StarView);
         }
     }
 
     // Press 'I' to show planet info modal
     if keyboard.just_pressed(KeyCode::KeyI) && !modal_state.visible {
-        let system_index = star_system_state.system_index;
-        let planet_index = star_system_state.selected_planet.unwrap_or(0);
+        let star_index = star_state.star_index;
+        let planet_index = star_state.selected_planet.unwrap_or(0);
 
-        if let Some(system) = galaxy_preview.galaxy.systems.get(system_index) {
+        if let Some(system) = galaxy_preview.galaxy.systems.get(star_index) {
             if let Some(planet) = system.planets.get(planet_index) {
                 // Generate planet name like setup does
                 let planet_name = format!("Planet {}", planet_index + 1);
@@ -71,7 +71,7 @@ pub fn panel_button_system(
         (&Interaction, &PlanetThumbnail, &mut BorderColor),
         (Changed<Interaction>, With<Button>, Without<PanelButton>),
     >,
-    mut star_system_state: ResMut<StarSystemState>,
+    mut star_state: ResMut<StarState>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     // Panel buttons
@@ -79,7 +79,7 @@ pub fn panel_button_system(
         match *interaction {
             Interaction::Pressed => match button {
                 PanelButton::Back => {
-                    next_state.set(GameState::StarSystem);
+                    next_state.set(GameState::StarView);
                 }
             },
             Interaction::Hovered => {
@@ -94,7 +94,7 @@ pub fn panel_button_system(
     // Planet thumbnail clicks
     for (interaction, thumbnail, mut border_color) in &mut thumbnail_query {
         if *interaction == Interaction::Pressed {
-            star_system_state.selected_planet = Some(thumbnail.0);
+            star_state.selected_planet = Some(thumbnail.0);
             // Re-enter planet view to refresh
             next_state.set(GameState::PlanetView);
         } else if *interaction == Interaction::Hovered {
