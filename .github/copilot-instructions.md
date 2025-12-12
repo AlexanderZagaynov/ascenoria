@@ -100,7 +100,6 @@ description = { en = "...", ru = "..." }
 cargo check           # Fast compilation check
 cargo fmt             # Format code
 cargo test            # Run unit tests
-cargo run --bin data_lint -- assets/data   # Validate TOML data
 ```
 
 ---

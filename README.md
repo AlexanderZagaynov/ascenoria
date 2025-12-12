@@ -19,5 +19,5 @@ Ascenoria is a Rust/Bevy strategy prototype that loads most game content from TO
 
 ## Data linting
 
-- Validate and lint a data pack with `cargo run --bin data_lint -- <path-to-data-dir>` (defaults to `assets/data`).
+
 - The tool reuses the game loader checks and warns about missing localizations or ids that are not snake_case.

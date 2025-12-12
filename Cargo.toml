@@ -11,10 +11,6 @@ path = "src/lib.rs"
 name = "ascenoria"
 path = "src/main.rs"
 
-[[bin]]
-name = "data_lint"
-path = "src/bin/data_lint.rs"
-
 [dependencies]
 # Dynamic linking speeds up incremental Bevy builds during dev.
 bevy = { version = "0.17.3" }
