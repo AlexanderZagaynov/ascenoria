@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
+use crate::galaxy_view::colors;
 
 /// Spawn the speed control buttons.
 pub fn spawn_speed_controls(panel: &mut ChildSpawnerCommands) {

@@ -7,7 +7,7 @@ use bevy::prelude::*;
 
 /// Marker component for all galaxy map UI entities.
 #[derive(Component)]
-pub struct GalaxyMapRoot;
+pub struct GalaxyViewRoot;
 
 /// Marker for the 3D galaxy view entities.
 #[derive(Component)]
@@ -33,7 +33,7 @@ pub struct SelectedStar;
 
 /// State for the galaxy map view.
 #[derive(Resource)]
-pub struct GalaxyMapState {
+pub struct GalaxyViewState {
     pub selected_system: Option<usize>,
     pub camera_offset: Vec2,
     pub turn_number: u32,
@@ -55,7 +55,7 @@ pub struct GalaxyMapState {
     pub zoom: f32,
 }
 
-impl Default for GalaxyMapState {
+impl Default for GalaxyViewState {
     fn default() -> Self {
         Self {
             selected_system: None,

@@ -1,14 +1,14 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyMapState};
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyViewState};
 
 /// Handle galaxy rotation via mouse drag and camera orbit.
 pub fn galaxy_rotation_system(
     buttons: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    mut map_state: ResMut<GalaxyMapState>,
-    mut camera_query: Query<&mut Transform, (With<GalaxyMapRoot>, With<Camera3d>)>,
+    mut map_state: ResMut<GalaxyViewState>,
+    mut camera_query: Query<&mut Transform, (With<GalaxyViewRoot>, With<Camera3d>)>,
     time: Res<Time>,
 ) {
     let Ok(window) = windows.single() else {

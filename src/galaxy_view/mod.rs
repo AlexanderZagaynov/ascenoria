@@ -16,7 +16,7 @@ use crate::main_menu::GameState;
 
 // Re-export public types
 pub use modal::InfoModalState;
-pub use types::GalaxyMapState;
+pub use types::GalaxyViewState;
 
 /// Colors for the galaxy map UI.
 pub mod colors {
@@ -51,14 +51,14 @@ pub mod colors {
 }
 
 /// Plugin that manages the galaxy map screen.
-pub struct GalaxyMapPlugin;
+pub struct GalaxyViewPlugin;
 
-impl Plugin for GalaxyMapPlugin {
+impl Plugin for GalaxyViewPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<GalaxyMapState>()
+        app.init_resource::<GalaxyViewState>()
             .init_resource::<InfoModalState>()
-            .add_systems(OnEnter(GameState::GalaxyView), setup::setup_galaxy_map)
-            .add_systems(OnExit(GameState::GalaxyView), systems::cleanup_galaxy_map)
+            .add_systems(OnEnter(GameState::GalaxyView), setup::setup_galaxy_view)
+            .add_systems(OnExit(GameState::GalaxyView), systems::cleanup_galaxy_view)
             .add_systems(
                 Update,
                 (

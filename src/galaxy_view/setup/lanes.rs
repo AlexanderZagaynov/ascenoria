@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 
-use crate::galaxy_map::generation::{create_lane_mesh, generate_star_lanes};
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyView3D, StarLane};
+use crate::galaxy_view::generation::{create_lane_mesh, generate_star_lanes};
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyView3D, StarLane};
 
 pub fn spawn_star_lanes(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
-    star_positions: &[(Vec3, crate::galaxy_map::types::StarType, String)],
+    star_positions: &[(Vec3, crate::galaxy_view::types::StarType, String)],
 ) {
     let lanes = generate_star_lanes(star_positions, 5.0);
     let lane_material = materials.add(StandardMaterial {
@@ -26,7 +26,7 @@ pub fn spawn_star_lanes(
             MeshMaterial3d(lane_material.clone()),
             lane_transform,
             StarLane,
-            GalaxyMapRoot,
+            GalaxyViewRoot,
             GalaxyView3D,
         ));
     }

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
+use crate::galaxy_view::colors;
 use super::super::types::InfoModalState;
 use super::sections::{spawn_modal_message_section, spawn_modal_top_section};
 use super::controls::spawn_modal_button_row;

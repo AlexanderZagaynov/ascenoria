@@ -1,17 +1,17 @@
 use bevy::{prelude::*, window::PrimaryWindow};
 
 use crate::main_menu::GameState;
-use crate::galaxy_map::colors;
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyMapState, PanelButton, SelectionIndicator, StarMarker};
+use crate::galaxy_view::colors;
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyViewState, PanelButton, SelectionIndicator, StarMarker};
 
 /// Handle clicking on stars to select/enter systems.
 pub fn star_click_system(
     windows: Query<&Window, With<PrimaryWindow>>,
-    camera_q: Query<(&Camera, &GlobalTransform), (With<GalaxyMapRoot>, With<Camera3d>)>,
+    camera_q: Query<(&Camera, &GlobalTransform), (With<GalaxyViewRoot>, With<Camera3d>)>,
     star_query: Query<(&StarMarker, &GlobalTransform)>,
     mut selection_query: Query<&mut Transform, (With<SelectionIndicator>, Without<StarMarker>)>,
     buttons: Res<ButtonInput<MouseButton>>,
-    mut map_state: ResMut<GalaxyMapState>,
+    mut map_state: ResMut<GalaxyViewState>,
     mut next_state: ResMut<NextState<GameState>>,
     mut star_state: ResMut<crate::star_data::StarState>,
     galaxy_preview: Res<crate::GalaxyPreview>,
@@ -100,7 +100,7 @@ pub fn panel_button_system(
         (&Interaction, &PanelButton, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
-    map_state: Res<GalaxyMapState>,
+    map_state: Res<GalaxyViewState>,
     mut next_state: ResMut<NextState<GameState>>,
     mut star_state: ResMut<crate::star_data::StarState>,
 ) {

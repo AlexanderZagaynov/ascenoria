@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
-use crate::galaxy_map::types::GalaxyMapRoot;
+use crate::galaxy_view::colors;
+use crate::galaxy_view::types::GalaxyViewRoot;
 use super::types::{InfoModalButton, InfoModalOverlay, InfoModalState, ModalAction};
 use super::ui::spawn_modal_panel;
 
@@ -39,7 +39,7 @@ pub fn info_modal_system(
             BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.6)),
             GlobalZIndex(100), // Above all other UI
             InfoModalOverlay,
-            GalaxyMapRoot,
+            GalaxyViewRoot,
         ))
         .with_children(|parent| {
             spawn_modal_panel(parent, &modal_state);

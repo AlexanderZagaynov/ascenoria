@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
+use crate::galaxy_view::colors;
 use super::super::types::ModalIcon;
 
 pub fn spawn_modal_top_section(panel: &mut ChildSpawnerCommands, icon: &ModalIcon) {

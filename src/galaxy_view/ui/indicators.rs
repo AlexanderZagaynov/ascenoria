@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
+use crate::galaxy_view::colors;
 
 /// Spawn the turn indicator rings at the top of the panel.
 pub fn spawn_turn_indicators(panel: &mut ChildSpawnerCommands) {

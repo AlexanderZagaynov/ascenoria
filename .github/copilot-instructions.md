@@ -35,7 +35,7 @@ pub enum GameState {
 ```
 
 ### Modal Dialog Pattern
-For overlay dialogs (see `src/galaxy_map.rs`):
+For overlay dialogs (see `src/galaxy_view.rs`):
 ```rust
 #[derive(Resource, Default)]
 pub struct InfoModalState {
@@ -88,7 +88,7 @@ description = { en = "...", ru = "..." }
 | `src/main.rs` | App entry, plugin registration |
 | `src/main_menu.rs` | `GameState` enum, main menu |
 | `src/data.rs` | TOML loading, all data structs |
-| `src/galaxy_map.rs` | Galaxy view, modal system pattern |
+| `src/galaxy_view.rs` | Galaxy view, modal system pattern |
 | `src/planet_view.rs` | Planet surface, building placement |
 | `assets/data/README.md` | TOML file conventions |
 
@@ -106,7 +106,7 @@ cargo test            # Run unit tests
 
 ## Color Scheme
 
-Screens define colors in a local `mod colors` block (see examples in `main_menu.rs`, `galaxy_map.rs`).
+Screens define colors in a local `mod colors` block (see examples in `main_menu.rs`, `galaxy_view.rs`).
 Use Ascendancy-inspired palettes: navy blues, teals, warm oranges/golds.
 
 ---

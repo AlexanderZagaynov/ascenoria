@@ -5,7 +5,7 @@
 mod combat;
 mod data;
 mod galaxy_data;
-mod galaxy_map;
+mod galaxy_view;
 mod game_data_plugin;
 mod game_options;
 mod game_summary;
@@ -23,7 +23,7 @@ mod victory;
 
 use bevy::{asset::AssetPlugin, prelude::*};
 
-use galaxy_map::GalaxyMapPlugin;
+use galaxy_view::GalaxyViewPlugin;
 use game_data_plugin::GameDataPlugin;
 use game_options::GameOptionsPlugin;
 use game_summary::GameSummaryPlugin;
@@ -47,7 +47,7 @@ fn main() {
             MainMenuPlugin,
             GameOptionsPlugin,
             GameSummaryPlugin,
-            GalaxyMapPlugin,
+            GalaxyViewPlugin,
             StarPlugin,
             PlanetViewPlugin,
         ))

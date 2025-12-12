@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use rand::{Rng, SeedableRng, rngs::StdRng};
 
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyView3D, StarMarker};
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyView3D, StarMarker};
 
 pub fn spawn_stars(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
-    star_positions: &[(Vec3, crate::galaxy_map::types::StarType, String)],
+    star_positions: &[(Vec3, crate::galaxy_view::types::StarType, String)],
 ) {
     // Create star mesh (small sphere)
     let star_mesh = meshes.add(Sphere::new(0.2));
@@ -36,7 +36,7 @@ pub fn spawn_stars(
             MeshMaterial3d(star_material),
             Transform::from_translation(*pos),
             StarMarker { star_index: i },
-            GalaxyMapRoot,
+            GalaxyViewRoot,
             GalaxyView3D,
         ));
 
@@ -45,7 +45,7 @@ pub fn spawn_stars(
             Mesh3d(glow_mesh.clone()),
             MeshMaterial3d(glow_material),
             Transform::from_translation(*pos),
-            GalaxyMapRoot,
+            GalaxyViewRoot,
             GalaxyView3D,
         ));
     }
@@ -74,7 +74,7 @@ pub fn spawn_background_stars(
             Mesh3d(bg_star_mesh.clone()),
             MeshMaterial3d(bg_star_material.clone()),
             Transform::from_xyz(x, y, z),
-            GalaxyMapRoot,
+            GalaxyViewRoot,
             GalaxyView3D,
         ));
     }

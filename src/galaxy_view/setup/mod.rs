@@ -1,6 +1,6 @@
 //! Setup system for the galaxy map.
 //!
-//! Contains the main setup_galaxy_map function that spawns all initial
+//! Contains the main setup_galaxy_view function that spawns all initial
 //! entities: camera, lights, stars, lanes, UI panels, etc.
 
 pub mod lanes;
@@ -10,8 +10,8 @@ pub mod ui;
 
 use bevy::{camera::ScalingMode, prelude::*};
 
-use crate::galaxy_map::generation::generate_star_positions;
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyView3D};
+use crate::galaxy_view::generation::generate_star_positions;
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyView3D};
 
 use self::lanes::spawn_star_lanes;
 use self::selection::spawn_selection_indicator;
@@ -19,7 +19,7 @@ use self::stars::{spawn_background_stars, spawn_stars};
 use self::ui::{spawn_instructions, spawn_player_icon, spawn_ui_panel};
 
 /// Setup the galaxy map screen.
-pub fn setup_galaxy_map(
+pub fn setup_galaxy_view(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -40,7 +40,7 @@ pub fn setup_galaxy_map(
             ..default()
         },
         Transform::from_xyz(0.0, 0.0, 20.0).looking_at(Vec3::ZERO, Vec3::Y),
-        GalaxyMapRoot,
+        GalaxyViewRoot,
         GalaxyView3D,
     ));
 
@@ -51,7 +51,7 @@ pub fn setup_galaxy_map(
             brightness: 300.0,
             affects_lightmapped_meshes: false,
         },
-        GalaxyMapRoot,
+        GalaxyViewRoot,
     ));
 
     // Point light for depth effect
@@ -63,7 +63,7 @@ pub fn setup_galaxy_map(
             ..default()
         },
         Transform::from_xyz(5.0, 10.0, 15.0),
-        GalaxyMapRoot,
+        GalaxyViewRoot,
     ));
 
     // Generate star positions from actual galaxy data

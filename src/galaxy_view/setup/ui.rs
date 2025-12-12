@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-use crate::galaxy_map::colors;
-use crate::galaxy_map::types::{GalaxyMapRoot, PanelButton};
-use crate::galaxy_map::ui::{
+use crate::galaxy_view::colors;
+use crate::galaxy_view::types::{GalaxyViewRoot, PanelButton};
+use crate::galaxy_view::ui::{
     spawn_bottom_controls, spawn_panel_section, spawn_speed_controls, spawn_turn_indicators,
 };
 
@@ -16,7 +16,7 @@ pub fn spawn_ui_panel(commands: &mut Commands) {
                 justify_content: JustifyContent::FlexEnd,
                 ..default()
             },
-            GalaxyMapRoot,
+            GalaxyViewRoot,
         ))
         .with_children(|parent| {
             // Right panel
@@ -73,7 +73,7 @@ pub fn spawn_player_icon(commands: &mut Commands) {
             },
             BackgroundColor(colors::PANEL_DARK),
             BorderColor::all(colors::RING_GREEN),
-            GalaxyMapRoot,
+            GalaxyViewRoot,
         ))
         .with_children(|icon| {
             icon.spawn((
@@ -101,6 +101,6 @@ pub fn spawn_instructions(commands: &mut Commands) {
             left: Val::Px(10.0),
             ..default()
         },
-        GalaxyMapRoot,
+        GalaxyViewRoot,
     ));
 }

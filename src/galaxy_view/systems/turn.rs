@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-use crate::galaxy_map::modal::{InfoModalState, ModalAction, ModalButton, ModalIcon};
-use crate::galaxy_map::types::GalaxyMapState;
+use crate::galaxy_view::modal::{InfoModalState, ModalAction, ModalButton, ModalIcon};
+use crate::galaxy_view::types::GalaxyViewState;
 
 /// Handle turn controls.
 pub fn turn_control_system(
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut map_state: ResMut<GalaxyMapState>,
+    mut map_state: ResMut<GalaxyViewState>,
     mut modal_state: ResMut<InfoModalState>,
 ) {
     if keyboard.just_pressed(KeyCode::Enter) || keyboard.just_pressed(KeyCode::Space) {

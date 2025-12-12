@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
+use crate::galaxy_view::colors;
 use super::super::types::{InfoModalButton, ModalAction, ModalButton};
 
 pub fn spawn_modal_button_row(panel: &mut ChildSpawnerCommands, buttons: &[ModalButton]) {

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use crate::galaxy_map::colors;
-use crate::galaxy_map::types::PanelButton;
+use crate::galaxy_view::colors;
+use crate::galaxy_view::types::PanelButton;
 
 /// Spawn a panel section button.
 pub fn spawn_panel_section(

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
-use crate::galaxy_map::colors;
-use crate::galaxy_map::types::{GalaxyMapRoot, GalaxyView3D, SelectionIndicator};
+use crate::galaxy_view::colors;
+use crate::galaxy_view::types::{GalaxyViewRoot, GalaxyView3D, SelectionIndicator};
 
 pub fn spawn_selection_indicator(
     commands: &mut Commands,
@@ -25,7 +25,7 @@ pub fn spawn_selection_indicator(
         Transform::from_translation(Vec3::new(0.0, 0.0, -1000.0)) // Hidden initially
             .with_rotation(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2)),
         SelectionIndicator,
-        GalaxyMapRoot,
+        GalaxyViewRoot,
         GalaxyView3D,
     ));
 }
