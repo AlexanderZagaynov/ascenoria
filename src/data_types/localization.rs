@@ -100,3 +100,18 @@ macro_rules! impl_has_id {
         }
     };
 }
+
+/// Bevy resource for current language selection in UI rendering.
+#[derive(bevy::prelude::Resource, Clone, Copy, Debug, Default)]
+pub struct LocalizationSettings {
+    pub language: Language,
+}
+
+impl LocalizationSettings {
+    pub fn toggle(&mut self) {
+        self.language = match self.language {
+            Language::En => Language::Ru,
+            Language::Ru => Language::En,
+        };
+    }
+}

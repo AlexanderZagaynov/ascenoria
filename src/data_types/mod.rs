@@ -45,7 +45,8 @@ pub use ids::{
 };
 pub use loaders::{DATA_SCHEMA_VERSION, load_game_data};
 pub use localization::{
-    HasDescription, HasId, Language, LocalizedEntity, LocalizedText, NamedEntity,
+    HasDescription, HasId, Language, LocalizationSettings, LocalizedEntity, LocalizedText,
+    NamedEntity,
 };
 pub use registry::GameRegistry;
 pub use validation::NO_TECH_REQUIREMENT;

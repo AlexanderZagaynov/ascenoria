@@ -13,7 +13,6 @@ mod industry;
 mod main_menu;
 mod planet_data;
 mod planet_view;
-mod preview;
 mod research;
 mod ship_blueprints;
 mod ship_design;
@@ -23,17 +22,15 @@ mod victory;
 
 use bevy::{asset::AssetPlugin, prelude::*};
 
+use data_types::LocalizationSettings;
+use galaxy_data::GalaxyPreview;
 use galaxy_view::GalaxyViewPlugin;
 use game_data::GameDataPlugin;
 use game_options::GameOptionsPlugin;
 use game_summary::GameSummaryPlugin;
 use main_menu::{GameState, MainMenuPlugin};
 use planet_view::PlanetViewPlugin;
-use preview::LocalizationSettings;
 use star_data::StarPlugin;
-
-// Re-export commonly used types for other modules
-pub use preview::GalaxyPreview;
 
 fn main() {
     App::new()

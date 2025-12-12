@@ -23,7 +23,7 @@ pub fn setup_galaxy_view(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    galaxy_preview: Res<crate::GalaxyPreview>,
+    galaxy_preview: Res<crate::galaxy_data::GalaxyPreview>,
 ) {
     // 3D Camera with orthographic projection for the galaxy view
     commands.spawn((

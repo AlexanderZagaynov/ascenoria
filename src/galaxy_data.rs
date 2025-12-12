@@ -1,4 +1,5 @@
 use rand::{Rng, RngCore, SeedableRng, rngs::StdRng};
+use bevy::prelude::*;
 
 use crate::{
     data_types::GameData,
@@ -113,5 +114,21 @@ mod tests {
         assert!(formatted.contains("Galaxy with 1 systems"));
         assert!(formatted.contains("System 0"));
         assert!(formatted.contains("Planet 0"));
+    }
+}
+
+/// Bevy resource holding a generated galaxy snapshot for game state.
+#[derive(Resource, Clone)]
+pub struct GalaxyPreview {
+    pub galaxy: Galaxy,
+}
+
+impl Default for GalaxyPreview {
+    fn default() -> Self {
+        Self {
+            galaxy: Galaxy {
+                systems: Vec::new(),
+            },
+        }
     }
 }

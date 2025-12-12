@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::GalaxyPreview;
+use crate::galaxy_data::GalaxyPreview;
 use crate::planet_view::types::PlanetViewRoot;
 use crate::planet_view::ui::{spawn_left_panel, spawn_right_panel, spawn_top_bar};
 

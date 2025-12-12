@@ -14,7 +14,7 @@ pub fn star_click_system(
     mut map_state: ResMut<GalaxyViewState>,
     mut next_state: ResMut<NextState<GameState>>,
     mut star_state: ResMut<crate::star_data::StarState>,
-    galaxy_preview: Res<crate::GalaxyPreview>,
+    galaxy_preview: Res<crate::galaxy_data::GalaxyPreview>,
 ) {
     if !buttons.just_released(MouseButton::Left) {
         return;

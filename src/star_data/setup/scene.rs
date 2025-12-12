@@ -10,7 +10,7 @@ use super::background::spawn_background_stars;
 /// Set up the star system view screen.
 pub fn setup_star(
     mut commands: Commands,
-    galaxy_preview: Res<crate::GalaxyPreview>,
+    galaxy_preview: Res<crate::galaxy_data::GalaxyPreview>,
     state: Res<StarState>,
 ) {
     // Camera for the system view
