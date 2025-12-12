@@ -1,6 +1,6 @@
 use bevy::prelude::Resource;
 
-use crate::data::{GameData, HasDescription, HasId, HullClass, Language, NamedEntity};
+use crate::data_types::{GameData, HasDescription, HasId, HullClass, Language, NamedEntity};
 use crate::ship_design::{ModuleCategory, ShipDesign};
 
 /// Tracks available hulls and the current selection by identifier.

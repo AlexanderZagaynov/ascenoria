@@ -3,10 +3,10 @@
 //! This is the main entry point that registers all game plugins and starts the Bevy app.
 
 mod combat;
-mod data;
+mod data_types;
 mod galaxy_data;
 mod galaxy_view;
-mod game_data_plugin;
+mod game_data;
 mod game_options;
 mod game_summary;
 mod industry;
@@ -24,7 +24,7 @@ mod victory;
 use bevy::{asset::AssetPlugin, prelude::*};
 
 use galaxy_view::GalaxyViewPlugin;
-use game_data_plugin::GameDataPlugin;
+use game_data::GameDataPlugin;
 use game_options::GameOptionsPlugin;
 use game_summary::GameSummaryPlugin;
 use main_menu::{GameState, MainMenuPlugin};

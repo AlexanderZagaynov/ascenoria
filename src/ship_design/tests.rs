@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::data::{load_game_data, GameData, GameRegistry};
+    use crate::data_types::{load_game_data, GameData, GameRegistry};
     use crate::ship_design::{DesignError, ModuleCategory, ShipDesign};
     use std::path::PathBuf;
 

@@ -1,4 +1,4 @@
-use crate::data::{GameData, GameRegistry};
+use crate::data_types::{GameData, GameRegistry};
 use serde::{Deserialize, Serialize};
 use super::types::{DesignError, InstalledModule, ModuleCategory, ShipStats};
 

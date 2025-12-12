@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use std::collections::HashSet;
-use crate::data::{Tech, NO_TECH_REQUIREMENT};
+use crate::data_types::{Tech, NO_TECH_REQUIREMENT};
 
 /// Tracks unlocked technologies by index for filtering build options.
 #[derive(Resource, Default)]

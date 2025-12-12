@@ -1,7 +1,7 @@
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
-use crate::data::{HasDescription, Language, NamedEntity, Species};
+use crate::data_types::{HasDescription, Language, NamedEntity, Species};
 use crate::game_options::types::SpeciesNameText;
 use crate::game_options::types::SpeciesDescriptionText;
 use crate::game_options::ui::colors;

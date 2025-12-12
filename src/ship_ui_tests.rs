@@ -1,4 +1,4 @@
-use crate::data::{HullClass, Language, LocalizedText};
+use crate::data_types::{HullClass, Language, LocalizedText};
 use crate::ship_ui::HullSelection;
 
 fn localized(text: &str) -> LocalizedText {

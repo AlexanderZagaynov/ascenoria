@@ -1,4 +1,4 @@
-use crate::data::GameData;
+use crate::data_types::GameData;
 use crate::game_options::types::{GameOptionsRoot, NewGameSettings};
 use crate::game_options::ui;
 use bevy::prelude::*;

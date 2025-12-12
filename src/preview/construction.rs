@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::data::GameData;
+use crate::data_types::GameData;
 use crate::planet_data::{GeneratedPlanet, OrbitalPreview, PlanetOrbitals, PlanetSurface, SurfacePreview};
 use super::tech::TechState;
 

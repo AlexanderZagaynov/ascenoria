@@ -1,7 +1,7 @@
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
-use crate::data::Species;
+use crate::data_types::Species;
 use crate::game_options::types::{ScrollButton, SpeciesListScrollThumb, SpeciesListViewport};
 use crate::game_options::ui::colors;
 

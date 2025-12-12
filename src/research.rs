@@ -1,4 +1,4 @@
-use crate::data::GameData;
+use crate::data_types::GameData;
 
 /// Active research item tracking progress.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -95,7 +95,7 @@ impl ResearchState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::load_game_data;
+    use crate::data_types::load_game_data;
     use std::path::PathBuf;
 
     fn fake_state() -> ResearchState {

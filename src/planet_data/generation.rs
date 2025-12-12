@@ -4,7 +4,7 @@ use rand::SeedableRng;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 
-use crate::data::GameData;
+use crate::data_types::GameData;
 
 use super::types::{GeneratedPlanet, build_tiles};
 

@@ -1,4 +1,4 @@
-use crate::data::{GameData, HasDescription, Language, NamedEntity};
+use crate::data_types::{GameData, HasDescription, Language, NamedEntity};
 use crate::game_options::types::*;
 use crate::game_options::ui;
 use bevy::prelude::*;

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use crate::data::Language;
+use crate::data_types::Language;
 
 /// Current language selection for UI rendering.
 #[derive(Resource, Default)]

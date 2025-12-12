@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use crate::data::load_game_data;
+    use crate::data_types::load_game_data;
 
     use super::super::{format_planet, generate_planet};
 

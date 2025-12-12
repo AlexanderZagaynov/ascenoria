@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 
-use crate::data::{GameData, HasDescription, Language, NamedEntity};
+use crate::data_types::{GameData, HasDescription, Language, NamedEntity};
 use crate::game_options::NewGameSettings;
 
 use super::briefing::generate_mission_briefing;

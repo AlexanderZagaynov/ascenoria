@@ -1,4 +1,4 @@
-use crate::data::{GameData, GameRegistry};
+use crate::data_types::{GameData, GameRegistry};
 
 /// Category of build order.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -127,7 +127,7 @@ pub fn industry_cost(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::load_game_data;
+    use crate::data_types::load_game_data;
     use std::path::PathBuf;
 
     #[test]

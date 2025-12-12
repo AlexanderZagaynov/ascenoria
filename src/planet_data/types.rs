@@ -1,6 +1,6 @@
 //! Data structures for planet generation and placement.
 
-use crate::data::TileDistribution;
+use crate::data_types::TileDistribution;
 
 /// Tile color used for generated planet surfaces.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

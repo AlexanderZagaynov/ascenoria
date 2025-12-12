@@ -1,7 +1,7 @@
 use rand::{Rng, RngCore, SeedableRng, rngs::StdRng};
 
 use crate::{
-    data::GameData,
+    data_types::GameData,
     planet_data::{GeneratedPlanet, format_planet, generate_planet},
 };
 
@@ -87,7 +87,7 @@ pub fn format_galaxy(galaxy: &Galaxy) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data::load_game_data;
+    use crate::data_types::load_game_data;
     use std::path::PathBuf;
 
     #[test]
