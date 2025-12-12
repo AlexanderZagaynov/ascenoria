@@ -25,6 +25,7 @@ mod registry;
 mod validation;
 
 #[cfg(test)]
+#[path = "tests/mod.rs"]
 mod tests;
 
 // Re-export public API
