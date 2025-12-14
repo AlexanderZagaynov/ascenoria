@@ -2,7 +2,7 @@ use bevy::{ecs::message::MessageWriter, prelude::*};
 
 use crate::main_menu::colors;
 use crate::main_menu::components::MenuButton;
-use crate::main_menu::GameState;
+use crate::shared::AppState;
 
 /// Handles button interaction visual feedback.
 pub fn button_system(
@@ -32,43 +32,16 @@ pub fn button_system(
 /// Handles menu button actions.
 pub fn menu_action_system(
     interaction_query: Query<(&Interaction, &MenuButton), (Changed<Interaction>, With<Button>)>,
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut next_state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     mut exit_events: MessageWriter<AppExit>,
 ) {
-    // Keyboard shortcuts
-    let alt_pressed = keyboard.pressed(KeyCode::AltLeft) || keyboard.pressed(KeyCode::AltRight);
-
-    if alt_pressed {
-        if keyboard.just_pressed(KeyCode::KeyL) {
-            info!("Load Game (keyboard shortcut)");
-            // TODO: Implement load game
-        } else if keyboard.just_pressed(KeyCode::KeyS) {
-            info!("Save Game (keyboard shortcut)");
-            // TODO: Implement save game
-        } else if keyboard.just_pressed(KeyCode::KeyX) {
-            exit_events.write(AppExit::Success);
-        }
-    }
-
     // Button clicks
     for (interaction, button) in &interaction_query {
         if *interaction == Interaction::Pressed {
             match button {
-                MenuButton::NewGame => {
-                    info!("Opening species selection...");
-                    next_state.set(GameState::GameOptions);
-                }
-                MenuButton::LoadGame => {
-                    info!("Load Game clicked");
-                    // TODO: Implement load game dialog
-                }
-                MenuButton::SaveGame => {
-                    info!("Save Game clicked");
-                    // TODO: Implement save game dialog
-                }
-                MenuButton::Exit => {
-                    exit_events.write(AppExit::Success);
+                MenuButton::StartGame => next_state.set(AppState::Planet),
+                MenuButton::Quit => {
+                    let _ = exit_events.write(AppExit::Success);
                 }
             }
         }

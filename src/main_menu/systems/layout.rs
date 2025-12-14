@@ -67,10 +67,8 @@ pub fn setup_main_menu(mut commands: Commands) {
                     BorderColor::all(colors::BUTTON_BORDER),
                 ))
                 .with_children(|menu| {
-                    spawn_menu_button(menu, "New Game", MenuButton::NewGame, None);
-                    spawn_menu_button(menu, "Load Game", MenuButton::LoadGame, Some("Alt-L"));
-                    spawn_menu_button(menu, "Save Game", MenuButton::SaveGame, Some("Alt-S"));
-                    spawn_menu_button(menu, "Exit", MenuButton::Exit, Some("Alt-X"));
+                    spawn_menu_button(menu, "Start Game", MenuButton::StartGame);
+                    spawn_menu_button(menu, "Quit", MenuButton::Quit);
                 });
 
             // Version info at bottom
@@ -90,12 +88,7 @@ pub fn setup_main_menu(mut commands: Commands) {
         });
 }
 
-fn spawn_menu_button(
-    parent: &mut ChildSpawnerCommands,
-    label: &str,
-    action: MenuButton,
-    shortcut: Option<&str>,
-) {
+fn spawn_menu_button(parent: &mut ChildSpawnerCommands, label: &str, action: MenuButton) {
     parent
         .spawn((
             Button,
@@ -122,17 +115,5 @@ fn spawn_menu_button(
                 },
                 TextColor(colors::BUTTON_TEXT),
             ));
-
-            // Shortcut text if provided
-            if let Some(key) = shortcut {
-                button.spawn((
-                    Text::new(key),
-                    TextFont {
-                        font_size: 14.0,
-                        ..default()
-                    },
-                    TextColor(colors::BUTTON_TEXT.with_alpha(0.6)),
-                ));
-            }
         });
 }

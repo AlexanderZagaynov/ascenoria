@@ -1,66 +1,24 @@
-//! Ascenoria - A data-driven 4X strategy game inspired by Ascendancy.
-//!
-//! This is the main entry point that registers all game plugins and starts the Bevy app.
-
-mod combat;
-mod data_types;
-mod galaxy_data;
-mod galaxy_view;
-mod game_data;
-mod game_options;
-mod game_summary;
-mod industry;
 mod main_menu;
-mod planet_data;
-mod planet_view;
-mod research;
-mod ship_blueprints;
-mod ship_design;
-mod ship_ui;
-mod star_data;
-mod victory;
+mod planet_screen;
+mod shared;
 
-use bevy::{asset::AssetPlugin, prelude::*};
+use bevy::prelude::*;
 
-use data_types::LocalizationSettings;
-use galaxy_data::GalaxyPreview;
-use galaxy_view::GalaxyViewPlugin;
-use game_data::GameDataPlugin;
-use game_options::GameOptionsPlugin;
-use game_summary::GameSummaryPlugin;
-use main_menu::{GameState, MainMenuPlugin};
-use planet_view::PlanetViewPlugin;
-use star_data::StarPlugin;
+use main_menu::MainMenuPlugin;
+use planet_screen::PlanetScreenPlugin;
+use shared::AppState;
 
 fn main() {
     App::new()
-        .init_resource::<LocalizationSettings>()
-        .add_plugins((
-            DefaultPlugins.set(AssetPlugin {
-                watch_for_changes_override: Some(true),
-                ..default()
-            }),
-            GameDataPlugin::default(),
-            MainMenuPlugin,
-            GameOptionsPlugin,
-            GameSummaryPlugin,
-            GalaxyViewPlugin,
-            StarPlugin,
-            PlanetViewPlugin,
-        ))
-        .add_systems(
-            Update,
-            return_to_menu_input.run_if(in_state(GameState::GalaxyView)),
-        )
+        .add_plugins(DefaultPlugins)
+        .init_state::<AppState>()
+        .add_plugins((MainMenuPlugin, PlanetScreenPlugin))
+        .add_systems(Update, esc_to_menu.run_if(in_state(AppState::Planet)))
         .run();
 }
 
-/// Handle ESC key to return to main menu from in-game state.
-fn return_to_menu_input(
-    keyboard: Res<ButtonInput<KeyCode>>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
+fn esc_to_menu(keyboard: Res<ButtonInput<KeyCode>>, mut next_state: ResMut<NextState<AppState>>) {
     if keyboard.just_pressed(KeyCode::Escape) {
-        next_state.set(GameState::MainMenu);
+        next_state.set(AppState::MainMenu);
     }
 }

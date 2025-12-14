@@ -7,8 +7,6 @@ pub struct MainMenuRoot;
 /// Marker for menu buttons with their action type.
 #[derive(Component, Clone, Copy)]
 pub enum MenuButton {
-    NewGame,
-    LoadGame,
-    SaveGame,
-    Exit,
+    StartGame,
+    Quit,
 }
