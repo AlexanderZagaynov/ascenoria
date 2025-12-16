@@ -1,0 +1,71 @@
+[[engine]]
+id = "tonklin_motor"
+power_use = 1
+thrust_rating = 0.5
+industry_cost = 10
+[engine.name]
+en = "Auric Drive"
+ru = "Двигательный модуль 1"
+[engine.description]
+en = "Ship engine with thrust rating 0.5 and power use 1."
+ru = "Корабельный двигатель с тягой 0.5 и энергопотреблением 1."
+
+[[engine]]
+id = "graviton_projector"
+power_use = 3
+thrust_rating = 1.5
+industry_cost = 40
+[engine.name]
+en = "Helix Drive"
+ru = "Двигательный модуль 2"
+[engine.description]
+en = "Ship engine with thrust rating 1.5 and power use 3."
+ru = "Корабельный двигатель с тягой 1.5 и энергопотреблением 3."
+
+[[engine]]
+id = "inertia_negator"
+power_use = 0
+thrust_rating = 0.5
+industry_cost = 20
+[engine.name]
+en = "Nova Drive"
+ru = "Двигательный модуль 3"
+[engine.description]
+en = "Ship engine with thrust rating 0.5 and power use 0."
+ru = "Корабельный двигатель с тягой 0.5 и энергопотреблением 0."
+
+[[engine]]
+id = "nanowave_space_bender"
+power_use = 5
+thrust_rating = 2.5
+industry_cost = 80
+[engine.name]
+en = "Obsidian Drive"
+ru = "Двигательный модуль 4"
+[engine.description]
+en = "Ship engine with thrust rating 2.5 and power use 5."
+ru = "Корабельный двигатель с тягой 2.5 и энергопотреблением 5."
+
+[[engine]]
+id = "star_lane_drive"
+power_use = 0
+thrust_rating = 0.25
+industry_cost = 25
+[engine.name]
+en = "Prismatic Drive"
+ru = "Двигательный модуль 5"
+[engine.description]
+en = "Ship engine with thrust rating 0.25 and power use 0."
+ru = "Корабельный двигатель с тягой 0.25 и энергопотреблением 0."
+
+[[engine]]
+id = "star_lane_hyperdrive"
+power_use = 0
+thrust_rating = 0.5
+industry_cost = 50
+[engine.name]
+en = "Ion Drive"
+ru = "Двигательный модуль 6"
+[engine.description]
+en = "Ship engine with thrust rating 0.5 and power use 0."
+ru = "Корабельный двигатель с тягой 0.5 и энергопотреблением 0."

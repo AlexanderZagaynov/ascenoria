@@ -8,19 +8,31 @@ mod colors;
 mod components;
 mod systems;
 
-use crate::shared::AppState;
-use systems::{button_system, cleanup_main_menu, menu_action_system, setup_main_menu};
+use systems::{setup_main_menu, cleanup_main_menu, button_system, menu_action_system};
 
 /// Plugin that manages the main menu screen.
 pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(AppState::MainMenu), setup_main_menu)
-            .add_systems(OnExit(AppState::MainMenu), cleanup_main_menu)
+        app.init_state::<GameState>()
+            .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
+            .add_systems(OnExit(GameState::MainMenu), cleanup_main_menu)
             .add_systems(
                 Update,
-                (button_system, menu_action_system).run_if(in_state(AppState::MainMenu)),
+                (button_system, menu_action_system).run_if(in_state(GameState::MainMenu)),
             );
     }
+}
+
+/// Game state machine for managing screens.
+#[derive(States, Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum GameState {
+    #[default]
+    MainMenu,
+    GameOptions,
+    GameSummary,
+    GalaxyView,
+    StarView,
+    PlanetView,
 }
