@@ -3,6 +3,7 @@
         (
             id: "building_base",
             name_en: "Base",
+            color: (0.5, 0.5, 0.5),
             buildable_on_cell_type: white,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -16,6 +17,7 @@
         (
             id: "building_farm_1",
             name_en: "Farm 1",
+            color: (0.0, 1.0, 0.0),
             buildable_on_cell_type: white,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -29,6 +31,7 @@
         (
             id: "building_habitat_1",
             name_en: "Habitat 1",
+            color: (1.0, 1.0, 0.0),
             buildable_on_cell_type: white,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -42,6 +45,7 @@
         (
             id: "building_factory_1",
             name_en: "Factory 1",
+            color: (1.0, 0.5, 0.0),
             buildable_on_cell_type: white,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -55,6 +59,7 @@
         (
             id: "building_laboratory_1",
             name_en: "Laboratory 1",
+            color: (0.0, 1.0, 1.0),
             buildable_on_cell_type: white,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -68,6 +73,7 @@
         (
             id: "building_passage",
             name_en: "Passage",
+            color: (0.3, 0.3, 0.3),
             buildable_on_cell_type: black,
             requires_adjacency: true,
             counts_for_adjacency: true,
@@ -81,6 +87,7 @@
         (
             id: "building_terraformer",
             name_en: "Terraformer",
+            color: (1.0, 0.0, 1.0),
             buildable_on_cell_type: black,
             requires_adjacency: true,
             counts_for_adjacency: true,

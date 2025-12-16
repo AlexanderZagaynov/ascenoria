@@ -5,6 +5,7 @@ use bevy::prelude::*;
 
 use crate::main_menu::GameState;
 use crate::planet_data::{BuildingType, TileColor};
+use crate::data_types::GameData;
 use crate::planet_view::types::{
     BuildingEntity, PlanetView3D, PlanetViewRoot, PlanetViewState, TileEntity, UIAction,
 };
@@ -254,6 +255,7 @@ pub fn update_visuals_system(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     planet_state: Res<PlanetViewState>,
+    game_data: Res<GameData>,
     tile_q: Query<(Entity, &TileEntity, &Transform)>,
     _building_q: Query<(Entity, &BuildingEntity, &ChildOf)>,
 ) {
@@ -278,14 +280,23 @@ pub fn update_visuals_system(
 
                         // Let's just spawn the new building.
                         if let Some(building) = tile.building {
-                            let color = match building {
-                                BuildingType::Base => Color::srgb(0.0, 0.0, 1.0),
-                                BuildingType::Farm => Color::srgb(0.0, 1.0, 0.0),
-                                BuildingType::Habitat => Color::srgb(1.0, 1.0, 0.0),
-                                BuildingType::Factory => Color::srgb(1.0, 0.5, 0.0),
-                                BuildingType::Laboratory => Color::srgb(0.0, 1.0, 1.0),
-                                BuildingType::Passage => Color::srgb(0.5, 0.5, 0.5),
-                                BuildingType::Terraformer => Color::srgb(1.0, 0.0, 1.0),
+                            let building_id = match building {
+                                BuildingType::Base => "building_base",
+                                BuildingType::Farm => "building_farm_1",
+                                BuildingType::Habitat => "building_habitat_1",
+                                BuildingType::Factory => "building_factory_1",
+                                BuildingType::Laboratory => "building_laboratory_1",
+                                BuildingType::Passage => "building_passage",
+                                BuildingType::Terraformer => "building_terraformer",
+                            };
+
+                            // Find color in GameData
+                            let color = if let Some(def) = game_data.surface_buildings.iter().find(|b| b.id == building_id) {
+                                let (r, g, b) = def.color;
+                                Color::srgb(r, g, b)
+                            } else {
+                                warn!("Missing building definition for ID: {}", building_id);
+                                Color::WHITE
                             };
 
                             commands.spawn((

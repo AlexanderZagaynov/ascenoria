@@ -25,6 +25,7 @@ pub enum SpecialBehavior {
 pub struct SurfaceBuilding {
     pub id: String,
     pub name_en: String,
+    pub color: (f32, f32, f32),
     pub buildable_on_cell_type: BuildableOn,
     pub requires_adjacency: bool,
     pub counts_for_adjacency: bool,
