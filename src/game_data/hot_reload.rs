@@ -5,8 +5,7 @@ use bevy::{
     prelude::*,
 };
 
-use crate::data_types::{GameData, GameDataComputed, GameRegistry, load_game_data};
-use crate::galaxy_data::{GalaxyPreview, generate_galaxy};
+use crate::data_types::{GameData, GameRegistry, load_game_data};
 
 use super::GameDataSource;
 
@@ -32,8 +31,6 @@ impl DataHotReload {
 pub struct HotReloadTargets<'w> {
     game_data: ResMut<'w, GameData>,
     registry: ResMut<'w, GameRegistry>,
-    computed: ResMut<'w, GameDataComputed>,
-    galaxy_preview: ResMut<'w, GalaxyPreview>,
 }
 
 pub fn hot_reload_game_data(
@@ -62,21 +59,12 @@ pub fn hot_reload_game_data(
     let HotReloadTargets {
         mut game_data,
         mut registry,
-        mut computed,
-        mut galaxy_preview,
     } = targets;
 
     match load_game_data(&source.data_path) {
         Ok((new_data, new_registry)) => {
-            let new_computed = new_data.compute();
-            let new_galaxy = generate_galaxy(1337, &new_data, 2..=3, 1..=3);
-
             *game_data = new_data;
             *registry = new_registry;
-            *computed = new_computed;
-            *galaxy_preview = GalaxyPreview {
-                galaxy: new_galaxy,
-            };
 
             info!("Hot reloaded game data from {}", source.data_path);
         }

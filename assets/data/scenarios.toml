@@ -1,0 +1,9 @@
+[[scenario]]
+id = "scenario_mvp"
+name_en = "MVP"
+grid_width = 10
+grid_height = 10
+start_building_id = "building_base"
+generation_mode = "random_white_black"
+black_ratio = 0.3
+victory_condition_id = "victory_cover_planet"

@@ -8,7 +8,7 @@ mod colors;
 mod components;
 mod systems;
 
-use systems::{setup_main_menu, cleanup_main_menu, button_system, menu_action_system};
+use systems::{button_system, cleanup_main_menu, menu_action_system, setup_main_menu};
 
 /// Plugin that manages the main menu screen.
 pub struct MainMenuPlugin;
@@ -30,9 +30,5 @@ impl Plugin for MainMenuPlugin {
 pub enum GameState {
     #[default]
     MainMenu,
-    GameOptions,
-    GameSummary,
-    GalaxyView,
-    StarView,
     PlanetView,
 }

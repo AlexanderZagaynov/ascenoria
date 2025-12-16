@@ -8,7 +8,5 @@ pub struct MainMenuRoot;
 #[derive(Component, Clone, Copy)]
 pub enum MenuButton {
     NewGame,
-    LoadGame,
-    SaveGame,
     Exit,
 }

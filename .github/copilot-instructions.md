@@ -25,33 +25,16 @@ src/
 ├── main.rs                 # App entry, plugin registration
 ├── lib.rs                  # Library exports
 ├── main_menu/              # Main menu screen
-├── game_options/           # Game setup/species selection
-├── game_summary/           # Pre-game briefing
 │
 ├── data_types/             # TOML data structures
-│   ├── entities/           # Planet, ship, species, tech, victory
-│   ├── loaders/            # TOML loading, mod support
+│   ├── entities/           # Surface, tech, victory, scenario
+│   ├── loaders/            # TOML loading
 │   ├── registry/           # ID-based lookups
-│   ├── validation/         # Data validation
 │   └── tests/              # Unit tests
 │
 ├── game_data/              # Bevy resource initialization
 │   ├── initialization.rs   # Load and insert resources
 │   └── hot_reload.rs       # File watching for dev
-│
-├── galaxy_data.rs          # Galaxy/star generation, GalaxyPreview
-├── galaxy_view/            # Galaxy map screen
-│   ├── setup/              # Scene spawning
-│   ├── systems/            # Camera, interaction, lifecycle
-│   ├── modal/              # Info dialogs
-│   └── ui/                 # Controls, indicators
-│
-├── star_data/              # Star system generation
-│   ├── setup/              # 3D scene setup
-│   └── ui/                 # System UI panels
-│
-├── planet_data/            # Planet generation, placement
-│   └── placement/          # Surface/orbital placement
 │
 ├── planet_view/            # Planet surface screen
 │   ├── setup/              # Scene setup
@@ -59,8 +42,6 @@ src/
 │   ├── modal/              # Planet dialogs
 │   └── ui/                 # Panels, top bar
 │
-├── ship_design/            # Ship designer logic
-├── combat/                 # Tactical combat simulation
 ├── industry.rs             # Build queue logic
 ├── research.rs             # Research state
 └── victory.rs              # Victory conditions

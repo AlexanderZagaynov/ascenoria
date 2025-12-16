@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use crate::data_types::errors::DataLoadError;
+use std::collections::HashMap;
 
 pub(crate) fn build_typed_index<T, F, I>(
     kind: &'static str,

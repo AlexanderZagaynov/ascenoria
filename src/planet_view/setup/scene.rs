@@ -1,49 +1,40 @@
-use bevy::prelude::*;
+use crate::planet_data::{BuildingType, PlanetSurface, TileColor};
+use crate::planet_view::types::{BuildingEntity, PlanetView3D, TileEntity};
 use bevy::camera::ScalingMode;
-use crate::planet_view::rendering::{create_planet_grid_mesh, create_planet_material, spawn_surface_buildings};
-use crate::planet_view::types::{PlanetGrid, PlanetView3D, colors};
+use bevy::prelude::*;
 
-/// Set up the 3D scene with camera, lights, and planet mesh.
-pub fn setup_3d_scene(
+/// Set up the 3D scene with camera, lights, and planet grid.
+pub fn setup_scene(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
-    tiles: &[crate::planet_data::TileColor],
-    row_width: usize,
-    surface_type: &str,
+    surface: &PlanetSurface,
 ) {
     // Isometric Camera
     commands.spawn((
         Camera3d::default(),
         Projection::from(OrthographicProjection {
             scaling_mode: ScalingMode::FixedVertical {
-                viewport_height: 15.0,
+                viewport_height: 20.0,
             },
             ..OrthographicProjection::default_3d()
         }),
-        Camera {
-            order: 0, // Render first (background)
-            clear_color: ClearColorConfig::Custom(colors::BACKGROUND),
-            ..default()
-        },
         Transform::from_xyz(20.0, 20.0, 20.0).looking_at(Vec3::ZERO, Vec3::Y),
         PlanetView3D,
     ));
 
-    // Ambient light for base illumination
+    // Lights
     commands.spawn((
         AmbientLight {
             color: Color::WHITE,
-            brightness: 300.0,
+            brightness: 500.0,
             ..default()
         },
         PlanetView3D,
     ));
-
-    // Directional light (sun-like)
     commands.spawn((
         DirectionalLight {
-            illuminance: 5000.0,
+            illuminance: 2000.0,
             shadows_enabled: true,
             ..default()
         },
@@ -51,19 +42,95 @@ pub fn setup_3d_scene(
         PlanetView3D,
     ));
 
-    // Create planet grid with colored tiles
-    let grid_mesh = create_planet_grid_mesh(meshes, tiles, row_width);
-    let planet_material = create_planet_material(materials, surface_type);
+    // Grid
+    let tile_size = 1.0;
+    let gap = 0.1;
+    let offset_x = -(surface.row_width as f32 * (tile_size + gap)) / 2.0;
+    let offset_z = -(surface.height() as f32 * (tile_size + gap)) / 2.0;
 
-    // Planet grid entity
-    commands.spawn((
-        Mesh3d(grid_mesh),
-        MeshMaterial3d(planet_material),
-        Transform::from_xyz(0.0, 0.0, 0.0),
-        PlanetGrid,
-        PlanetView3D,
-    ));
+    let mesh_handle = meshes.add(Cuboid::new(tile_size, 0.2, tile_size));
 
-    // Spawn building cubes on the surface (for tiles that have special features)
-    spawn_surface_buildings(commands, meshes, materials, tiles, row_width);
+    let white_mat = materials.add(StandardMaterial {
+        base_color: Color::WHITE,
+        ..default()
+    });
+    let black_mat = materials.add(StandardMaterial {
+        base_color: Color::BLACK,
+        ..default()
+    });
+
+    // Building materials
+    let base_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.0, 0.0, 1.0),
+        ..default()
+    }); // Blue
+    let farm_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.0, 1.0, 0.0),
+        ..default()
+    }); // Green
+    let habitat_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(1.0, 1.0, 0.0),
+        ..default()
+    }); // Yellow
+    let factory_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(1.0, 0.5, 0.0),
+        ..default()
+    }); // Orange
+    let lab_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.0, 1.0, 1.0),
+        ..default()
+    }); // Cyan
+    let passage_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(0.5, 0.5, 0.5),
+        ..default()
+    }); // Grey
+    let terraformer_mat = materials.add(StandardMaterial {
+        base_color: Color::srgb(1.0, 0.0, 1.0),
+        ..default()
+    }); // Magenta
+
+    let building_mesh = meshes.add(Cuboid::new(0.6, 0.6, 0.6));
+
+    for (i, tile) in surface.tiles.iter().enumerate() {
+        let x = i % surface.row_width;
+        let y = i / surface.row_width;
+
+        let pos_x = offset_x + x as f32 * (tile_size + gap);
+        let pos_z = offset_z + y as f32 * (tile_size + gap);
+
+        let mat = match tile.color {
+            TileColor::White => white_mat.clone(),
+            TileColor::Black => black_mat.clone(),
+        };
+
+        // Spawn Tile
+        commands.spawn((
+            Mesh3d(mesh_handle.clone()),
+            MeshMaterial3d(mat),
+            Transform::from_xyz(pos_x, 0.0, pos_z),
+            PlanetView3D,
+            TileEntity { x, y },
+        ));
+
+        // Spawn Building if present
+        if let Some(building) = tile.building {
+            let b_mat = match building {
+                BuildingType::Base => base_mat.clone(),
+                BuildingType::Farm => farm_mat.clone(),
+                BuildingType::Habitat => habitat_mat.clone(),
+                BuildingType::Factory => factory_mat.clone(),
+                BuildingType::Laboratory => lab_mat.clone(),
+                BuildingType::Passage => passage_mat.clone(),
+                BuildingType::Terraformer => terraformer_mat.clone(),
+            };
+
+            commands.spawn((
+                Mesh3d(building_mesh.clone()),
+                MeshMaterial3d(b_mat),
+                Transform::from_xyz(pos_x, 0.4, pos_z),
+                PlanetView3D,
+                BuildingEntity,
+            ));
+        }
+    }
 }

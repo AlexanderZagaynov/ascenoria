@@ -1,35 +1,42 @@
 //! Planet generation helpers.
 
-use rand::SeedableRng;
-use rand::rngs::StdRng;
-use rand::seq::SliceRandom;
+use super::types::{BuildingType, PlanetSurface, TileColor};
+use rand::prelude::*;
 
-use crate::data_types::GameData;
-
-use super::types::{GeneratedPlanet, build_tiles};
-
-/// Generate a random planet from loaded game data using the provided seed.
-pub fn generate_planet(seed: u64, data: &GameData) -> Option<GeneratedPlanet> {
+/// Generate a random planet for MVP.
+pub fn generate_planet(seed: u64) -> PlanetSurface {
     let mut rng = StdRng::seed_from_u64(seed);
+    let width = 10;
+    let height = 10;
 
-    let size = data.planet_sizes().choose(&mut rng)?;
-    let surface_type = data.planet_surface_types().choose(&mut rng)?;
+    let mut surface = PlanetSurface::new(width, height);
 
-    let surface_slots = size.surface_slots.max(1);
-    let orbital_slots = size.orbital_slots;
+    for tile in surface.tiles.iter_mut() {
+        // 50% chance of White, 50% Black
+        tile.color = if rng.gen_bool(0.5) {
+            TileColor::White
+        } else {
+            TileColor::Black
+        };
+    }
 
-    let mut tiles = build_tiles(surface_slots, &surface_type.tile_distribution);
-    tiles.shuffle(&mut rng);
+    // Ensure at least one White tile for the Base
+    if !surface.tiles.iter().any(|t| t.color == TileColor::White) {
+        surface.tiles[0].color = TileColor::White;
+    }
 
-    let row_width = (surface_slots as f32).sqrt().ceil().max(1.0) as usize;
+    // Place Base on a random White tile
+    let white_indices: Vec<usize> = surface
+        .tiles
+        .iter()
+        .enumerate()
+        .filter(|(_, t)| t.color == TileColor::White)
+        .map(|(i, _)| i)
+        .collect();
 
-    Some(GeneratedPlanet {
-        size_id: size.id.clone(),
-        surface_slots,
-        orbital_slots,
-        orbital_items: vec![None; orbital_slots as usize],
-        surface_type_id: surface_type.id.clone(),
-        tiles,
-        row_width,
-    })
+    if let Some(&idx) = white_indices.choose(&mut rng) {
+        surface.tiles[idx].building = Some(BuildingType::Base);
+    }
+
+    surface
 }

@@ -1,30 +1,57 @@
-use std::path::PathBuf;
-
 use crate::data_types::load_game_data;
+use std::path::PathBuf;
 
 #[test]
 fn loads_full_dataset() {
     let (data, registry) = load_game_data(PathBuf::from("assets/data"))
         .expect("Game data should load from assets/data");
 
+    // Surface Cell Types
     assert!(
-        !data.species().is_empty(),
-        "Species list should not be empty"
+        !data.surface_cell_types.is_empty(),
+        "Surface cell types should not be empty"
     );
     assert!(
-        registry.species(&data, "orfa").is_some(),
-        "Species lookup should work"
+        registry.surface_cell_type(&data, "cell_white").is_some(),
+        "Should find cell_white"
+    );
+
+    // Surface Buildings
+    assert!(
+        !data.surface_buildings.is_empty(),
+        "Surface buildings should not be empty"
     );
     assert!(
-        !data.techs().is_empty(),
-        "Tech list should be populated from research.toml"
+        registry.surface_building(&data, "building_base").is_some(),
+        "Should find building_base"
+    );
+
+    // Technologies
+    assert!(
+        !data.technologies.is_empty(),
+        "Technologies should not be empty"
     );
     assert!(
-        registry.hull_class(&data, "enormous").is_some(),
-        "Hull class lookup should succeed for known ids"
+        registry.technology(&data, "tech_terraforming").is_some(),
+        "Should find tech_terraforming"
+    );
+
+    // Victory Conditions
+    assert!(
+        !data.victory_conditions.is_empty(),
+        "Victory conditions should not be empty"
     );
     assert!(
-        !data.victory_conditions().is_empty(),
-        "Victory conditions should load"
+        registry
+            .victory_condition(&data, "victory_cover_planet")
+            .is_some(),
+        "Should find victory_cover_planet"
+    );
+
+    // Scenarios
+    assert!(!data.scenarios.is_empty(), "Scenarios should not be empty");
+    assert!(
+        registry.scenario(&data, "scenario_mvp").is_some(),
+        "Should find scenario_mvp"
     );
 }

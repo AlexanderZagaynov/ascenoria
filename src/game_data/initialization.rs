@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use std::path::Path;
 
 use crate::data_types::{GameData, GameRegistry};
-use crate::galaxy_data::{GalaxyPreview, generate_galaxy};
 
 use super::hot_reload::DataHotReload;
 
@@ -33,19 +32,7 @@ pub fn initialize_game_resources(
     registry: GameRegistry,
     data_path: &str,
 ) {
-    let computed = game_data.compute();
-    let generated_galaxy = generate_galaxy(1337, &game_data, 2..=3, 1..=3);
-
-    info!(
-        "Generated debug galaxy\n{}",
-        crate::galaxy_data::format_galaxy(&generated_galaxy)
-    );
-
     app.insert_resource(registry);
-    app.insert_resource(computed);
-    app.insert_resource(GalaxyPreview {
-        galaxy: generated_galaxy,
-    });
     app.insert_resource(game_data);
 
     // Set up file watchers for hot reload

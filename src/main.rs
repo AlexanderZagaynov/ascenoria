@@ -2,39 +2,14 @@
 //!
 //! This is the main entry point that registers all game plugins and starts the Bevy app.
 
-mod combat;
-mod data_types;
-mod galaxy_data;
-mod galaxy_view;
-mod game_data;
-mod game_options;
-mod game_summary;
-mod industry;
-mod main_menu;
-mod planet_data;
-mod planet_view;
-mod research;
-mod ship_blueprints;
-mod ship_design;
-mod ship_ui;
-mod star_data;
-mod victory;
-
 use bevy::{asset::AssetPlugin, prelude::*};
 
-use data_types::LocalizationSettings;
-use galaxy_data::GalaxyPreview;
-use galaxy_view::GalaxyViewPlugin;
-use game_data::GameDataPlugin;
-use game_options::GameOptionsPlugin;
-use game_summary::GameSummaryPlugin;
-use main_menu::{GameState, MainMenuPlugin};
-use planet_view::PlanetViewPlugin;
-use star_data::StarPlugin;
+use ascenoria::game_data::GameDataPlugin;
+use ascenoria::main_menu::{GameState, MainMenuPlugin};
+use ascenoria::planet_view::PlanetViewPlugin;
 
 fn main() {
     App::new()
-        .init_resource::<LocalizationSettings>()
         .add_plugins((
             DefaultPlugins.set(AssetPlugin {
                 watch_for_changes_override: Some(true),
@@ -42,15 +17,11 @@ fn main() {
             }),
             GameDataPlugin::default(),
             MainMenuPlugin,
-            GameOptionsPlugin,
-            GameSummaryPlugin,
-            GalaxyViewPlugin,
-            StarPlugin,
             PlanetViewPlugin,
         ))
         .add_systems(
             Update,
-            return_to_menu_input.run_if(in_state(GameState::GalaxyView)),
+            return_to_menu_input.run_if(in_state(GameState::PlanetView)),
         )
         .run();
 }

@@ -1,29 +1,11 @@
-use crate::data_types::{GameData, LocalizedText, ResearchGraph, VictoryRules};
-
-pub fn localized(text: &str) -> LocalizedText {
-    LocalizedText {
-        en: text.to_string(),
-        ru: text.to_string(),
-    }
-}
+use crate::data_types::GameData;
 
 pub fn base_game_data() -> GameData {
-    GameData::new(
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        Vec::new(),
-        ResearchGraph::default(),
-        Vec::new(),
-        VictoryRules::default(),
-    )
+    GameData {
+        surface_cell_types: Vec::new(),
+        surface_buildings: Vec::new(),
+        technologies: Vec::new(),
+        victory_conditions: Vec::new(),
+        scenarios: Vec::new(),
+    }
 }

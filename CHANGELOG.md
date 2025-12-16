@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+- **Major Refactor**: Switched to a strict MVP data schema.
+  - Removed `Species`, `Ship`, `PlanetSize`, `PlanetSurfaceType`, etc.
+  - Added `SurfaceCellType`, `SurfaceBuilding`, `Technology`, `VictoryCondition`, `Scenario`.
+  - Updated data loaders and registry to support the new schema.
+  - Replaced all TOML data files with MVP-compliant versions.
+
 ### Added
 - Shared `HasId`/`NamedEntity` helpers for game entities and updated UI helpers to use the generic accessors.
 - CLI data linter to validate TOML packs and warn about id naming or missing localizations.
