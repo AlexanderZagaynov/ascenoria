@@ -4,11 +4,14 @@
 //! buildings, population, and orbital structures. Accessed by clicking on a planet
 //! in the star system view.
 
+mod logic;
 mod setup;
 mod systems;
 mod types;
+pub mod ui;
 
 use crate::main_menu::GameState;
+
 use crate::planet_view::types::{PlanetViewState, TileUpdateEvent};
 use bevy::prelude::*;
 
@@ -27,7 +30,11 @@ impl Plugin for PlanetViewPlugin {
                     systems::ui_action_system,
                     systems::tile_interaction_system,
                     systems::update_visuals_system,
+                    systems::update_connectivity_system,
                     systems::update_ui_system,
+                    systems::update_production_queue_ui,
+                    ui::build_menu::update_build_menu,
+                    ui::build_menu::build_menu_interaction,
                     systems::configure_ui_camera,
                 )
                     .run_if(in_state(GameState::PlanetView)),

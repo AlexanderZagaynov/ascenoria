@@ -1,14 +1,17 @@
 //! ECS systems for the planet view.
 
 use bevy::prelude::*;
-// use bevy::hierarchy::DespawnRecursiveExt;
+// use bevy::ecs::hierarchy::DespawnRecursiveExt;
 
+use crate::data_types::GameData;
+use crate::data_types::GameRegistry;
 use crate::main_menu::GameState;
 use crate::planet_data::{BuildingType, TileColor};
-use crate::data_types::GameData;
+use crate::planet_view::logic::update_connectivity;
 use crate::planet_view::types::{
     BuildingEntity, PlanetView3D, PlanetViewRoot, PlanetViewState, TileEntity, UIAction,
 };
+use crate::planet_view::ui::panels::ProductionQueueList;
 
 /// Clean up all planet view entities when leaving the screen.
 pub fn cleanup_planet_view(
@@ -25,15 +28,12 @@ pub fn cleanup_planet_view(
 }
 
 /// Configure the UI camera to render on top of the 3D scene.
-pub fn configure_ui_camera(
-    mut query: Query<&mut Camera, (Added<PlanetViewRoot>, With<Camera2d>)>,
-) {
+pub fn configure_ui_camera(mut query: Query<&mut Camera, (Added<PlanetViewRoot>, With<Camera2d>)>) {
     for mut camera in query.iter_mut() {
         camera.order = 1;
         camera.clear_color = ClearColorConfig::None;
     }
 }
-
 
 pub fn ui_action_system(
     mut interaction_query: Query<
@@ -42,6 +42,8 @@ pub fn ui_action_system(
     >,
     mut planet_state: ResMut<PlanetViewState>,
     mut next_state: ResMut<NextState<GameState>>,
+    game_data: Res<GameData>,
+    registry: Res<GameRegistry>,
 ) {
     for (interaction, action, mut bg_color) in &mut interaction_query {
         match *interaction {
@@ -49,12 +51,11 @@ pub fn ui_action_system(
                 *bg_color = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
                 match action {
                     UIAction::EndTurn => {
-                        end_turn(&mut planet_state);
+                        end_turn(&mut planet_state, &game_data, &registry);
                     }
-                    UIAction::SelectBuilding(b) => {
-                        planet_state.selected_building = Some(*b);
-                        info!("Selected building: {:?}", b);
-                    }
+                    // UIAction::OpenBuildMenu => {
+                    //     info!("Open Build Menu");
+                    // }
                     UIAction::Quit => {
                         next_state.set(GameState::MainMenu);
                     }
@@ -70,25 +71,50 @@ pub fn ui_action_system(
     }
 }
 
-fn end_turn(state: &mut PlanetViewState) {
+fn end_turn(state: &mut PlanetViewState, game_data: &GameData, registry: &GameRegistry) {
     state.turn += 1;
 
     // Calculate yields
     if let Some(surface) = &state.surface {
         for tile in &surface.tiles {
             if let Some(building) = tile.building {
-                match building {
-                    BuildingType::Base => {
-                        state.food += 1;
-                        state.housing += 3;
-                        state.production += 1;
-                        state.science += 1;
+                let building_id = building.id();
+                if let Some(def) = game_data.surface_buildings.iter().find(|b| b.id == building_id) {
+                    state.food = (state.food as i32 + def.yields_food).max(0) as u32;
+                    state.housing = (state.housing as i32 + def.yields_housing).max(0) as u32;
+                    state.production = (state.production as i32 + def.yields_production).max(0) as u32;
+                    state.science = (state.science as i32 + def.yields_science).max(0) as u32;
+                } else {
+                    warn!("Missing building definition for ID: {}", building_id);
+                }
+            }
+        }
+    }
+
+    // Process Production Queue
+    if let Some(project) = state.production_queue.front_mut() {
+        let needed = project.total_cost.saturating_sub(project.progress);
+        let available = state.production;
+        let amount = std::cmp::min(needed, available);
+
+        project.progress += amount;
+        // state.production -= amount;
+
+        if project.progress >= project.total_cost {
+            // Finished!
+            let finished_project = state.production_queue.pop_front().unwrap();
+            match finished_project.project_type {
+                crate::planet_view::types::ProjectType::Building(b_type) => {
+                    if let Some(surface) = &mut state.surface {
+                        if let Some(tile) =
+                            surface.tiles.get_mut(finished_project.target_tile_index)
+                        {
+                            tile.building = Some(b_type);
+                            info!("Construction Complete: {:?}", b_type);
+                            // Update connectivity
+                            update_connectivity(surface, game_data, registry);
+                        }
                     }
-                    BuildingType::Farm => state.food += 1,
-                    BuildingType::Habitat => state.housing += 2,
-                    BuildingType::Factory => state.production += 1,
-                    BuildingType::Laboratory => state.science += 1,
-                    _ => {}
                 }
             }
         }
@@ -110,53 +136,72 @@ fn end_turn(state: &mut PlanetViewState) {
     );
 }
 
-// Simple raycast system for tile clicking
+// Simple raycast system for tile clicking and hovering
 pub fn tile_interaction_system(
     mouse: Res<ButtonInput<MouseButton>>,
     windows: Query<&Window>,
     camera_q: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     mut planet_state: ResMut<PlanetViewState>,
     tile_q: Query<(Entity, &TileEntity, &Transform)>,
+    mut cursor_q: Query<(&mut Transform, &mut Visibility), (With<crate::planet_view::types::PlanetViewCursor>, Without<TileEntity>)>,
     mut update_events: MessageWriter<crate::planet_view::types::TileUpdateEvent>,
+    game_data: Res<GameData>,
+    registry: Res<GameRegistry>,
 ) {
-    if !mouse.just_pressed(MouseButton::Left) {
-        return;
-    }
+    let mut hovered_tile_pos = None;
+    let mut hovered_tile_data = None;
 
     if let Some((camera, camera_transform)) = camera_q.iter().next() {
         if let Some(window) = windows.iter().next() {
             if let Some(cursor_position) = window.cursor_position() {
-                let ray = camera
-                    .viewport_to_world(camera_transform, cursor_position)
-                    .unwrap();
+                if let Ok(ray) = camera.viewport_to_world(camera_transform, cursor_position) {
+                    // Intersect with plane y=0
+                    let t = -ray.origin.y / ray.direction.y;
+                    if t > 0.0 {
+                        let intersection = ray.origin + ray.direction * t;
 
-                // Intersect with plane y=0
-                let t = -ray.origin.y / ray.direction.y;
-                if t > 0.0 {
-                    let intersection = ray.origin + ray.direction * t;
+                        // Find closest tile
+                        let mut closest_dist = 1.0; // Max dist
 
-                    // Find closest tile
-                    let mut closest_dist = 1.0; // Max dist
-                    let mut closest_tile = None;
+                        for (_entity, tile, transform) in &tile_q {
+                            // Ignore y difference for distance check
+                            let flat_intersection = Vec3::new(intersection.x, 0.0, intersection.z);
+                            let flat_tile_pos = Vec3::new(transform.translation.x, 0.0, transform.translation.z);
 
-                    for (entity, tile, transform) in &tile_q {
-                        let dist = intersection.distance(transform.translation);
-                        if dist < closest_dist {
-                            closest_dist = dist;
-                            closest_tile = Some((entity, tile));
+                            let dist = flat_intersection.distance(flat_tile_pos);
+                            if dist < closest_dist {
+                                closest_dist = dist;
+                                hovered_tile_pos = Some(transform.translation);
+                                hovered_tile_data = Some(tile);
+                            }
                         }
-                    }
-
-                    if let Some((_entity, tile_data)) = closest_tile {
-                        handle_tile_click(
-                            tile_data.x,
-                            tile_data.y,
-                            &mut planet_state,
-                            &mut update_events,
-                        );
                     }
                 }
             }
+        }
+    }
+
+    // Update Cursor
+    if let Ok((mut cursor_transform, mut cursor_visibility)) = cursor_q.single_mut() {
+        if let Some(pos) = hovered_tile_pos {
+            cursor_transform.translation = pos + Vec3::new(0.0, 0.1, 0.0); // Slightly above
+            *cursor_visibility = Visibility::Visible;
+        } else {
+            *cursor_visibility = Visibility::Hidden;
+        }
+    }
+
+    // Handle Click
+    if mouse.just_pressed(MouseButton::Left) {
+        if let Some(tile_data) = hovered_tile_data {
+             handle_tile_click(
+                tile_data.x,
+                tile_data.y,
+                &mut planet_state,
+                &mut update_events,
+                &game_data,
+                &registry,
+            );
         }
     }
 }
@@ -165,87 +210,27 @@ fn handle_tile_click(
     x: usize,
     y: usize,
     state: &mut PlanetViewState,
-    update_events: &mut MessageWriter<crate::planet_view::types::TileUpdateEvent>,
+    _update_events: &mut MessageWriter<crate::planet_view::types::TileUpdateEvent>,
+    _game_data: &GameData,
+    _registry: &GameRegistry,
 ) {
-    let building_type = match state.selected_building {
-        Some(b) => b,
-        None => return,
-    };
-
-    // Check cost
-    let cost = 10;
-    if state.production < cost {
-        info!("Not enough production!");
-        return;
-    }
-
-    // Check validity
     if let Some(surface) = &mut state.surface {
-        // Check terrain
-        let tile_color = surface.get(x, y).unwrap().color;
-        let valid_terrain = match building_type {
-            BuildingType::Terraformer | BuildingType::Passage => tile_color == TileColor::Black,
-            _ => tile_color == TileColor::White,
-        };
-
-        if !valid_terrain {
-            info!("Invalid terrain for this building!");
-            return;
-        }
-
         // Check if empty
         if surface.get(x, y).unwrap().building.is_some() {
             info!("Tile occupied!");
             return;
         }
 
-        // Check adjacency
-        let mut adjacent = false;
-        let dirs = [(0, 1), (0, -1), (1, 0), (-1, 0)];
-        for (dx, dy) in dirs {
-            let nx = x as i32 + dx;
-            let ny = y as i32 + dy;
-            if nx >= 0 && ny >= 0 {
-                if let Some(neighbor) = surface.get(nx as usize, ny as usize) {
-                    if neighbor.building.is_some() {
-                        adjacent = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if !adjacent {
-            info!("Must be adjacent to existing building!");
+        // Check connectivity
+        if !surface.get(x, y).unwrap().connected {
+            info!("Tile not connected!");
             return;
         }
 
-        // Check Tech
-        if building_type == BuildingType::Terraformer && !state.terraforming_unlocked {
-            info!("Terraforming not researched!");
-            return;
-        }
-
-        // Place Building
-        state.production -= cost;
-        let tile = surface.get_mut(x, y).unwrap();
-
-        if building_type == BuildingType::Terraformer {
-            tile.color = TileColor::White;
-            info!("Terraformed!");
-        } else {
-            tile.building = Some(building_type);
-            info!("Built {:?}!", building_type);
-        }
-
-        // Check Victory
-        if surface.tiles.iter().all(|t| t.building.is_some()) {
-            state.victory = true;
-            info!("VICTORY!");
-        }
-
-        // Trigger update
-        update_events.write(crate::planet_view::types::TileUpdateEvent { x, y });
+        // Open Menu
+        state.build_menu_open = true;
+        state.build_menu_target_tile = Some(y * surface.row_width + x);
+        info!("Opening Build Menu for tile ({}, {})", x, y);
     }
 }
 
@@ -256,16 +241,24 @@ pub fn update_visuals_system(
     mut materials: ResMut<Assets<StandardMaterial>>,
     planet_state: Res<PlanetViewState>,
     game_data: Res<GameData>,
-    tile_q: Query<(Entity, &TileEntity, &Transform)>,
+    assets: Res<crate::planet_view::types::PlanetViewAssets>,
+    mut tile_q: Query<(Entity, &TileEntity, &Transform, &mut Mesh3d)>,
     _building_q: Query<(Entity, &BuildingEntity, &ChildOf)>,
 ) {
     for event in events.read() {
         // Find tile entity
-        for (entity, tile_data, transform) in &tile_q {
+        for (entity, tile_data, transform, mut mesh_handle) in &mut tile_q {
             if tile_data.x == event.x && tile_data.y == event.y {
                 // Update tile material (if terraformed)
                 if let Some(surface) = &planet_state.surface {
                     if let Some(tile) = surface.get(event.x, event.y) {
+                        // Update Mesh based on connectivity
+                        mesh_handle.0 = if tile.connected {
+                            assets.large_plate_mesh.clone()
+                        } else {
+                            assets.small_diamond_mesh.clone()
+                        };
+
                         // Re-spawn building if present
                         // First remove existing building on this tile
                         // This is tricky because BuildingEntity is child of... wait, I spawned them as siblings in setup_scene.
@@ -280,39 +273,32 @@ pub fn update_visuals_system(
 
                         // Let's just spawn the new building.
                         if let Some(building) = tile.building {
-                            let building_id = match building {
-                                BuildingType::Base => "building_base",
-                                BuildingType::Farm => "building_farm_1",
-                                BuildingType::Habitat => "building_habitat_1",
-                                BuildingType::Factory => "building_factory_1",
-                                BuildingType::Laboratory => "building_laboratory_1",
-                                BuildingType::Passage => "building_passage",
-                                BuildingType::Terraformer => "building_terraformer",
-                            };
-
-                            // Find color in GameData
-                            let color = if let Some(def) = game_data.surface_buildings.iter().find(|b| b.id == building_id) {
-                                let (r, g, b) = def.color;
-                                Color::srgb(r, g, b)
-                            } else {
-                                warn!("Missing building definition for ID: {}", building_id);
-                                Color::WHITE
-                            };
-
-                            commands.spawn((
-                                Mesh3d(meshes.add(Cuboid::new(0.6, 0.6, 0.6))),
-                                MeshMaterial3d(materials.add(StandardMaterial {
-                                    base_color: color,
-                                    ..default()
-                                })),
-                                Transform::from_xyz(
-                                    transform.translation.x,
-                                    0.4,
-                                    transform.translation.z,
-                                ),
-                                PlanetView3D,
-                                BuildingEntity,
-                            ));
+                            spawn_building(
+                                &mut commands,
+                                &mut meshes,
+                                &mut materials,
+                                &game_data,
+                                building,
+                                transform.translation,
+                                false, // Not a construction site
+                            );
+                        } else {
+                            // Check if there is a construction project for this tile
+                            if let Some(project) = planet_state.production_queue.iter().find(|p| p.target_tile_index == (tile_data.y * surface.row_width + tile_data.x)) {
+                                match project.project_type {
+                                    crate::planet_view::types::ProjectType::Building(b_type) => {
+                                        spawn_building(
+                                            &mut commands,
+                                            &mut meshes,
+                                            &mut materials,
+                                            &game_data,
+                                            b_type,
+                                            transform.translation,
+                                            true, // Is construction site
+                                        );
+                                    }
+                                }
+                            }
                         }
 
                         // If terraformed, update tile color
@@ -323,12 +309,65 @@ pub fn update_visuals_system(
                                     ..default()
                                 },
                             )));
+                        } else if tile.color == TileColor::Black {
+                             commands.entity(entity).insert(MeshMaterial3d(assets.black_mat.clone()));
                         }
                     }
                 }
             }
         }
     }
+}
+
+fn spawn_building(
+    commands: &mut Commands,
+    meshes: &mut ResMut<Assets<Mesh>>,
+    materials: &mut ResMut<Assets<StandardMaterial>>,
+    game_data: &GameData,
+    building_type: BuildingType,
+    position: Vec3,
+    is_construction: bool,
+) {
+    let building_id = match building_type {
+        BuildingType::Base => "building_base",
+        BuildingType::Farm => "building_farm_1",
+        BuildingType::Habitat => "building_habitat_1",
+        BuildingType::Factory => "building_factory_1",
+        BuildingType::Laboratory => "building_laboratory_1",
+        BuildingType::Passage => "building_passage",
+        BuildingType::Terraformer => "building_terraformer",
+    };
+
+    // Find color in GameData
+    let color = if let Some(def) = game_data.surface_buildings.iter().find(|b| b.id == building_id) {
+        let (r, g, b) = def.color;
+        Color::srgb(r, g, b)
+    } else {
+        warn!("Missing building definition for ID: {}", building_id);
+        Color::WHITE
+    };
+
+    let final_color = if is_construction {
+        color.with_alpha(0.5) // Transparent for construction
+    } else {
+        color
+    };
+
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::new(0.6, 0.6, 0.6))),
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color: final_color,
+            alpha_mode: if is_construction { AlphaMode::Blend } else { AlphaMode::Opaque },
+            ..default()
+        })),
+        Transform::from_xyz(
+            position.x,
+            0.4,
+            position.z,
+        ),
+        PlanetView3D,
+        BuildingEntity,
+    ));
 }
 
 pub fn update_ui_system(
@@ -367,5 +406,59 @@ pub fn update_ui_system(
         } else if text.0.starts_with("Research:") {
             text.0 = format!("Research: {}/100", planet_state.research_progress);
         }
+    }
+}
+
+pub fn update_connectivity_system(
+    mut planet_state: ResMut<PlanetViewState>,
+    game_data: Res<GameData>,
+    registry: Res<GameRegistry>,
+) {
+    if let Some(surface) = &mut planet_state.surface {
+        update_connectivity(surface, &game_data, &registry);
+    }
+}
+
+pub fn update_production_queue_ui(
+    mut commands: Commands,
+    planet_state: Res<PlanetViewState>,
+    queue_query: Query<(Entity, Option<&Children>), With<ProductionQueueList>>,
+) {
+    for (entity, children) in &queue_query {
+        if let Some(children) = children {
+            for child in children {
+                commands.entity(*child).despawn();
+            }
+        }
+
+        commands.entity(entity).with_children(|parent| {
+            for (i, project) in planet_state.production_queue.iter().enumerate() {
+                let name = match project.project_type {
+                    crate::planet_view::types::ProjectType::Building(b) => format!("{:?}", b),
+                };
+
+                let progress_text = format!("{} / {}", project.progress, project.total_cost);
+                let color = if i == 0 {
+                    Color::srgb(0.0, 1.0, 0.0)
+                } else {
+                    Color::WHITE
+                };
+
+                let income_text = if i == 0 {
+                    format!(" (+{})", planet_state.production)
+                } else {
+                    "".to_string()
+                };
+
+                parent.spawn((
+                    Text::new(format!("{}: {}{}", name, progress_text, income_text)),
+                    TextFont {
+                        font_size: 14.0,
+                        ..default()
+                    },
+                    TextColor(color),
+                ));
+            }
+        });
     }
 }

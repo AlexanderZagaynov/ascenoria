@@ -1,4 +1,4 @@
-use crate::planet_data::BuildingType;
+// use crate::planet_data::BuildingType;
 use crate::planet_view::types::{PlanetViewRoot, UIAction};
 use bevy::core_pipeline::core_2d::graph::Core2d;
 use bevy::render::camera::CameraRenderGraph;
@@ -103,19 +103,6 @@ pub fn setup_ui_overlay(commands: &mut Commands) {
                 BackgroundColor(Color::BLACK.with_alpha(0.8)),
             ))
             .with_children(|bottom| {
-                spawn_building_button(bottom, "Farm", BuildingType::Farm);
-                spawn_building_button(bottom, "Habitat", BuildingType::Habitat);
-                spawn_building_button(bottom, "Factory", BuildingType::Factory);
-                spawn_building_button(bottom, "Lab", BuildingType::Laboratory);
-                spawn_building_button(bottom, "Passage", BuildingType::Passage);
-                spawn_building_button(bottom, "Terraform", BuildingType::Terraformer);
-
-                // Spacer
-                bottom.spawn(Node {
-                    width: Val::Px(20.0),
-                    ..default()
-                });
-
                 // End Turn
                 bottom
                     .spawn((
@@ -143,20 +130,4 @@ fn spawn_text(parent: &mut ChildSpawnerCommands, text: &str) {
         },
         TextColor(Color::WHITE),
     ));
-}
-
-fn spawn_building_button(parent: &mut ChildSpawnerCommands, label: &str, building: BuildingType) {
-    parent
-        .spawn((
-            Button,
-            Node {
-                padding: UiRect::all(Val::Px(10.0)),
-                ..default()
-            },
-            BackgroundColor(Color::srgb(0.3, 0.3, 0.3)),
-        ))
-        .insert(UIAction::SelectBuilding(building))
-        .with_children(|btn| {
-            btn.spawn((Text::new(label), TextColor(Color::WHITE)));
-        });
 }

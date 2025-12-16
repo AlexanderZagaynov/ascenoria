@@ -20,6 +20,20 @@ pub enum BuildingType {
     Terraformer,
 }
 
+impl BuildingType {
+    pub fn id(&self) -> &'static str {
+        match self {
+            BuildingType::Base => "building_base",
+            BuildingType::Farm => "building_farm_1",
+            BuildingType::Habitat => "building_habitat_1",
+            BuildingType::Factory => "building_factory_1",
+            BuildingType::Laboratory => "building_laboratory_1",
+            BuildingType::Passage => "building_passage",
+            BuildingType::Terraformer => "building_terraformer",
+        }
+    }
+}
+
 /// Snapshot of a surface tile that may host a building.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SurfaceTile {
@@ -27,6 +41,8 @@ pub struct SurfaceTile {
     pub color: TileColor,
     /// Optional placed building.
     pub building: Option<BuildingType>,
+    /// Whether this tile is connected to the base (power/logistics).
+    pub connected: bool,
 }
 
 /// Surface grid along with placement helpers.
@@ -42,6 +58,7 @@ impl PlanetSurface {
             SurfaceTile {
                 color: TileColor::Black,
                 building: None,
+                connected: false,
             };
             width * height
         ];

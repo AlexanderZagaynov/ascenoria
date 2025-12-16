@@ -1,5 +1,5 @@
 use crate::planet_data::{BuildingType, PlanetSurface, TileColor};
-use crate::planet_view::types::{BuildingEntity, PlanetView3D, TileEntity};
+use crate::planet_view::types::{BuildingEntity, PlanetView3D, TileEntity, PlanetViewAssets, PlanetViewCursor};
 use crate::data_types::GameData;
 use bevy::camera::ScalingMode;
 use bevy::core_pipeline::core_3d::graph::Core3d;
@@ -52,15 +52,23 @@ pub fn setup_scene(
     let offset_x = -(surface.row_width as f32 * (tile_size + gap)) / 2.0;
     let offset_z = -(surface.height() as f32 * (tile_size + gap)) / 2.0;
 
-    let mesh_handle = meshes.add(Cuboid::new(tile_size, 0.2, tile_size));
+    let large_plate_mesh = meshes.add(Cuboid::new(tile_size, 0.2, tile_size));
+    let small_diamond_mesh = meshes.add(Cuboid::new(0.4, 0.2, 0.4));
 
     let white_mat = materials.add(StandardMaterial {
         base_color: Color::WHITE,
         ..default()
     });
     let black_mat = materials.add(StandardMaterial {
-        base_color: Color::BLACK,
+        base_color: Color::srgb(0.2, 0.2, 0.2), // Dark grey instead of pure black for visibility
         ..default()
+    });
+
+    commands.insert_resource(PlanetViewAssets {
+        large_plate_mesh: large_plate_mesh.clone(),
+        small_diamond_mesh: small_diamond_mesh.clone(),
+        // white_mat: white_mat.clone(),
+        black_mat: black_mat.clone(),
     });
 
     // Building materials from GameData
@@ -88,9 +96,15 @@ pub fn setup_scene(
             TileColor::Black => black_mat.clone(),
         };
 
+        let mesh = if tile.connected {
+            large_plate_mesh.clone()
+        } else {
+            small_diamond_mesh.clone()
+        };
+
         // Spawn Tile
         commands.spawn((
-            Mesh3d(mesh_handle.clone()),
+            Mesh3d(mesh),
             MeshMaterial3d(mat),
             Transform::from_xyz(pos_x, 0.0, pos_z),
             PlanetView3D,
@@ -122,4 +136,19 @@ pub fn setup_scene(
             }
         }
     }
+
+    // Spawn Cursor
+    commands.spawn((
+        Mesh3d(meshes.add(Cuboid::new(1.1, 0.1, 1.1))), // Slightly larger than tile
+        MeshMaterial3d(materials.add(StandardMaterial {
+            base_color: Color::srgb(1.0, 1.0, 0.0).with_alpha(0.3), // Transparent Yellow
+            alpha_mode: AlphaMode::Blend,
+            unlit: true,
+            ..default()
+        })),
+        Transform::from_xyz(0.0, 0.1, 0.0),
+        Visibility::Hidden,
+        PlanetView3D,
+        PlanetViewCursor,
+    ));
 }

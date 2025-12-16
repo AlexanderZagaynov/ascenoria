@@ -28,6 +28,7 @@ pub struct SurfaceBuilding {
     pub color: (f32, f32, f32),
     pub buildable_on_cell_type: BuildableOn,
     pub counts_for_adjacency: bool,
+    pub production_cost: u32,
     pub yields_food: i32,
     pub yields_housing: i32,
     pub yields_production: i32,

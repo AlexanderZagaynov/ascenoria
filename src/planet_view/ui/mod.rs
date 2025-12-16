@@ -1,3 +1,4 @@
+pub mod build_menu;
 pub mod panels;
 pub mod top_bar;
 

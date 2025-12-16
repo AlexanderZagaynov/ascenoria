@@ -3,6 +3,9 @@ use bevy::prelude::*;
 
 use crate::planet_view::types::colors;
 
+#[derive(Component)]
+pub struct ProductionQueueList;
+
 /// Spawn the left information panel.
 pub fn spawn_left_panel(
     main: &mut ChildSpawnerCommands,
@@ -66,6 +69,30 @@ pub fn spawn_left_panel(
                     ));
                 });
         }
+
+        // Production Queue Header
+        panel.spawn((
+            Text::new("Production Queue"),
+            TextFont {
+                font_size: 20.0,
+                ..default()
+            },
+            TextColor(colors::HEADER_TEXT),
+            Node {
+                margin: UiRect::top(Val::Px(20.0)),
+                ..default()
+            },
+        ));
+
+        // Queue List Container
+        panel.spawn((
+            Node {
+                flex_direction: FlexDirection::Column,
+                row_gap: Val::Px(5.0),
+                ..default()
+            },
+            ProductionQueueList,
+        ));
 
         // Divider
         panel.spawn((

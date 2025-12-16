@@ -49,7 +49,10 @@ pub fn initialize_game_resources(
             watchers.mods_handle =
                 asset_relative_path(&mods_path).map(|path| asset_server.load_folder(path));
         } else {
-            info!("No mods directory found at {:?}, skipping mod loading", mods_path);
+            info!(
+                "No mods directory found at {:?}, skipping mod loading",
+                mods_path
+            );
             watchers.mods_handle = None;
         }
     }

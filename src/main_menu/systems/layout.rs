@@ -1,6 +1,6 @@
-use bevy::{ecs::hierarchy::ChildSpawnerCommands, prelude::*};
 use bevy::core_pipeline::core_2d::graph::Core2d;
 use bevy::render::camera::CameraRenderGraph;
+use bevy::{ecs::hierarchy::ChildSpawnerCommands, prelude::*};
 
 use crate::main_menu::colors;
 use crate::main_menu::components::{MainMenuRoot, MenuButton};

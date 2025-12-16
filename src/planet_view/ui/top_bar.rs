@@ -1,18 +1,26 @@
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
-use crate::GalaxyPreview;
+// use crate::GalaxyPreview;
 
-use super::super::rendering::get_planet_thumbnail_color;
-use super::super::types::{PanelButton, PlanetThumbnail, colors};
+// use super::super::rendering::get_planet_thumbnail_color;
+use super::super::types::colors;
+
+#[derive(Component)]
+pub enum PanelButton {
+    Back,
+}
+
+#[derive(Component)]
+pub struct PlanetThumbnail(pub usize);
 
 /// Spawn the top navigation bar with planet thumbnails.
 pub fn spawn_top_bar(
     root: &mut ChildSpawnerCommands,
-    num_planets: usize,
-    planet_index: usize,
-    star_index: usize,
-    galaxy_preview: &GalaxyPreview,
+    _num_planets: usize,
+    _planet_index: usize,
+    _star_index: usize,
+    // galaxy_preview: &GalaxyPreview,
     planet_name: &str,
     surface_type: &str,
     planet_size: &str,
@@ -40,6 +48,7 @@ pub fn spawn_top_bar(
         spawn_planet_info(top_bar, planet_name, surface_type, planet_size);
 
         // Right section: Planet thumbnails
+        /*
         spawn_planet_thumbnails(
             top_bar,
             num_planets,
@@ -47,6 +56,7 @@ pub fn spawn_top_bar(
             star_index,
             galaxy_preview,
         );
+        */
     });
 }
 
@@ -112,6 +122,7 @@ fn spawn_planet_info(
         });
 }
 
+/*
 /// Spawn the planet thumbnail buttons.
 fn spawn_planet_thumbnails(
     top_bar: &mut ChildSpawnerCommands,
@@ -120,54 +131,6 @@ fn spawn_planet_thumbnails(
     star_index: usize,
     galaxy_preview: &GalaxyPreview,
 ) {
-    top_bar
-        .spawn(Node {
-            flex_direction: FlexDirection::Row,
-            column_gap: Val::Px(5.0),
-            ..default()
-        })
-        .with_children(|thumbs| {
-            for i in 0..num_planets {
-                let is_selected = i == planet_index;
-                let border_color = if is_selected {
-                    colors::THUMBNAIL_SELECTED
-                } else {
-                    colors::THUMBNAIL_NORMAL
-                };
-
-                let thumb_color = galaxy_preview
-                    .galaxy
-                    .systems
-                    .get(star_index)
-                    .and_then(|s| s.planets.get(i))
-                    .map(|p| get_planet_thumbnail_color(&p.surface_type_id))
-                    .unwrap_or(colors::TILE_WHITE);
-
-                thumbs
-                    .spawn((
-                        Button,
-                        Node {
-                            width: Val::Px(40.0),
-                            height: Val::Px(40.0),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            border: UiRect::all(Val::Px(2.0)),
-                            ..default()
-                        },
-                        BackgroundColor(thumb_color),
-                        BorderColor::all(border_color),
-                        PlanetThumbnail(i),
-                    ))
-                    .with_children(|btn| {
-                        btn.spawn((
-                            Text::new(format!("{}", i + 1)),
-                            TextFont {
-                                font_size: 14.0,
-                                ..default()
-                            },
-                            TextColor(Color::WHITE),
-                        ));
-                    });
-            }
-        });
+    // ...
 }
+*/
