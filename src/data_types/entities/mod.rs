@@ -1,3 +1,13 @@
+//! Game entity data structures loaded from RON files.
+//!
+//! Each submodule defines the Rust types that correspond to RON data schemas.
+//!
+//! # Modules
+//! - [`scenario`] - Game scenarios (starting conditions, galaxy settings)
+//! - [`surface`] - Planet surface types and buildings
+//! - [`tech`] - Technology/research tree entries
+//! - [`victory`] - Victory and defeat conditions
+
 mod scenario;
 mod surface;
 mod tech;

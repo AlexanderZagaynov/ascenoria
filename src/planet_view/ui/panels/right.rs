@@ -1,9 +1,28 @@
+//! Right panel for orbital structure management.
+//!
+//! Displays available orbital slots where the player can construct
+//! space stations, defense platforms, and other orbital structures.
+
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
 use crate::planet_view::types::colors;
 
 /// Spawn the right orbital structures panel.
+///
+/// # Layout
+/// ```text
+/// ┌──────────────────┐
+/// │ Orbitals         │
+/// │ [Slot 1 - empty] │
+/// │ [Slot 2 - empty] │
+/// │ [Slot 3 - empty] │
+/// │ +N more          │
+/// └──────────────────┘
+/// ```
+///
+/// Shows up to 8 slots visually, with a "+N more" indicator
+/// if there are additional slots beyond that.
 pub fn spawn_right_panel(main: &mut ChildSpawnerCommands, orbital_slots: usize) {
     main.spawn((
         Node {

@@ -1,7 +1,21 @@
 //! ECS systems for the planet view.
+//!
+//! This module contains all the Bevy systems that power the planet view screen.
+//! Systems are organized by their responsibility:
+//!
+//! - **Lifecycle**: [`cleanup_planet_view`], [`configure_ui_camera`]
+//! - **Input**: [`ui_action_system`], [`tile_interaction_system`]
+//! - **Game Logic**: [`end_turn`], [`update_connectivity_system`]
+//! - **Rendering**: [`update_visuals_system`], [`update_ui_system`], [`update_production_queue_ui`]
+//!
+//! # System Ordering
+//!
+//! Systems run every frame when in `GameState::PlanetView`. The order matters:
+//! 1. Input systems detect clicks and button presses
+//! 2. Game logic processes state changes
+//! 3. Visual systems update the display to match state
 
 use bevy::prelude::*;
-// use bevy::ecs::hierarchy::DespawnRecursiveExt;
 
 use crate::data_types::GameData;
 use crate::data_types::GameRegistry;
@@ -35,6 +49,18 @@ pub fn configure_ui_camera(mut query: Query<&mut Camera, (Added<PlanetViewRoot>,
     }
 }
 
+/// Handle UI button interactions (End Turn, Quit, etc.).
+///
+/// This system runs every frame and checks for button state changes.
+/// When a button is pressed, it executes the corresponding action
+/// based on the [`UIAction`] component attached to the button.
+///
+/// # Visual Feedback
+///
+/// Button background colors change based on interaction state:
+/// - Pressed: Bright grey (0.5)
+/// - Hovered: Medium grey (0.4)
+/// - None: Dark grey (0.3)
 pub fn ui_action_system(
     mut interaction_query: Query<
         (&Interaction, &UIAction, &mut BackgroundColor),
@@ -71,6 +97,20 @@ pub fn ui_action_system(
     }
 }
 
+/// Process the end of a game turn.
+///
+/// This function is called when the player clicks "End Turn" and handles:
+///
+/// 1. **Turn Counter**: Increment the turn number
+/// 2. **Resource Yields**: Sum up yields from all buildings (data-driven)
+/// 3. **Production Queue**: Apply production to the first project in queue
+/// 4. **Construction Completion**: Place buildings when projects finish
+/// 5. **Research Progress**: Accumulate science toward tech unlocks
+///
+/// # Data-Driven Yields
+///
+/// Building yields are read from `GameData.surface_buildings` rather than
+/// being hardcoded, allowing easy balancing via RON files.
 fn end_turn(state: &mut PlanetViewState, game_data: &GameData, registry: &GameRegistry) {
     state.turn += 1;
 
@@ -136,7 +176,27 @@ fn end_turn(state: &mut PlanetViewState, game_data: &GameData, registry: &GameRe
     );
 }
 
-// Simple raycast system for tile clicking and hovering
+/// Handle mouse interaction with the 3D tile grid.
+///
+/// This system performs raycasting from the camera through the mouse position
+/// to detect which tile is being hovered or clicked.
+///
+/// # Raycasting Algorithm
+///
+/// 1. Get the mouse position in screen coordinates
+/// 2. Convert to a ray in world space using the camera
+/// 3. Intersect the ray with the Y=0 plane (where tiles are located)
+/// 4. Find the closest tile to the intersection point
+///
+/// # Hover Cursor
+///
+/// Updates the [`PlanetViewCursor`] entity to follow the hovered tile,
+/// providing visual feedback before clicking.
+///
+/// # Click Handling
+///
+/// When left mouse button is pressed, delegates to [`handle_tile_click`]
+/// to open the build menu if the tile is valid.
 pub fn tile_interaction_system(
     mouse: Res<ButtonInput<MouseButton>>,
     windows: Query<&Window>,
@@ -206,6 +266,17 @@ pub fn tile_interaction_system(
     }
 }
 
+/// Handle a click on a specific tile.
+///
+/// Validates that the tile can be built on and opens the build menu if valid.
+///
+/// # Validation Rules
+///
+/// 1. Tile must be empty (no existing building)
+/// 2. Tile must be connected to the power grid
+///
+/// If validation passes, opens the build menu by setting `build_menu_open = true`
+/// and recording the target tile index.
 fn handle_tile_click(
     x: usize,
     y: usize,
@@ -234,6 +305,17 @@ fn handle_tile_click(
     }
 }
 
+/// Update tile and building visuals in response to state changes.
+///
+/// This system listens for [`TileUpdateEvent`]s and refreshes the visual
+/// representation of the affected tiles.
+///
+/// # Visual Updates
+///
+/// - **Mesh**: Connected tiles use large plates, disconnected use small diamonds
+/// - **Material**: White tiles are bright, black tiles are dark
+/// - **Buildings**: Spawns building meshes for completed constructions
+/// - **Construction Sites**: Shows semi-transparent building previews for queued items
 pub fn update_visuals_system(
     mut events: MessageReader<crate::planet_view::types::TileUpdateEvent>,
     mut commands: Commands,
@@ -319,6 +401,20 @@ pub fn update_visuals_system(
     }
 }
 
+/// Spawn a building mesh at the specified position.
+///
+/// Creates a 3D cube entity representing a building on the planet surface.
+/// The color is determined by looking up the building definition in `GameData`.
+///
+/// # Arguments
+///
+/// * `commands` - Bevy Commands for entity spawning
+/// * `meshes` - Asset storage for mesh handles
+/// * `materials` - Asset storage for material handles
+/// * `game_data` - Game data containing building color definitions
+/// * `building_type` - The type of building to spawn
+/// * `position` - World position of the tile (building is placed above)
+/// * `is_construction` - If true, renders semi-transparent as a "construction site"
 fn spawn_building(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,
@@ -370,6 +466,17 @@ fn spawn_building(
     ));
 }
 
+/// Update the resource display texts in the UI.
+///
+/// This system finds text entities by their content prefix (e.g., "Turn:", "Food:")
+/// and updates them to reflect the current [`PlanetViewState`] values.
+///
+/// Also controls the visibility of the victory message overlay.
+///
+/// # Note
+///
+/// This is a naive implementation that iterates all text entities.
+/// A proper implementation would use marker components for each stat display.
 pub fn update_ui_system(
     planet_state: Res<PlanetViewState>,
     mut text_query: Query<&mut Text>,
@@ -409,6 +516,10 @@ pub fn update_ui_system(
     }
 }
 
+/// Recalculate tile connectivity each frame.
+///
+/// Delegates to [`logic::update_connectivity`] to perform the BFS algorithm
+/// that determines which tiles are powered by the base.
 pub fn update_connectivity_system(
     mut planet_state: ResMut<PlanetViewState>,
     game_data: Res<GameData>,
@@ -419,6 +530,14 @@ pub fn update_connectivity_system(
     }
 }
 
+/// Update the production queue UI panel.
+///
+/// This system rebuilds the queue display each frame by:
+/// 1. Despawning all existing child text entities
+/// 2. Spawning new text entities for each project in the queue
+///
+/// The first (active) project is highlighted in green and shows
+/// the production income rate (e.g., "+5").
 pub fn update_production_queue_ui(
     mut commands: Commands,
     planet_state: Res<PlanetViewState>,

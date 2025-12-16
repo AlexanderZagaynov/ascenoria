@@ -1,12 +1,47 @@
+//! Left information panel for the Planet View.
+//!
+//! Displays:
+//! - Surface and orbital slot counts
+//! - Production queue with progress bars
+//! - Population display
+//! - Current project status
+
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
 use crate::planet_view::types::colors;
 
+/// Marker component for the production queue list container.
+///
+/// The `update_production_queue_ui` system finds this entity
+/// and rebuilds its children whenever the queue changes.
 #[derive(Component)]
 pub struct ProductionQueueList;
 
 /// Spawn the left information panel.
+///
+/// # Layout
+/// ```text
+/// ┌──────────────────────┐
+/// │ Surface              │
+/// │ Slots: 12            │
+/// │ Orbitals: 3          │
+/// ├──────────────────────┤
+/// │ Production Queue     │
+/// │ [Farm ████░░ 60%]    │
+/// │ [Lab  ░░░░░░ 0%]     │
+/// ├──────────────────────┤
+/// │ Population           │
+/// │ [█][█][█]            │
+/// ├──────────────────────┤
+/// │ Project              │
+/// │ [None]               │
+/// └──────────────────────┘
+/// ```
+///
+/// # Arguments
+/// - `surface_slots` - Number of buildable surface tiles
+/// - `orbital_slots` - Number of orbital structure slots
 pub fn spawn_left_panel(
     main: &mut ChildSpawnerCommands,
     _planet_name: &str,

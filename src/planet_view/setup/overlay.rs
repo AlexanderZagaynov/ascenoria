@@ -1,3 +1,10 @@
+//! 2D UI overlay for the Planet View screen.
+//!
+//! Creates the HUD elements that appear on top of the 3D scene:
+//! - Top bar with resource counters and turn number
+//! - Victory message (hidden until triggered)
+//! - Bottom bar with End Turn button
+
 // use crate::planet_data::BuildingType;
 use crate::planet_view::types::{PlanetViewRoot, UIAction};
 use bevy::core_pipeline::core_2d::graph::Core2d;
@@ -5,6 +12,30 @@ use bevy::render::camera::CameraRenderGraph;
 use bevy::prelude::*;
 
 /// Set up the 2D UI overlay.
+///
+/// # Layout
+/// ```text
+/// ┌────────────────────────────────────────────────────┐
+/// │ Turn: 1  Food: 0  Housing: 0  Prod: 0  Science: 0  │  ← Top Bar
+/// ├────────────────────────────────────────────────────┤
+/// │                                                    │
+/// │                  3D Scene Area                     │
+/// │                                                    │
+/// │         ┌──────────────────────────┐               │
+/// │         │  VICTORY! (hidden)       │               │  ← Victory Message
+/// │         │  [Return to Menu]        │               │
+/// │         └──────────────────────────┘               │
+/// │                                                    │
+/// ├────────────────────────────────────────────────────┤
+/// │              [End Turn]                            │  ← Bottom Bar
+/// └────────────────────────────────────────────────────┘
+/// ```
+///
+/// # Components
+/// - `PlanetViewRoot` - Marker for cleanup on screen exit
+/// - `VictoryMessage` - Hidden message shown when victory condition met
+/// - `UIAction::EndTurn` - Button to advance the turn
+/// - `UIAction::Quit` - Button to return to main menu
 pub fn setup_ui_overlay(commands: &mut Commands) {
     // 2D Camera for UI overlay
     commands.spawn((

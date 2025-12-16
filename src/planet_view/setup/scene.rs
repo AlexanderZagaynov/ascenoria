@@ -1,3 +1,8 @@
+//! 3D scene setup for the Planet View.
+//!
+//! Creates the isometric camera, lighting, tile grid, buildings,
+//! and hover cursor for the planet surface visualization.
+
 use crate::planet_data::{BuildingType, PlanetSurface, TileColor};
 use crate::planet_view::types::{BuildingEntity, PlanetView3D, TileEntity, PlanetViewAssets, PlanetViewCursor};
 use crate::data_types::GameData;
@@ -8,6 +13,31 @@ use bevy::prelude::*;
 use std::collections::HashMap;
 
 /// Set up the 3D scene with camera, lights, and planet grid.
+///
+/// # Scene Components
+///
+/// ## Camera
+/// Uses orthographic projection with a fixed vertical viewport height
+/// for an isometric view. Position is at (20, 20, 20) looking at origin.
+///
+/// ## Lighting
+/// - **Ambient Light**: White light at 500 brightness (configured via resource)
+/// - **Directional Light**: Sun-like light at 2000 illuminance with shadows
+///
+/// ## Tile Grid
+/// Creates a grid of tiles based on `PlanetSurface`:
+/// - **White tiles**: Large plates (1.0 × 0.2 × 1.0)
+/// - **Black tiles**: Small diamonds (0.4 × 0.2 × 0.4)
+/// - **Connected tiles**: Show as large plates regardless of color
+/// - Each tile has a `TileEntity` component for raycast selection
+///
+/// ## Buildings
+/// Spawns cube meshes (0.6 × 0.6 × 0.6) on tiles with buildings.
+/// Colors are loaded from `GameData.surface_buildings`.
+///
+/// ## Hover Cursor
+/// Semi-transparent yellow overlay (1.1 × 0.1 × 1.1) that follows
+/// the mouse position. Initially hidden.
 pub fn setup_scene(
     commands: &mut Commands,
     meshes: &mut ResMut<Assets<Mesh>>,

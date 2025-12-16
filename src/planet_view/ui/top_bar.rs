@@ -1,3 +1,10 @@
+//! Top navigation bar for the Planet View screen.
+//!
+//! Contains:
+//! - Back button to return to the star system view
+//! - Planet name and type information
+//! - (Future) Thumbnail navigation between planets in the system
+
 use bevy::ecs::hierarchy::ChildSpawnerCommands;
 use bevy::prelude::*;
 
@@ -6,15 +13,32 @@ use bevy::prelude::*;
 // use super::super::rendering::get_planet_thumbnail_color;
 use super::super::types::colors;
 
+/// Button action types for the top bar.
 #[derive(Component)]
 pub enum PanelButton {
+    /// Returns to the star system view.
     Back,
 }
 
+/// (Future) Marker for planet thumbnail buttons with planet index.
 #[derive(Component)]
 pub struct PlanetThumbnail(pub usize);
 
-/// Spawn the top navigation bar with planet thumbnails.
+/// Spawn the top navigation bar.
+///
+/// # Layout
+/// ```text
+/// ┌─────────────────────────────────────────────────────────┐
+/// │  [◀]  │       Planet Name                    │  [1][2] │
+/// │       │       Surface Type • Size            │         │
+/// └─────────────────────────────────────────────────────────┘
+/// ```
+///
+/// # Arguments
+/// - `root` - Parent UI node to spawn into
+/// - `planet_name` - Display name of the planet
+/// - `surface_type` - Planet surface type (e.g., "Primordial", "Congenial")
+/// - `planet_size` - Planet size category (e.g., "Small", "Large")
 pub fn spawn_top_bar(
     root: &mut ChildSpawnerCommands,
     _num_planets: usize,
