@@ -28,6 +28,7 @@ impl Plugin for PlanetViewPlugin {
                     systems::tile_interaction_system,
                     systems::update_visuals_system,
                     systems::update_ui_system,
+                    systems::configure_ui_camera,
                 )
                     .run_if(in_state(GameState::PlanetView)),
             );

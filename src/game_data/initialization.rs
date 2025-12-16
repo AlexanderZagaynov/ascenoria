@@ -44,7 +44,13 @@ pub fn initialize_game_resources(
             .unwrap_or_else(|| Path::new("assets"))
             .join("mods");
         watchers.base_handle = base_path.map(|path| asset_server.load_folder(path));
-        watchers.mods_handle =
-            asset_relative_path(&mods_path).map(|path| asset_server.load_folder(path));
+
+        if mods_path.exists() {
+            watchers.mods_handle =
+                asset_relative_path(&mods_path).map(|path| asset_server.load_folder(path));
+        } else {
+            info!("No mods directory found at {:?}, skipping mod loading", mods_path);
+            watchers.mods_handle = None;
+        }
     }
 }

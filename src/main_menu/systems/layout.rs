@@ -1,11 +1,17 @@
 use bevy::{ecs::hierarchy::ChildSpawnerCommands, prelude::*};
+use bevy::core_pipeline::core_2d::graph::Core2d;
+use bevy::render::camera::CameraRenderGraph;
 
 use crate::main_menu::colors;
 use crate::main_menu::components::{MainMenuRoot, MenuButton};
 
 pub fn setup_main_menu(mut commands: Commands) {
     // Camera for the menu
-    commands.spawn((Camera2d::default(), MainMenuRoot));
+    commands.spawn((
+        Camera2d::default(),
+        CameraRenderGraph::new(Core2d),
+        MainMenuRoot,
+    ));
 
     // Root container - full screen with gradient-like background
     commands

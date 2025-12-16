@@ -4,6 +4,7 @@
 
 pub mod hot_reload;
 pub mod initialization;
+mod loader;
 
 use bevy::prelude::*;
 
@@ -11,10 +12,11 @@ use crate::data_types::load_game_data;
 
 use self::hot_reload::{DataHotReload, hot_reload_game_data};
 use self::initialization::initialize_game_resources;
+use self::loader::{RonAsset, RonLoader};
 
-/// Plugin that loads game data from TOML files and registers it as a resource.
+/// Plugin that loads game data from RON files and registers it as a resource.
 pub struct GameDataPlugin {
-    /// Path to the directory containing the canonical TOML files.
+    /// Path to the directory containing the canonical RON files.
     pub data_path: String,
 }
 
@@ -33,6 +35,9 @@ pub struct GameDataSource {
 
 impl Plugin for GameDataPlugin {
     fn build(&self, app: &mut App) {
+        app.init_asset::<RonAsset>()
+            .init_asset_loader::<RonLoader>();
+
         app.insert_resource(GameDataSource {
             data_path: self.data_path.clone(),
         });

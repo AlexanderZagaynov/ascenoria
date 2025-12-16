@@ -1,4 +1,4 @@
-# Ascenoria Data Megapack (TOML)
+# Ascenoria Data Megapack (RON)
 
 This folder contains game data for the open-source project **Ascenoria**,
 a spiritual successor inspired by the classic 4X space strategy.
@@ -11,11 +11,11 @@ Common conventions:
 - Every gameplay entity has:
   - `id` — stable machine identifier
   - `name_en` — English display name
-- All TOML files are flat lists of `[[...]]` tables.
+- All RON files contain a single struct with a list of entities.
 
 Files:
-- `surface_cell_types.toml` — types of planet surface cells (e.g., White, Black)
-- `surface_buildings.toml`  — buildings constructible on the surface
-- `technologies.toml`       — researchable technologies
-- `victory_conditions.toml` — victory conditions
-- `scenarios.toml`          — game scenarios
+- `surface_cell_types.ron` — types of planet surface cells (e.g., White, Black)
+- `surface_buildings.ron`  — buildings constructible on the surface
+- `technologies.ron`       — researchable technologies
+- `victory_conditions.ron` — victory conditions
+- `scenarios.ron`          — game scenarios

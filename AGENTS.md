@@ -40,26 +40,26 @@ This document explains:
 **Repository:** `AlexanderZagaynov/ascenoria`
 
 Ascenoria is a data-driven Bevy-based 4X strategy game. Most gameplay content
-(planet types, species, ships, research, etc.) is described in TOML files and
+(planet types, species, ships, research, etc.) is described in RON files and
 loaded at runtime into strongly-typed Rust structures.
 
 Key paths:
 
 - `src/`
   Core Rust source code organized by feature:
-  - `data_types/` – TOML structs, loaders, validation, registry
+  - `data_types/` – RON structs, loaders, validation, registry
   - `game_data/` – Bevy plugin for resource initialization and hot reload
   - `planet_view/` – Planet surface screen (rendering, modal, ui)
   - `main_menu/` – Main menu screen
   - `industry.rs`, `research.rs`, `victory.rs` – Core game systems
 
 - `assets/data/`
-  TOML data packs for game content:
-  - `surface_cell_types.toml`
-  - `surface_buildings.toml`
-  - `technologies.toml`
-  - `victory_conditions.toml`
-  - `scenarios.toml`
+  RON data packs for game content:
+  - `surface_cell_types.ron`
+  - `surface_buildings.ron`
+  - `technologies.ron`
+  - `victory_conditions.ron`
+  - `scenarios.ron`
 
 - `assets/` (other)
   Placeholders for future art, audio, UI assets, and additional data.

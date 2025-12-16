@@ -1,6 +1,8 @@
 use crate::planet_data::{BuildingType, PlanetSurface, TileColor};
 use crate::planet_view::types::{BuildingEntity, PlanetView3D, TileEntity};
 use bevy::camera::ScalingMode;
+use bevy::core_pipeline::core_3d::graph::Core3d;
+use bevy::render::camera::CameraRenderGraph;
 use bevy::prelude::*;
 
 /// Set up the 3D scene with camera, lights, and planet grid.
@@ -9,10 +11,16 @@ pub fn setup_scene(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     surface: &PlanetSurface,
+    ambient_light: &mut ResMut<AmbientLight>,
 ) {
+    // Configure ambient light via resource (not as entity component due to Bevy 0.17 bug)
+    ambient_light.color = Color::WHITE;
+    ambient_light.brightness = 500.0;
+
     // Isometric Camera
     commands.spawn((
         Camera3d::default(),
+        CameraRenderGraph::new(Core3d),
         Projection::from(OrthographicProjection {
             scaling_mode: ScalingMode::FixedVertical {
                 viewport_height: 20.0,
@@ -23,15 +31,8 @@ pub fn setup_scene(
         PlanetView3D,
     ));
 
-    // Lights
-    commands.spawn((
-        AmbientLight {
-            color: Color::WHITE,
-            brightness: 500.0,
-            ..default()
-        },
-        PlanetView3D,
-    ));
+    // Lights - Note: AmbientLight should be configured as a resource, not spawned as entity
+    // (In Bevy 0.17, AmbientLight requires Camera which causes spurious warnings)
     commands.spawn((
         DirectionalLight {
             illuminance: 2000.0,

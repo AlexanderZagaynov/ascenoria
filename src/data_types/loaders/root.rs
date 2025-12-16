@@ -5,7 +5,7 @@ use crate::data_types::game_data::GameData;
 use crate::data_types::registry::GameRegistry;
 // use crate::data_types::validation::validate_game_data;
 
-use super::toml::load_toml_file;
+use super::ron_loader::load_ron_file;
 use super::wrappers::{
     ScenariosData, SurfaceBuildingsData, SurfaceCellTypesData, TechnologiesData,
     VictoryConditionsData,
@@ -17,17 +17,17 @@ pub fn load_game_data<P: AsRef<Path>>(
 ) -> Result<(GameData, GameRegistry), DataLoadError> {
     let base = data_dir.as_ref();
 
-    let surface_cell_types_path = base.join("surface_cell_types.toml");
-    let surface_buildings_path = base.join("surface_buildings.toml");
-    let technologies_path = base.join("technologies.toml");
-    let victory_conditions_path = base.join("victory_conditions.toml");
-    let scenarios_path = base.join("scenarios.toml");
+    let surface_cell_types_path = base.join("surface_cell_types.ron");
+    let surface_buildings_path = base.join("surface_buildings.ron");
+    let technologies_path = base.join("technologies.ron");
+    let victory_conditions_path = base.join("victory_conditions.ron");
+    let scenarios_path = base.join("scenarios.ron");
 
-    let surface_cell_types_data: SurfaceCellTypesData = load_toml_file(&surface_cell_types_path)?;
-    let surface_buildings_data: SurfaceBuildingsData = load_toml_file(&surface_buildings_path)?;
-    let technologies_data: TechnologiesData = load_toml_file(&technologies_path)?;
-    let victory_conditions_data: VictoryConditionsData = load_toml_file(&victory_conditions_path)?;
-    let scenarios_data: ScenariosData = load_toml_file(&scenarios_path)?;
+    let surface_cell_types_data: SurfaceCellTypesData = load_ron_file(&surface_cell_types_path)?;
+    let surface_buildings_data: SurfaceBuildingsData = load_ron_file(&surface_buildings_path)?;
+    let technologies_data: TechnologiesData = load_ron_file(&technologies_path)?;
+    let victory_conditions_data: VictoryConditionsData = load_ron_file(&victory_conditions_path)?;
+    let scenarios_data: ScenariosData = load_ron_file(&scenarios_path)?;
 
     let game_data = GameData {
         surface_cell_types: surface_cell_types_data.surface_cell_type,

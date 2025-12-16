@@ -13,12 +13,12 @@ path = "src/main.rs"
 
 [dependencies]
 # Dynamic linking speeds up incremental Bevy builds during dev.
-bevy = { version = "0.17.3" }
+bevy = { version = "0.17.3", features = ["file_watcher"] }
 bevy_asset = { version = "0.17.3" }
 bevy_mesh = { version = "0.17.3" }
-serde = { version = "1", features = ["derive"] }
 thiserror = "1"
-toml = "0.8"
+ron = "0.12"
+serde = { version = "1", features = ["derive"] }
 rand = "0.8"
 
 [profile.dev]

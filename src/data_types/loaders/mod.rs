@@ -1,7 +1,7 @@
-//! TOML loading functions for game data.
+//! Data loading functions for game data.
 
-mod root;
-mod toml;
+mod ron_loader;
 mod wrappers;
+mod root;
 
 pub use root::load_game_data;

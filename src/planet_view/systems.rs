@@ -23,6 +23,17 @@ pub fn cleanup_planet_view(
     }
 }
 
+/// Configure the UI camera to render on top of the 3D scene.
+pub fn configure_ui_camera(
+    mut query: Query<&mut Camera, (Added<PlanetViewRoot>, With<Camera2d>)>,
+) {
+    for mut camera in query.iter_mut() {
+        camera.order = 1;
+        camera.clear_color = ClearColorConfig::None;
+    }
+}
+
+
 pub fn ui_action_system(
     mut interaction_query: Query<
         (&Interaction, &UIAction, &mut BackgroundColor),

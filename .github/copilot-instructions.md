@@ -15,7 +15,7 @@ The codebase follows a consistent naming convention:
 |---------|---------|----------|
 | `*_data/` | Data types, generation, game logic | `galaxy_data/`, `star_data/`, `planet_data/` |
 | `*_view/` | UI screens, rendering, user interaction | `galaxy_view/`, `star_view/`, `planet_view/` |
-| `data_types/` | TOML structs, loaders, validation | entities, loaders, registry |
+| `data_types/` | RON structs, loaders, validation | entities, loaders, registry |
 | `game_data/` | Bevy plugin for data initialization | hot_reload, initialization |
 
 ### Source Structure
@@ -26,9 +26,9 @@ src/
 ├── lib.rs                  # Library exports
 ├── main_menu/              # Main menu screen
 │
-├── data_types/             # TOML data structures
+├── data_types/             # RON data structures
 │   ├── entities/           # Surface, tech, victory, scenario
-│   ├── loaders/            # TOML loading
+│   ├── loaders/            # RON loading
 │   ├── registry/           # ID-based lookups
 │   └── tests/              # Unit tests
 │
@@ -42,9 +42,7 @@ src/
 │   ├── modal/              # Planet dialogs
 │   └── ui/                 # Panels, top bar
 │
-├── industry.rs             # Build queue logic
-├── research.rs             # Research state
-└── victory.rs              # Victory conditions
+└── planet_data/            # Planet generation logic
 ```
 
 ---
@@ -106,19 +104,22 @@ These patterns differ from older Bevy versions:
 
 ## Data Loading
 
-All game content lives in **TOML files** under `assets/data/`.
+All game content lives in **RON files** under `assets/data/`.
 
 - Load via `data_types::load_game_data("assets/data")` returning `(GameData, GameRegistry)`
 - Each data type has a corresponding Rust struct in `src/data_types/entities/`
 - Use `GameRegistry` for ID-based lookups
-- Computed stats are derived via `game_data.compute() -> GameDataComputed`
 
-### TOML Structure Convention
-```toml
-[[entity]]
-id = "unique_id"
-name = { en = "English", ru = "Русский" }
-description = { en = "...", ru = "..." }
+### RON Structure Convention
+```ron
+(
+    entity: [
+        (
+            id: "unique_id",
+            name_en: "English",
+        ),
+    ],
+)
 ```
 
 ---
@@ -131,10 +132,8 @@ description = { en = "...", ru = "..." }
 | `src/main_menu/mod.rs` | `GameState` enum, main menu plugin |
 | `src/data_types/mod.rs` | Data types re-exports |
 | `src/game_data/mod.rs` | Game data Bevy plugin |
-| `src/galaxy_data.rs` | Galaxy generation, `GalaxyPreview` resource |
-| `src/galaxy_view/mod.rs` | Galaxy view screen plugin |
 | `src/planet_view/mod.rs` | Planet surface screen plugin |
-| `assets/data/README.md` | TOML file conventions |
+| `assets/data/README.md` | RON file conventions |
 
 ---
 

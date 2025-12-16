@@ -16,11 +16,11 @@ pub enum DataLoadError {
         /// Path that failed.
         path: String,
     },
-    /// TOML parse failure.
+    /// RON parse failure.
     #[error("Failed to parse {path}: {source}")]
     Parse {
-        /// TOML parse error.
-        source: toml::de::Error,
+        /// RON parse error.
+        source: ron::error::SpannedError,
         /// Path that failed.
         path: String,
     },

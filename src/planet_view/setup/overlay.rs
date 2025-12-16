@@ -1,17 +1,15 @@
 use crate::planet_data::BuildingType;
 use crate::planet_view::types::{PlanetViewRoot, UIAction};
+use bevy::core_pipeline::core_2d::graph::Core2d;
+use bevy::render::camera::CameraRenderGraph;
 use bevy::prelude::*;
 
 /// Set up the 2D UI overlay.
 pub fn setup_ui_overlay(commands: &mut Commands) {
     // 2D Camera for UI overlay
     commands.spawn((
-        Camera2d,
-        Camera {
-            order: 1, // Render on top
-            clear_color: ClearColorConfig::None,
-            ..default()
-        },
+        Camera2d::default(),
+        CameraRenderGraph::new(Core2d),
         PlanetViewRoot,
     ));
 

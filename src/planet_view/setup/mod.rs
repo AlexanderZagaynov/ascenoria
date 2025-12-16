@@ -14,6 +14,7 @@ pub fn setup_planet_view(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut planet_state: ResMut<PlanetViewState>,
+    mut ambient_light: ResMut<AmbientLight>,
 ) {
     // Initialize Game State
     let surface = generate_planet(12345); // Fixed seed for MVP
@@ -45,7 +46,7 @@ pub fn setup_planet_view(
     };
 
     // Setup Scene (Grid)
-    setup_scene(&mut commands, &mut meshes, &mut materials, &surface);
+    setup_scene(&mut commands, &mut meshes, &mut materials, &surface, &mut ambient_light);
 
     // Setup UI
     setup_ui_overlay(&mut commands);
