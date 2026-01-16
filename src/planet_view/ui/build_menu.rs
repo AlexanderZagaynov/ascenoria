@@ -165,6 +165,7 @@ pub fn build_menu_interaction(
     >,
     mut cancel_query: Query<(&Interaction, &BuildMenuCancel), (Changed<Interaction>, With<Button>)>,
     mut planet_state: ResMut<PlanetViewState>,
+    mut update_events: MessageWriter<crate::planet_view::types::TileUpdateEvent>,
     _game_data: Res<GameData>,
 ) {
     // Handle Building Selection
@@ -186,6 +187,12 @@ pub fn build_menu_interaction(
                 });
 
                 info!("Added {:?} to queue", b_type);
+
+                if let Some(surface) = &planet_state.surface {
+                    let x = target_idx % surface.row_width;
+                    let y = target_idx / surface.row_width;
+                    update_events.write(crate::planet_view::types::TileUpdateEvent { x, y });
+                }
             }
             // Close menu after selection
             planet_state.build_menu_open = false;

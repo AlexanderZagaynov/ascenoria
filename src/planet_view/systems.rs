@@ -23,7 +23,8 @@ use crate::main_menu::GameState;
 use crate::planet_data::{BuildingType, TileColor};
 use crate::planet_view::logic::update_connectivity;
 use crate::planet_view::types::{
-    BuildingEntity, PlanetView3D, PlanetViewRoot, PlanetViewState, TileEntity, UIAction,
+    BuildingEntity, PlanetView3D, PlanetViewRoot, PlanetViewState, TileEntity, TileUpdateEvent,
+    UIAction,
 };
 use crate::planet_view::ui::panels::ProductionQueueList;
 
@@ -68,6 +69,7 @@ pub fn ui_action_system(
     >,
     mut planet_state: ResMut<PlanetViewState>,
     mut next_state: ResMut<NextState<GameState>>,
+    mut update_events: MessageWriter<TileUpdateEvent>,
     game_data: Res<GameData>,
     registry: Res<GameRegistry>,
 ) {
@@ -77,7 +79,7 @@ pub fn ui_action_system(
                 *bg_color = BackgroundColor(Color::srgb(0.5, 0.5, 0.5));
                 match action {
                     UIAction::EndTurn => {
-                        end_turn(&mut planet_state, &game_data, &registry);
+                        end_turn(&mut planet_state, &game_data, &registry, &mut update_events);
                     }
                     // UIAction::OpenBuildMenu => {
                     //     info!("Open Build Menu");
@@ -111,7 +113,12 @@ pub fn ui_action_system(
 ///
 /// Building yields are read from `GameData.surface_buildings` rather than
 /// being hardcoded, allowing easy balancing via RON files.
-fn end_turn(state: &mut PlanetViewState, game_data: &GameData, registry: &GameRegistry) {
+fn end_turn(
+    state: &mut PlanetViewState,
+    game_data: &GameData,
+    registry: &GameRegistry,
+    update_events: &mut MessageWriter<TileUpdateEvent>,
+) {
     state.turn += 1;
 
     // Calculate yields
@@ -151,8 +158,25 @@ fn end_turn(state: &mut PlanetViewState, game_data: &GameData, registry: &GameRe
                         {
                             tile.building = Some(b_type);
                             info!("Construction Complete: {:?}", b_type);
+                            let x = finished_project.target_tile_index % surface.row_width;
+                            let y = finished_project.target_tile_index / surface.row_width;
+                            update_events.write(TileUpdateEvent { x, y });
                             // Update connectivity
                             update_connectivity(surface, game_data, registry);
+                            let width = surface.row_width;
+                            let height = surface.tiles.len() / width;
+                            if x > 0 {
+                                update_events.write(TileUpdateEvent { x: x - 1, y });
+                            }
+                            if x + 1 < width {
+                                update_events.write(TileUpdateEvent { x: x + 1, y });
+                            }
+                            if y > 0 {
+                                update_events.write(TileUpdateEvent { x, y: y - 1 });
+                            }
+                            if y + 1 < height {
+                                update_events.write(TileUpdateEvent { x, y: y + 1 });
+                            }
                         }
                     }
                 }
@@ -286,9 +310,20 @@ fn handle_tile_click(
     _registry: &GameRegistry,
 ) {
     if let Some(surface) = &mut state.surface {
+        let target_idx = y * surface.row_width + x;
+
         // Check if empty
         if surface.get(x, y).unwrap().building.is_some() {
             info!("Tile occupied!");
+            return;
+        }
+
+        if state
+            .production_queue
+            .iter()
+            .any(|project| project.target_tile_index == target_idx)
+        {
+            info!("Tile already has construction queued!");
             return;
         }
 
@@ -300,7 +335,7 @@ fn handle_tile_click(
 
         // Open Menu
         state.build_menu_open = true;
-        state.build_menu_target_tile = Some(y * surface.row_width + x);
+        state.build_menu_target_tile = Some(target_idx);
         info!("Opening Build Menu for tile ({}, {})", x, y);
     }
 }
@@ -325,7 +360,7 @@ pub fn update_visuals_system(
     game_data: Res<GameData>,
     assets: Res<crate::planet_view::types::PlanetViewAssets>,
     mut tile_q: Query<(Entity, &TileEntity, &Transform, &mut Mesh3d)>,
-    _building_q: Query<(Entity, &BuildingEntity, &ChildOf)>,
+    building_q: Query<(Entity, &Transform), With<BuildingEntity>>,
 ) {
     for event in events.read() {
         // Find tile entity
@@ -341,19 +376,17 @@ pub fn update_visuals_system(
                             assets.small_diamond_mesh.clone()
                         };
 
-                        // Re-spawn building if present
-                        // First remove existing building on this tile
-                        // This is tricky because BuildingEntity is child of... wait, I spawned them as siblings in setup_scene.
-                        // But I didn't link them.
-                        // I should have linked them or just check position.
-                        // Since I spawned them at same x,z, I can check position.
+                        // Re-spawn building if present.
+                        let tile_pos = transform.translation;
+                        for (building_entity, building_transform) in &building_q {
+                            if (building_transform.translation.x - tile_pos.x).abs() < 0.01
+                                && (building_transform.translation.z - tile_pos.z).abs() < 0.01
+                            {
+                                commands.entity(building_entity).despawn();
+                            }
+                        }
 
-                        // Remove old building at this position
-                        // Note: In a full implementation we would despawn the existing building entity here.
-                        // For MVP, we just spawn the new one on top (or rely on the fact that we only build on empty tiles,
-                        // except for terraforming which doesn't spawn a building).
-
-                        // Let's just spawn the new building.
+                        // Spawn the new building or construction preview.
                         if let Some(building) = tile.building {
                             spawn_building(
                                 &mut commands,

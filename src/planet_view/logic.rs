@@ -12,7 +12,6 @@
 
 use crate::data_types::GameData;
 use crate::data_types::GameRegistry;
-use crate::data_types::SurfaceBuildingId;
 use crate::planet_data::{BuildingType, PlanetSurface};
 use std::collections::{HashSet, VecDeque};
 
@@ -37,8 +36,8 @@ use std::collections::{HashSet, VecDeque};
 /// * `registry` - Registry for looking up building IDs
 pub fn update_connectivity(
     surface: &mut PlanetSurface,
-    game_data: &GameData,
-    registry: &GameRegistry,
+    _game_data: &GameData,
+    _registry: &GameRegistry,
 ) {
     let width = surface.row_width;
     let height = surface.tiles.len() / width;
@@ -63,19 +62,6 @@ pub fn update_connectivity(
     // Step 3: BFS to find all "Grid Nodes" (buildings that extend the power grid)
     let mut grid_nodes = HashSet::new();
     let mut queue = VecDeque::new();
-
-    // Helper closure to check if a building type counts for adjacency
-    // by looking up its definition in the game data
-    let counts_for_adjacency = |b_type: BuildingType| -> bool {
-        let id_str = b_type.id();
-        let id = SurfaceBuildingId::from(id_str);
-        if let Some(&idx) = registry.surface_building_by_id.get(&id) {
-            if let Some(building_data) = game_data.surface_buildings().get(idx) {
-                return building_data.counts_for_adjacency;
-            }
-        }
-        false
-    };
 
     // Base always counts as a grid node
     grid_nodes.insert(start_node);
@@ -107,12 +93,10 @@ pub fn update_connectivity(
                 continue; // Already processed
             }
 
-            if let Some(b_type) = surface.tiles[n_idx].building {
-                if counts_for_adjacency(b_type) {
-                    // This building extends the grid - add it to our set
-                    grid_nodes.insert(n_idx);
-                    queue.push_back(n_idx);
-                }
+            if surface.tiles[n_idx].building.is_some() {
+                // Any completed building extends the grid.
+                grid_nodes.insert(n_idx);
+                queue.push_back(n_idx);
             }
         }
     }
