@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Asset, TypePath, Debug)]
 pub struct RonAsset;
 
-#[derive(Default)]
+#[derive(Default, TypePath)]
 pub struct RonLoader;
 
 #[derive(Debug, Error)]

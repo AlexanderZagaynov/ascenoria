@@ -16,20 +16,20 @@ pub(crate) fn spawn_modal_panel(parent: &mut ChildSpawnerCommands, modal_state: 
                 flex_direction: FlexDirection::Column,
                 align_items: AlignItems::Center,
                 padding: UiRect::all(Val::Px(0.0)),
+                border_radius: BorderRadius::all(Val::Px(4.0)),
                 ..default()
             },
             BackgroundColor(Color::srgb(0.02, 0.02, 0.06)),
             BorderColor::all(colors::BORDER),
-            BorderRadius::all(Val::Px(4.0)),
         ))
         .with_child((
             Node {
                 width: Val::Percent(100.0),
                 height: Val::Px(3.0),
+                border_radius: BorderRadius::top(Val::Px(4.0)),
                 ..default()
             },
             BackgroundColor(colors::BORDER),
-            BorderRadius::top(Val::Px(4.0)),
         ))
         .with_children(|panel| {
             // Main content area with starfield background effect
@@ -124,11 +124,11 @@ pub(crate) fn spawn_modal_panel(parent: &mut ChildSpawnerCommands, modal_state: 
                                 height: Val::Px(36.0),
                                 justify_content: JustifyContent::Center,
                                 align_items: AlignItems::Center,
+                                border_radius: BorderRadius::all(Val::Px(3.0)),
                                 ..default()
                             },
                             BackgroundColor(Color::srgb(0.15, 0.2, 0.25)),
                             BorderColor::all(colors::BORDER),
-                            BorderRadius::all(Val::Px(3.0)),
                             PlanetInfoModalButton,
                         ))
                         .with_children(|btn| {

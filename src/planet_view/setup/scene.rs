@@ -43,7 +43,7 @@ pub fn setup_scene(
     meshes: &mut ResMut<Assets<Mesh>>,
     materials: &mut ResMut<Assets<StandardMaterial>>,
     surface: &PlanetSurface,
-    ambient_light: &mut ResMut<AmbientLight>,
+    ambient_light: &mut ResMut<GlobalAmbientLight>,
     game_data: &GameData,
 ) {
     // Configure ambient light via resource (not as entity component due to Bevy 0.17 bug)

@@ -39,7 +39,7 @@ pub fn setup_planet_view(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut planet_state: ResMut<PlanetViewState>,
-    mut ambient_light: ResMut<AmbientLight>,
+    mut ambient_light: ResMut<GlobalAmbientLight>,
     game_data: Res<GameData>,
     registry: Res<GameRegistry>,
 ) {
