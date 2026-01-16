@@ -23,7 +23,7 @@
 //! 5. "End Turn" processes yields and advances construction
 //! 6. Victory when all tiles are occupied (MVP condition)
 
-mod logic;
+pub mod logic;
 mod setup;
 mod systems;
 mod types;

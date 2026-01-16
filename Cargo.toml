@@ -11,6 +11,11 @@ path = "src/lib.rs"
 name = "ascenoria"
 path = "src/main.rs"
 
+[[test]]
+name = "cucumber"
+path = "tests/cucumber.rs"
+harness = false
+
 [dependencies]
 # Dynamic linking speeds up incremental Bevy builds during dev.
 bevy = { version = "0.17.3", features = ["file_watcher"] }
@@ -20,6 +25,10 @@ thiserror = "1"
 ron = "0.12"
 serde = { version = "1", features = ["derive"] }
 rand = "0.8"
+
+[dev-dependencies]
+cucumber = "0.21"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 [profile.dev]
 debug = true
